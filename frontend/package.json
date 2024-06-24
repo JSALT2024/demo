@@ -1,0 +1,47 @@
+{
+  "name": "sign-llm-demo",
+  "version": "0.0.1-dev",
+  "private": true,
+  "source": [
+    "src/index.html"
+  ],
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "scripts": {
+    "start": "npm run clean && parcel",
+    "build": "npm run clean && parcel build --public-url ./",
+    "clean": "rm -rf .parcel-cache dist",
+    "serve": "http-server dist",
+    "lint": "eslint src",
+    "prettier-check": "prettier src --check",
+    "prettier-write": "prettier src --write"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.3",
+    "@babel/eslint-parser": "^7.23.3",
+    "@babel/preset-env": "^7.23.3",
+    "@babel/preset-react": "^7.23.3",
+    "@emotion/react": "^11.8.2",
+    "@emotion/styled": "^11.8.1",
+    "@mui/icons-material": "^5.5.1",
+    "@mui/joy": "^5.0.0-beta.36",
+    "@mui/lab": "^5.0.0-alpha.74",
+    "@mui/material": "^5.5.2",
+    "@parcel/packager-raw-url": "^2.11.0",
+    "@parcel/transformer-webmanifest": "^2.11.0",
+    "buffer": "^6.0.3",
+    "eslint": "^8.54.0",
+    "eslint-plugin-react": "^7.34.0",
+    "parcel": "^2.11.0",
+    "prettier": "3.1.0",
+    "process": "^0.11.10",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.23.0",
+    "socket.io-client": "^4.5.0",
+    "styled-components": "^5.3.5"
+  },
+  "dependencies": {
+    "follow-redirects": ">=1.15.4",
+    "http-server": "^14.1.1"
+  }
+}

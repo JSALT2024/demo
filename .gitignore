@@ -1,0 +1,3 @@
+# editors
+.idea
+# .vscode is not ignored - it has proper settings for tabsize

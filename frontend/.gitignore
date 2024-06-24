@@ -1,0 +1,13 @@
+# project
+node_modules
+.parcel-cache
+dist
+
+# operating system
+.DS_Store
+
+# legacy rules
+.next
+yarn-error.log
+yarn.lock
+next.config.js
