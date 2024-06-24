@@ -21,5 +21,8 @@
   "editor.rulers": [80],
 
   // This one forces the tab to be **space**
-  "editor.insertSpaces": true
+  "editor.insertSpaces": true,
+
+  // Where eslint folder roots are
+  "eslint.workingDirectories": ["frontend"]
 }
