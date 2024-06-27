@@ -127,7 +127,5 @@ In the worker node, start the second leg of the forward:
 
 ```bash
 # replace login01 with the specific head node number the first tunnel openned to
-ssh -NL 1817:localhost:1817 login01
+ssh -NR 1817:localhost:1817 login01
 ```
-
-**TODO:** Test it out, maybe we need to remap the ports, since there are some clashes still.
