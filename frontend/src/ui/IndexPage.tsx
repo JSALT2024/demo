@@ -1,5 +1,6 @@
 import { Box } from "@mui/joy";
 import { ChangeEvent, useState } from "react";
+import { WebcamRecorder } from "./WebcamRecorder";
 
 export function IndexPage() {
 
