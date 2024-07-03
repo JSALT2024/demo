@@ -25,17 +25,32 @@ export class Connection {
     const _options = populateDefaultsInRequestOptions(options || {});
     
     // specify request headers
-    const headers = {
-      "Content-Type": "application/json",
+    let headers = {
       "Accept": "application/json",
     };
 
-    // send the request
-    return await fetch(this.url(relativeUrl), {
+    // prepare request body
+    let body: any = undefined;
+    if (_options.body !== undefined) {
+      if (_options.body instanceof FormData) {
+        // keep FormData as is, Content-Type is added by fetch
+        body = _options.body;
+      } else {
+        // encode as JSON by default
+        headers["Content-Type"] = "application/json";
+        body = JSON.stringify(_options.body);
+      }
+    }
+    
+    // prepare request options
+    let requestInit: RequestInit = {
       method,
       headers,
-      body: _options.body ? JSON.stringify(_options.body) : undefined,
-    });
+      body,
+    }
+
+    // send the request
+    return await fetch(this.url(relativeUrl), requestInit);
   }
 
   /**

@@ -15,4 +15,19 @@ export class VideosApi {
     }
     return (await response.json()) as Video[];
   }
+
+  async upload(videoBlob: Blob, videoTitle: string): Promise<void> {
+    const body = new FormData();
+    body.append(
+      "file", // parameter name
+      videoBlob, // video binary data
+      videoTitle, // file name
+    );
+
+    const response = await this.connection.request("POST", "videos", { body });
+    
+    if (response.status !== 201) {
+      throw response;
+    }
+  }
 }

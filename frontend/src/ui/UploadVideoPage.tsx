@@ -1,5 +1,6 @@
 import { ChangeEvent, useState } from "react";
 import { Box } from "@mui/joy";
+import { BackendApi } from "../api/BackendApi";
 
 export function UploadVideoPage() {
 
@@ -14,23 +15,16 @@ export function UploadVideoPage() {
     setSelectedFile(file);
   }
 
-  function onFileUpload() {
+  async function onFileUpload() {
     if (selectedFile === null) {
       return;
     }
 
-    const formData = new FormData();
-
-    formData.append(
-      "file",
+    const api = BackendApi.current();
+    await api.videos.upload(
       selectedFile.slice(0, selectedFile.size),
-      selectedFile.name
+      selectedFile.name,
     );
-
-    fetch("http://localhost:1817/upload", {
-      method: "POST",
-      body: formData,
-    });
   }
 
   return (
