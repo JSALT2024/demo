@@ -1,49 +1,38 @@
-import { Box } from "@mui/joy";
-import { ChangeEvent, useState } from "react";
-import { WebcamRecorder } from "./WebcamRecorder";
+import { Box, Link, Sheet, Stack } from "@mui/joy";
+import { Link as RouterLink, useLoaderData } from "react-router-dom";
+import { BackendApi } from "../api/BackendApi";
+import { Video } from "../api/model/Video";
+
+export async function indexPageLoader(): Promise<Video[]> {
+  const api = BackendApi.current();
+  return await api.videos.list();
+}
 
 export function IndexPage() {
-
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-  function onFileChange(e: ChangeEvent<HTMLInputElement>) {
-    if (e.target.files === null) {
-      return;
-    }
-
-    const file: File = e.target.files[0];
-    setSelectedFile(file);
-  }
-
-  function onFileUpload() {
-    if (selectedFile === null) {
-      return;
-    }
-
-    const formData = new FormData();
-
-    formData.append(
-      "file",
-      selectedFile.slice(0, selectedFile.size),
-      selectedFile.name
-    );
-
-    fetch("http://localhost:1817/upload", {
-      method: "POST",
-      body: formData,
-    });
-  }
+  const videos = useLoaderData() as Video[];
 
   return (
     <Box>
+
+      <Sheet sx={{ margin: "10px", padding: "10px" }}>
+        <Stack direction="row" spacing={2}>
+          <Link component={RouterLink} to="record">Record</Link>
+          <Link component={RouterLink} to="upload">Upload</Link>
+        </Stack>
+      </Sheet>
+
       Hello world! This is the index page!
 
-      <div>
-        <input type="file" onChange={onFileChange} />
-        <button onClick={onFileUpload}>
-          Upload!
-        </button>
-      </div>
+      <h2>Videos</h2>
+
+      <ul>
+        {videos.map(video => (
+          <li>
+            <a href="#">{ video.id } / { video.title }</a>
+          </li>
+        ))}
+      </ul>
+
     </Box>
   );
 }

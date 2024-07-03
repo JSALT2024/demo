@@ -19,6 +19,7 @@ def list_videos(app: ApplicationDependency) -> List[VideoOut]:
     # convert videos to the output model type
     return [VideoOut(**asdict(video)) for video in videos]
 
+
 @router.post("")
 async def upload_new_video(file: UploadFile):
     """
