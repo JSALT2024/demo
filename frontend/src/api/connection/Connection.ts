@@ -7,7 +7,6 @@ import {
  * Represents an HTTP-level connection to the backend API
  */
 export class Connection {
-
   // NOTE: state can be stored here, such as the authentication token
 
   constructor() {
@@ -23,10 +22,10 @@ export class Connection {
     options?: RequestOptions,
   ): Promise<Response> {
     const _options = populateDefaultsInRequestOptions(options || {});
-    
+
     // specify request headers
     let headers = {
-      "Accept": "application/json",
+      Accept: "application/json",
     };
 
     // prepare request body
@@ -41,13 +40,13 @@ export class Connection {
         body = JSON.stringify(_options.body);
       }
     }
-    
+
     // prepare request options
     let requestInit: RequestInit = {
       method,
       headers,
       body,
-    }
+    };
 
     // send the request
     return await fetch(this.url(relativeUrl), requestInit);
@@ -62,5 +61,4 @@ export class Connection {
       "http://localhost:1817/", // TODO: get from config
     );
   }
-
 }

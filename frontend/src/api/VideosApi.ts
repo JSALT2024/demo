@@ -25,7 +25,7 @@ export class VideosApi {
     );
 
     const response = await this.connection.request("POST", "videos", { body });
-    
+
     if (response.status !== 201) {
       throw response;
     }

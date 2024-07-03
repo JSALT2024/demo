@@ -12,23 +12,15 @@ export function RecordVideoPage() {
     }
 
     const api = BackendApi.current();
-    await api.videos.upload(
-      videoBlob,
-      "recorded-video",
-    );
+    await api.videos.upload(videoBlob, "recorded-video");
   }
 
   return (
     <Box>
       <h2>Record video file</h2>
-      <WebcamRecorder
-        onChange={setVideoBlob}
-      />
+      <WebcamRecorder onChange={setVideoBlob} />
       <hr />
-      <Button
-        disabled={videoBlob === null}
-        onClick={uploadVideo}
-      >
+      <Button disabled={videoBlob === null} onClick={uploadVideo}>
         Upload and process video
       </Button>
     </Box>

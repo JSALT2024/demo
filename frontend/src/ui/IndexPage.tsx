@@ -13,26 +13,27 @@ export function IndexPage() {
 
   return (
     <Box>
-
       <Sheet sx={{ margin: "10px", padding: "10px" }}>
         <Stack direction="row" spacing={2}>
-          <Link component={RouterLink} to="record">Record</Link>
-          <Link component={RouterLink} to="upload">Upload</Link>
+          <Link component={RouterLink} to="record">
+            Record
+          </Link>
+          <Link component={RouterLink} to="upload">
+            Upload
+          </Link>
         </Stack>
       </Sheet>
-
       Hello world! This is the index page!
-
       <h2>Videos</h2>
-
       <ul>
-        {videos.map(video => (
+        {videos.map((video) => (
           <li>
-            <a href="#">{ video.id } / { video.title }</a>
+            <a href="#">
+              {video.id} / {video.title}
+            </a>
           </li>
         ))}
       </ul>
-
     </Box>
   );
 }

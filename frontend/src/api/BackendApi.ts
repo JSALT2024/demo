@@ -2,7 +2,6 @@ import { Connection } from "./connection/Connection";
 import { VideosApi } from "./VideosApi";
 
 export class BackendApi {
-
   /**
    * HTTP-level connection object
    */
@@ -33,5 +32,4 @@ export class BackendApi {
 
     return this.CURRENT_API_INSTANCE;
   }
-
 }

@@ -3,7 +3,6 @@ import { Box } from "@mui/joy";
 import { BackendApi } from "../api/BackendApi";
 
 export function UploadVideoPage() {
-
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   function onFileChange(e: ChangeEvent<HTMLInputElement>) {
@@ -33,9 +32,7 @@ export function UploadVideoPage() {
 
       <div>
         <input type="file" onChange={onFileChange} />
-        <button onClick={onFileUpload}>
-          Upload!
-        </button>
+        <button onClick={onFileUpload}>Upload!</button>
       </div>
     </Box>
   );
