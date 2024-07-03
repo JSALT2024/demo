@@ -1,9 +1,8 @@
 from pathlib import Path
 from typing import List, Dict, Optional
 from ..domain.Video import Video
-from datetime import datetime, timezone
-import json
 from dataclasses import asdict
+import pickle
 
 
 class VideosRepository:
@@ -20,8 +19,8 @@ class VideosRepository:
         if not self.data_file.is_file():
             return
         
-        with open(self.data_file, "r") as file:
-            data: dict = json.load(file)
+        with open(self.data_file, "rb") as file:
+            data: dict = pickle.load(file)
         
         self._videos = {
             id: Video(**v)
@@ -34,14 +33,15 @@ class VideosRepository:
             for video in self._videos.values()
         }
 
-        with open(self.data_file, "w") as file:
-            json.dump(data, file)
+        with open(self.data_file, "wb") as file:
+            pickle.dump(data, file)
     
     def all(self) -> List[Video]:
         return list(self._videos.values())
     
     def store(self, video: Video):
         self._videos[video.id] = video
+        self._write_data()
     
     def load(self, id: str) -> Optional[Video]:
         if id not in self._videos:

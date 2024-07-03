@@ -16,7 +16,7 @@ class Application:
         storage_folder.mkdir(parents=True, exist_ok=True)
         
         self.videos_repository = VideosRepository(
-            data_file=storage_folder / "videos.json"
+            data_file=storage_folder / "videos.pkl"
         )
         self.video_files_repository_factory = VideoFielsRepositoryFactory(
             videos_data_folder=storage_folder / "videos_data"
