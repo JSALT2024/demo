@@ -25,3 +25,42 @@ Start the service for production:
 ```bash
 .venv/bin/python3 -m uvicorn app.api.main:app --host 0.0.0.0 --port 1817
 ```
+
+
+## Installing Sign Llava
+
+Upgrade PIP just like the LLava repo recommends, just in case:
+
+```bash
+.venv/bin/pip3 install --upgrade pip  # enable PEP 660 support
+```
+
+Clone the sign llava into the `models` directory.
+
+```bash
+# cd models
+# git clone git@github.com:JSALT2024/Sign_LLaVA.git
+# cd Sign_LLaVA
+# git checkout phoenix
+# cd ../..
+
+# or for now, test out with the original Llava repo instead:
+cd models
+git clone git@github.com:haotian-liu/LLaVA.git
+cd ..
+```
+
+Install the model into the virtual environment without dependencies (the dependencies have been already included in the `requirements.txt` file of this backend project).
+
+```bash
+# .venv/bin/pip3 install --no-deps --editable ./models/Sign_LLaVA
+
+# again, for now, test with the original Llava repo:
+.venv/bin/pip3 install --no-deps --editable ./models/LLaVA
+```
+
+You can then test that Llava works by running:
+
+```bash
+.venv/bin/python3 -m app.services.test_llava
+```

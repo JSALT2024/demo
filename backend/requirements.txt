@@ -6,3 +6,13 @@ aiofiles
 # video processing
 opencv-python
 numpy
+
+# llava
+torch >= 2.1.2
+torchvision >= 0.16.2
+transformers >= 4.37.2
+sentencepiece >= 0.1.99
+bitsandbytes
+tokenizers >= 0.15.1
+protobuf
+accelerate >= 0.21.0
