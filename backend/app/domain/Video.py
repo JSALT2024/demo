@@ -15,5 +15,8 @@ class Video:
     title: str
     "Human-readable title of the video"
 
+    media_type: str
+    "MIME type of the video"
+
     created_at: datetime
     "When was the video uploaded"

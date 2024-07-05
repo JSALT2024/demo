@@ -1,5 +1,6 @@
 export interface Video {
   id: string;
   title: string;
-  createdAt: string;
+  media_type: string;
+  created_at: string;
 }

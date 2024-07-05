@@ -1,5 +1,7 @@
-from fastapi import APIRouter, HTTPException, UploadFile, HTTPException
-from typing import List
+from fastapi import APIRouter, HTTPException, UploadFile, HTTPException, \
+    File, Form
+from fastapi.responses import StreamingResponse, FileResponse
+from typing import List, Annotated
 import os
 import aiofiles
 from ..models.VideoOut import VideoOut
@@ -23,8 +25,35 @@ def list_videos(app: ApplicationDependency) -> List[VideoOut]:
     return [VideoOut(**asdict(video)) for video in videos]
 
 
+@router.get("/{video_id}")
+def get_video(video_id: str, app: ApplicationDependency) -> VideoOut:
+    video = app.videos_repository.load(video_id)
+    if video is None:
+        raise HTTPException(
+            status_code=404,
+            detail="There is no video with the given ID"
+        )
+    return VideoOut(**asdict(video))
+
+
+@router.get("/{video_id}/video-file")
+def get_video_file(video_id: str, app: ApplicationDependency) -> VideoOut:
+    video = app.videos_repository.load(video_id)
+    if video is None:
+        raise HTTPException(
+            status_code=404,
+            detail="There is no video with the given ID"
+        )
+    files_repo = app.video_files_repository_factory.get_repository(video_id)
+    return FileResponse(files_repo.video_file_path, media_type=video.media_type)
+
+
 @router.post("", status_code=201)
-async def upload_new_video(file: UploadFile, app: ApplicationDependency):
+async def upload_new_video(
+    media_type: Annotated[str, Form()],
+    file: Annotated[UploadFile, File()],
+    app: ApplicationDependency
+):
     """
     Uploads a new video. Code based on:
     https://stackoverflow.com/questions/73442335/how-to-upload-a-large-file-%E2%89%A53gb-to-fastapi-backend
@@ -35,6 +64,7 @@ async def upload_new_video(file: UploadFile, app: ApplicationDependency):
     video = Video(
         id=str(uuid.uuid4()),
         title=file.filename,
+        media_type=media_type,
         created_at=datetime.now(timezone.utc)
     )
     app.videos_repository.store(video)

@@ -10,9 +10,13 @@ export function RecordVideoPage() {
     if (videoBlob === null) {
       return;
     }
-
+    
     const api = BackendApi.current();
-    await api.videos.upload(videoBlob, "recorded-video");
+    await api.videos.upload(
+      videoBlob,
+      "recorded-video",
+      videoBlob.type, // for recording, the mime type is stored here
+    );
   }
 
   return (

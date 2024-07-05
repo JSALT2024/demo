@@ -23,6 +23,7 @@ export function UploadVideoPage() {
     await api.videos.upload(
       selectedFile.slice(0, selectedFile.size),
       selectedFile.name,
+      selectedFile.type,
     );
   }
 

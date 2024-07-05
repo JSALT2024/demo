@@ -27,10 +27,10 @@ export function IndexPage() {
       <h2>Videos</h2>
       <ul>
         {videos.map((video) => (
-          <li>
-            <a href="#">
+          <li key={video.id}>
+            <RouterLink to={"/videos/" + video.id}>
               {video.id} / {video.title}
-            </a>
+            </RouterLink>
           </li>
         ))}
       </ul>

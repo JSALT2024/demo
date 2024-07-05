@@ -16,8 +16,28 @@ export class VideosApi {
     return (await response.json()) as Video[];
   }
 
-  async upload(videoBlob: Blob, videoTitle: string): Promise<void> {
+  async get(id: string): Promise<Video> {
+    const response = await this.connection.request("GET", "videos/" + id);
+    if (response.status !== 200) {
+      throw response;
+    }
+    return (await response.json()) as Video;
+  }
+
+  getVideoFileUrl(id: string): URL {
+    return this.connection.url(`videos/${id}/video-file`);
+  }
+
+  async upload(
+    videoBlob: Blob,
+    videoTitle: string,
+    mediaType: string,
+  ): Promise<void> {
     const body = new FormData();
+    body.append(
+      "media_type", // parameter name
+      mediaType, // parameter value
+    );
     body.append(
       "file", // parameter name
       videoBlob, // video binary data
