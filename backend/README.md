@@ -38,29 +38,28 @@ Upgrade PIP just like the LLava repo recommends, just in case:
 Clone the sign llava into the `models` directory.
 
 ```bash
-# cd models
-# git clone git@github.com:JSALT2024/Sign_LLaVA.git
-# cd Sign_LLaVA
-# git checkout phoenix
-# cd ../..
-
-# or for now, test out with the original Llava repo instead:
 cd models
-git clone git@github.com:haotian-liu/LLaVA.git
-cd ..
+git clone git@github.com:JSALT2024/Sign_LLaVA.git
+cd Sign_LLaVA
+git checkout phoenix
+git pull
+cd ../..
 ```
 
 Install the model into the virtual environment without dependencies (the dependencies have been already included in the `requirements.txt` file of this backend project).
 
 ```bash
-# .venv/bin/pip3 install --no-deps --editable ./models/Sign_LLaVA
-
-# again, for now, test with the original Llava repo:
-.venv/bin/pip3 install --no-deps --editable ./models/LLaVA
+.venv/bin/pip3 install --no-deps --editable ./models/Sign_LLaVA
 ```
 
-You can then test that Llava works by running:
+You can then test that plain Llava works by running:
 
 ```bash
-.venv/bin/python3 -m app.services.test_llava
+.venv/bin/python3 -m app.debug.test_plain_llava
+```
+
+And you can test the sign llava by running:
+
+```bash
+.venv/bin/python3 -m app.debug.test_sign_llava
 ```

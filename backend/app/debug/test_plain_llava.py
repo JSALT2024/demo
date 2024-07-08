@@ -1,12 +1,12 @@
-#from llava.conversation import Conversation
-
 from llava.model.builder import load_pretrained_model
 from llava.mm_utils import get_model_name_from_path
 from llava.eval.run_llava import eval_model
 
 
-def test_llava():
+def test_plain_llava():
     model_path = "liuhaotian/llava-v1.5-7b"
+    prompt = "What are the things I should be cautious about when I visit here?"
+    image_file = "https://llava-vl.github.io/static/images/view.jpg"
 
     print("Loading model...")
     tokenizer, model, image_processor, context_len = load_pretrained_model(
@@ -15,10 +15,6 @@ def test_llava():
         model_name=get_model_name_from_path(model_path)
     )
     print("Model loaded.")
-
-    model_path = "liuhaotian/llava-v1.5-7b"
-    prompt = "What are the things I should be cautious about when I visit here?"
-    image_file = "https://llava-vl.github.io/static/images/view.jpg"
 
     args = type('Args', (), {
         "model_path": model_path,
@@ -37,6 +33,5 @@ def test_llava():
     eval_model(args)
 
 
-# DEBUGGING
 if __name__ == "__main__":
-    test_llava()
+    test_plain_llava()
