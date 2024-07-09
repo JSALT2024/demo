@@ -1,4 +1,5 @@
-models/
+models
+checkpoints
 
 # python and flask ignores taken from flask documentation
 .venv/

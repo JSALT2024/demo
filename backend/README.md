@@ -63,3 +63,35 @@ And you can test the sign llava by running:
 ```bash
 .venv/bin/python3 -m app.debug.test_sign_llava
 ```
+
+
+## Installing MAE encoder
+
+Clone the MAE repo into the `models` directory.
+
+```bash
+cd models
+git clone git@github.com:JSALT2024/MAE.git
+cd MAE
+git checkout video_mae
+git pull
+cd ../..
+```
+
+The project is not a python package, so it cannot be installed via pip. Instead, the `sys.path.append("...")` method is used to import it.
+
+Now, download the trained model into `checkpoints/MAE`:
+
+```bash
+# create the dir (and/or symlink it to some cluster storage mountpoint, since theres going to be more data present here)
+mkdir -p checkpoints/MAE
+
+# download if not downloaded already
+wget -nc https://dl.fbaipublicfiles.com/mae/visualize/mae_visualize_vit_large.pth -P checkpoints/MAE
+```
+
+You can test the MAE encoder by running:
+
+```bash
+.venv/bin/python3 -m app.debug.test_mae
+```

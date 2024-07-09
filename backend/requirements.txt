@@ -16,3 +16,7 @@ bitsandbytes
 tokenizers >= 0.15.1
 protobuf
 accelerate >= 0.21.0
+
+# MAE
+# torch >= 2.2.0 # works ok with the older 2.1 pytroch version from llava
+timm >= 0.9.16
