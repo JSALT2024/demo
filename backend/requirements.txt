@@ -8,6 +8,7 @@ opencv-python
 numpy
 
 # llava
+# -----
 torch >= 2.1.2
 torchvision >= 0.16.2
 transformers >= 4.37.2
@@ -18,5 +19,19 @@ protobuf
 accelerate >= 0.21.0
 
 # MAE
+# ---
 # torch >= 2.2.0 # works ok with the older 2.1 pytroch version from llava
 timm >= 0.9.16
+
+# DINO
+# ----
+# TODO
+
+# pose estimation
+# ---------------
+mediapipe >= 0.10.14
+ultralytics >= 8.2.18
+
+# sign2vec
+# --------
+# just transformers, probbably...
