@@ -1,7 +1,6 @@
 from pathlib import Path
 from typing import List, Dict, Optional
 from ..domain.Video import Video
-from dataclasses import asdict
 import pickle
 
 
@@ -20,21 +19,11 @@ class VideosRepository:
             return
         
         with open(self.data_file, "rb") as file:
-            data: dict = pickle.load(file)
-        
-        self._videos = {
-            id: Video(**v)
-            for id, v in data.items()
-        }
+            self._videos = pickle.load(file)
 
     def _write_data(self):
-        data = {
-            video.id: asdict(video)
-            for video in self._videos.values()
-        }
-
         with open(self.data_file, "wb") as file:
-            pickle.dump(data, file)
+            pickle.dump(self._videos, file)
     
     def all(self) -> List[Video]:
         return list(self._videos.values())

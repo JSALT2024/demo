@@ -27,5 +27,5 @@ if __name__ == "__main__":
     from ..bootstrap import bootstrap
     app = bootstrap()
     video = app.videos_repository.all()[0]
-    files_repo = app.video_files_repository_factory.get_repository(video.id)
+    files_repo = app.video_folder_repository_factory.get_repository(video.id)
     test_mediapipe(files_repo.video_file_path)

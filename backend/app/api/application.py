@@ -33,8 +33,8 @@ VideosRepositoryDependency = Annotated[
     Depends(lambda: application_factory().videos_repository)
 ]
 
-from ..services.VideoFilesRepository import VideoFilesRepository
+from ..services.VideoFolderRepository import VideoFolderRepository
 VideoFilesRepositoryDependency = Annotated[
-    VideoFilesRepository,
-    Depends(lambda: application_factory().video_files_repository_factory)
+    VideoFolderRepository,
+    Depends(lambda: application_factory().video_folder_repository_factory)
 ]

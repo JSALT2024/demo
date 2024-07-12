@@ -24,8 +24,12 @@ export class VideosApi {
     return (await response.json()) as Video;
   }
 
-  getVideoFileUrl(id: string): URL {
-    return this.connection.url(`videos/${id}/video-file`);
+  getUploadedVideoFileUrl(id: string): URL {
+    return this.connection.url(`videos/${id}/uploaded-file`);
+  }
+
+  getNormalizedVideoFileUrl(id: string): URL {
+    return this.connection.url(`videos/${id}/normalized-file`);
   }
 
   async upload(

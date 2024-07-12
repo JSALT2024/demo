@@ -1,5 +1,5 @@
 from .services.VideosRepository import VideosRepository
-from .services.VideoFilesRepositoryFactory import VideoFielsRepositoryFactory
+from .services.VideoFolderRepositoryFactory import VideoFolderRepositoryFactory
 from pathlib import Path
 
 class Application:
@@ -18,6 +18,6 @@ class Application:
         self.videos_repository = VideosRepository(
             data_file=storage_folder / "videos.pkl"
         )
-        self.video_files_repository_factory = VideoFielsRepositoryFactory(
+        self.video_folder_repository_factory = VideoFolderRepositoryFactory(
             videos_data_folder=storage_folder / "videos_data"
         )
