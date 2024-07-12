@@ -65,6 +65,28 @@ And you can test the sign llava by running:
 ```
 
 
+## Installing Mediapipe
+
+Clone the PoseEstimation repo into the `models` directory.
+
+```bash
+cd models
+git clone git@github.com:JSALT2024/PoseEstimation.git
+cd ..
+```
+
+The project is not a python package, so it cannot be installed via pip. Instead, the `sys.path.append("...")` method is used to import it.
+
+Now, download the trained model in `checkpoints/PoseEstimation`:
+
+```bash
+mkdir -p checkpoints/PoseEstimation
+wget -O checkpoints/PoseEstimation/hand_landmarker.task -q https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task
+wget -O checkpoints/PoseEstimation/pose_landmarker_full.task -q https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task
+wget -O checkpoints/PoseEstimation/face_landmarker.task -q https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task
+```
+
+
 ## Installing MAE encoder
 
 Clone the MAE repo into the `models` directory.
