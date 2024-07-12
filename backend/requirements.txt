@@ -6,6 +6,7 @@ aiofiles
 # video processing
 opencv-python
 numpy
+ffmpeg-python
 
 # llava
 # -----

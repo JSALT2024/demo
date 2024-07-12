@@ -12,6 +12,8 @@ import uuid
 import logging
 import mimetypes
 from pathlib import Path
+from ...services.process_video import process_video
+import threading
 
 
 router = APIRouter()
@@ -108,10 +110,10 @@ async def upload_new_video(
 
     CHUNK_SIZE = 1024 * 1024  # 1MB
     
-    files_repo = app.video_folder_repository_factory.get_repository(video.id)
+    folder_repo = app.video_folder_repository_factory.get_repository(video.id)
 
     file_extension: str = mimetypes.guess_extension(media_type)
-    file_path: Path = files_repo.to_global_path(
+    file_path: Path = folder_repo.to_global_path(
         Path("uploaded_file").with_suffix(file_extension)
     )
     file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -132,13 +134,21 @@ async def upload_new_video(
     # === extract file metadata ===
 
     video.uploaded_file = VideoFile.from_existing_file(
-        files_repo.root_path,
+        folder_repo.root_path,
         file_path
     )
     app.videos_repository.store(video)
 
     # === trigger processing of the video ===
 
-    # TODO: trigger procesing
+    # TODO: run this in a proper background job instead of this clunky
+    # threading code that does not care about server termination
+    def run_processing():
+        print("Processing video...")
+        process_video(video, app.videos_repository, folder_repo)
+        print("Processing done.")
+    
+    thread = threading.Thread(target=run_processing)
+    thread.start()
 
     return {"message": f"Successfuly uploaded {file.filename}"}

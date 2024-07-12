@@ -1,28 +1,48 @@
 from pathlib import Path
+from .VideoFolderRepository import VideoFolderRepository
+from .VideosRepository import VideosRepository
+from ..domain.Video import Video
+from ..domain.VideoFile import VideoFile
+from ..preprocessing.VideoNormalizer import VideoNormalizer
+from pathlib import Path
 import cv2
 
 
-def process_video(video_file_path: Path):
-    vidcap = cv2.VideoCapture(str(video_file_path))
-    frame_index = -1
+def process_video(
+    video: Video,
+    videos_repository: VideosRepository,
+    folder_repo: VideoFolderRepository
+):
+    """
+    Runs all of the processing after the video is uploaded, including
+    preprocessing, encoders, and autoregressive llama translation.
+    """
 
-    frames_dir = video_file_path.parent / "frames"
-    frames_dir.mkdir(exist_ok=True)
+    # === normalize video ===
 
-    while True:
-        success, frame = vidcap.read()
-        frame_index += 1
-        if not success:
-            break
-
-        # work with the frame!
-        print(frame_index, frame.shape)
-        cv2.imwrite(
-            str(frames_dir / f"frame_{str(frame_index).zfill(4)}.jpg"),
-            frame
+    normalized_file_path = folder_repo.to_global_path(
+        Path("normalized-file").with_suffix(
+            video.uploaded_file.file_path.suffix
         )
-    
-    vidcap.release()
+    )
+    normalizer = VideoNormalizer(
+        input_video_path=str(
+            folder_repo.to_global_path(video.uploaded_file.file_path)
+        ),
+        output_video_path=str(normalized_file_path),
+        target_fps=24
+    )
+    normalizer.process_video()
+    normalizer.close_output()
+
+    video.normalized_file = VideoFile.from_existing_file(
+        folder_repo.root_path,
+        normalized_file_path
+    )
+
+    # === store progress ===
+
+    videos_repository.store(video)
 
 
 # DEBUGGING
@@ -30,5 +50,5 @@ if __name__ == "__main__":
     from ..bootstrap import bootstrap
     app = bootstrap()
     video = app.videos_repository.all()[0]
-    files_repo = app.video_folder_repository_factory.get_repository(video.id)
-    process_video(files_repo.video_file_path)
+    folder_repo = app.video_folder_repository_factory.get_repository(video.id)
+    process_video(video, app.videos_repository, folder_repo)

@@ -16,7 +16,9 @@ export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> 
   const video = await api.videos.get(params.videoId);
 
   // fetch the video file
-  const fileUrl = api.videos.getUploadedVideoFileUrl(video.id);
+  const fileUrl = video.normalized_file
+    ? api.videos.getNormalizedVideoFileUrl(video.id)
+    : api.videos.getUploadedVideoFileUrl(video.id);
   const response = await fetch(fileUrl);
   const blob = await response.blob();
   const blobUrl = URL.createObjectURL(blob);
@@ -30,7 +32,7 @@ export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> 
 
 export function VideoPage() {
   const data = useLoaderData() as VideoPageLoaderData;
-  const video_file = data.video.uploaded_file; // TODO: should be normalized file
+  const video_file = data.video.normalized_file || data.video.uploaded_file;
 
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const [frameIndex, setFrameIndex] = useState<number>(0);
