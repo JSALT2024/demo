@@ -5,9 +5,7 @@ import warnings
 
 class VideoNormalizer:
     """Normalizes fps and resolution of demo input video"""
-    def __init__(self, input_video_path, output_video_path, video_switch, target_fps=30):
-        self.video_switch = video_switch
-        self.output_frames = []
+    def __init__(self, input_video_path, output_video_path, target_fps=30):
         self.input_video_path = input_video_path
         self.output_video_path = output_video_path
         self.target_fps = target_fps
@@ -47,8 +45,6 @@ class VideoNormalizer:
                 self._increase_fps()
         except Exception as e:
             raise RuntimeError(f"Error processing video: {e}")
-
-        return self.output_frames
     
     def _copy_frames(self):
         """Copies video frames in case of keeping the frame rate"""
@@ -65,9 +61,8 @@ class VideoNormalizer:
                 in_bytes = process.stdout.read(frame_size)
                 if not in_bytes:
                     break
-                
-                if self.video_switch:
-                    self._write_frame_to_output(in_bytes, self.original_fps)
+
+                self._write_frame_to_output(in_bytes, self.original_fps)
 
             process.wait()
         except ffmpeg.Error as e:
@@ -92,9 +87,8 @@ class VideoNormalizer:
                 in_bytes = process.stdout.read(frame_size)
                 if not in_bytes:
                     break
-                
-                if self.video_switch:
-                    self._write_frame_to_output(in_bytes, self.target_fps)
+
+                self._write_frame_to_output(in_bytes, self.target_fps)
 
             process.wait()
         except ffmpeg.Error as e:
@@ -119,9 +113,8 @@ class VideoNormalizer:
                 in_bytes = process.stdout.read(frame_size)
                 if not in_bytes:
                     break
-                
-                if self.video_switch:
-                    self._write_frame_to_output(in_bytes, self.target_fps)
+
+                self._write_frame_to_output(in_bytes, self.target_fps)
 
             process.wait()
         except ffmpeg.Error as e:
@@ -183,8 +176,8 @@ class VideoNormalizer:
                 raise RuntimeError(f"Error in close_output: {e}")
 
 if __name__ == "__main__":
-    input_video_path = 'OCR/data/video/VID_20201105_080011.mp4'
+    input_video_path = 'OCR/data/video/UznY5SfH0RI.000220-000236.mp4'
     output_video_path = 'OCR/data/video/output_video_fffps.mp4'
-    video_loader = VideoNormalizer(input_video_path, output_video_path, True, target_fps=24)
+    video_loader = VideoNormalizer(input_video_path, output_video_path, target_fps=24)
     video_loader.process_video()
     video_loader.close_output()
