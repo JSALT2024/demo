@@ -21,9 +21,7 @@ def process_video(
     # === normalize video ===
 
     normalized_file_path = folder_repo.to_global_path(
-        Path("normalized-file").with_suffix(
-            video.uploaded_file.file_path.suffix
-        )
+        Path("normalized_file.mp4") # output is normalized to mp4 container
     )
     normalizer = VideoNormalizer(
         input_video_path=str(
