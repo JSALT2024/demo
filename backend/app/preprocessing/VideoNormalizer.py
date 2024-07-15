@@ -5,10 +5,13 @@ import warnings
 
 class VideoNormalizer:
     """Normalizes fps and resolution of demo input video"""
-    def __init__(self, input_video_path, output_video_path, target_fps=30):
+    def __init__(self, input_video_path, output_video_path, target_fps=30, target_size=1280, fps_lower_bound = 24, fps_higher_bound = 30):
+        self.target_size = target_size
         self.input_video_path = input_video_path
         self.output_video_path = output_video_path
         self.target_fps = target_fps
+        self.fps_lower_bound = fps_lower_bound
+        self.fps_higher_bound = fps_higher_bound
 
         if not os.path.exists(self.input_video_path):
             raise FileNotFoundError(f"Input video file '{self.input_video_path}' does not exist.")
@@ -37,7 +40,7 @@ class VideoNormalizer:
     def process_video(self):
         """Defines what to do with the input video"""
         try:
-            if self.original_fps >= 24 and self.original_fps <= 30:
+            if self.original_fps >= self.fps_lower_bound and self.original_fps <= self.fps_higher_bound:
                 self._copy_frames()
             elif self.original_fps > self.target_fps:
                 self._reduce_fps()
@@ -129,15 +132,15 @@ class VideoNormalizer:
         aspect_height = self.frame_height // gcd
         
         if self.frame_height < self.frame_width:
-            w = 1280
+            w = self.target_size
             h = ((aspect_height/aspect_width) * w)
         
         elif self.frame_height > self.frame_width:
-            h = 1280
+            h = self.target_size
             w = ((aspect_width/aspect_height) * h)
         
         elif self.frame_height == self.frame_width:
-            w = h = 1280
+            w = h = self.target_size
         
         size = f"{int(w)}x{int(h)}"
         return size
@@ -176,8 +179,13 @@ class VideoNormalizer:
                 raise RuntimeError(f"Error in close_output: {e}")
 
 if __name__ == "__main__":
-    input_video_path = 'OCR/data/video/UznY5SfH0RI.000220-000236.mp4'
+    input_video_path = 'OCR/data/video/webm_test.webm'
     output_video_path = 'OCR/data/video/output_video_fffps.mp4'
-    video_loader = VideoNormalizer(input_video_path, output_video_path, target_fps=24)
+    video_loader = VideoNormalizer(input_video_path, 
+                                output_video_path, 
+                                target_fps=24, 
+                                target_size=1280, 
+                                fps_lower_bound = 24, 
+                                fps_higher_bound = 30)
     video_loader.process_video()
     video_loader.close_output()
