@@ -12,6 +12,6 @@ export interface Video {
   id: string;
   title: string;
   created_at: string;
-  uploaded_file: VideoFile;
-  normalized_file: VideoFile;
+  uploaded_file: VideoFile | null;
+  normalized_file: VideoFile | null;
 }
