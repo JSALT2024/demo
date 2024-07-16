@@ -3,7 +3,7 @@ import { BackendApi } from "../api/BackendApi";
 import { Video } from "../api/model/Video";
 import { useLoaderData } from "react-router-dom";
 import { SyntheticEvent, useRef, useState } from "react";
-import { VideoRenderer } from "./VideoRenderer";
+import { VideoRenderer } from "./VideoPlayer/VideoRenderer";
 
 interface VideoPageLoaderData {
   readonly video: Video;
