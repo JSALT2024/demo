@@ -62,7 +62,7 @@ class MediapipeProcessor:
             # TODO: DEBUG (just the first second)
             # if chunk_index > 5:
             #     break
-            print(f"Second {i + 1} was mediapiped.")
+            print(f"Second {chunk_index + 1} was mediapiped.")
 
         # store frames geometry data
         with open(self.geometry_file, "w") as f:
