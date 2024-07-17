@@ -1,12 +1,7 @@
-from pathlib import Path
 from .VideoFolderRepository import VideoFolderRepository
 from .VideosRepository import VideosRepository
 from ..domain.Video import Video
-from ..domain.VideoFile import VideoFile
-from ..preprocessing.VideoNormalizer import VideoNormalizer
-from ..preprocessing.FrameEnumerator import FrameEnumerator
-from pathlib import Path
-import cv2
+from .VideoProcessor import VideoProcessor
 
 
 def process_video(
@@ -18,45 +13,12 @@ def process_video(
     Runs all of the processing after the video is uploaded, including
     preprocessing, encoders, and autoregressive llama translation.
     """
-
-    # === normalize video ===
-
-    normalized_temp_file_path = folder_repo.to_global_path(
-        Path("normalized_file_temp.mp4") # output is normalized to mp4 container
+    processor = VideoProcessor(
+        video=video,
+        videos_repository=videos_repository,
+        folder_repo=folder_repo
     )
-    normalizer = VideoNormalizer(
-        input_video_path=str(
-            folder_repo.to_global_path(video.uploaded_file.file_path)
-        ),
-        output_video_path=str(normalized_temp_file_path),
-        target_fps=24
-    )
-    normalizer.process_video()
-    normalizer.close_output()
-
-    # === enumerate frames (add the little frame number) ===
-
-    normalized_file_path = folder_repo.to_global_path(
-        Path("normalized_temp.mp4") # output is normalized to mp4 container
-    )
-
-    video_loader = FrameEnumerator(
-        input_video_path=str(normalized_temp_file_path),
-        output_video_path=str(normalized_file_path),
-        write_frame_number=True
-    )
-    video_loader.process_video()
-    video_loader.close_output()
-
-    normalized_temp_file_path.unlink()
-
-    # === update the model ===
-
-    video.normalized_file = VideoFile.from_existing_file(
-        folder_repo.root_path,
-        normalized_file_path
-    )
-    videos_repository.store(video)
+    processor.run()
 
 
 # DEBUGGING
