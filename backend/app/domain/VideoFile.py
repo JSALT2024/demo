@@ -45,6 +45,7 @@ class VideoFile:
                 "Cannot get MIME type for filename " + file_path.name
             )
         
+        assert file_path.is_file()
         capture = cv2.VideoCapture(file_path)
         frame_width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
         frame_height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))

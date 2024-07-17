@@ -43,7 +43,7 @@ export function VideoNavigation(props: VideoNavigationProps) {
         ref={sliderElementRef}
         type="range"
         min={0}
-        max={props.videoPlayerController.videoFile.frame_count}
+        max={props.videoPlayerController.videoFile.frame_count - 1}
         step={1}
         style={{ width: "900px" }}
         onChange={onSliderChange}

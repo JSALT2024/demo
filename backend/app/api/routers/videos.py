@@ -152,3 +152,22 @@ async def upload_new_video(
     thread.start()
 
     return {"message": f"Successfuly uploaded {file.filename}"}
+
+@router.post("/{video_id}/reprocess", status_code=202)
+async def reprocess_video(video_id: str, app: ApplicationDependency):
+    video = get_video_or_fail(video_id, app)
+    folder_repo = app.video_folder_repository_factory.get_repository(video_id)
+
+    # === trigger processing of the video ===
+
+    # TODO: run this in a proper background job instead of this clunky
+    # threading code that does not care about server termination
+    def run_processing():
+        print("Processing video...")
+        process_video(video, app.videos_repository, folder_repo)
+        print("Processing done.")
+    
+    thread = threading.Thread(target=run_processing)
+    thread.start()
+
+    return {"message": "Re-processing started."}

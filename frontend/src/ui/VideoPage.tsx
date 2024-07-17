@@ -34,9 +34,16 @@ export function VideoPage() {
   const data = useLoaderData() as VideoPageLoaderData;
   const video_file = data.video.normalized_file || data.video.uploaded_file;
 
+  async function reprocessVideo() {
+    const api = BackendApi.current();
+    await api.videos.reprocess(data.video.id);
+  }
+
   return (
     <Box>
       Video detail!
+
+      <Button onClick={() => reprocessVideo()}>Re-process video</Button>
 
       <VideoPlayer
         videoFile={video_file}

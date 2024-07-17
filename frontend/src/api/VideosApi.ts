@@ -54,4 +54,15 @@ export class VideosApi {
       throw response;
     }
   }
+
+  async reprocess(id: string): Promise<void> {
+    const response = await this.connection.request(
+      "POST",
+      `videos/${id}/reprocess`
+    );
+
+    if (response.status !== 202) {
+      throw response;
+    }
+  }
 }
