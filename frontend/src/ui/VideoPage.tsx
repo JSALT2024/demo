@@ -1,13 +1,15 @@
-import { Box, Slider, Button } from "@mui/joy";
+import { Box, Button } from "@mui/joy";
 import { BackendApi } from "../api/BackendApi";
 import { Video } from "../api/model/Video";
 import { useLoaderData } from "react-router-dom";
 import { VideoPlayer } from "./VideoPlayer/VideoPlayer";
+import { FrameGeometry } from "../api/model/FrameGeometry";
 
 interface VideoPageLoaderData {
   readonly video: Video;
-  readonly blob: Blob;
-  readonly blobUrl: string;
+  readonly videoBlob: Blob;
+  readonly videoBlobUrl: string;
+  readonly frameGeometries: FrameGeometry[];
 }
 
 export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> {
@@ -16,17 +18,23 @@ export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> 
   const video = await api.videos.get(params.videoId);
 
   // fetch the video file
-  const fileUrl = video.normalized_file
+  const videoFileUrl = video.normalized_file
     ? api.videos.getNormalizedVideoFileUrl(video.id)
     : api.videos.getUploadedVideoFileUrl(video.id);
-  const response = await fetch(fileUrl);
-  const blob = await response.blob();
-  const blobUrl = URL.createObjectURL(blob);
+  const videoBlob = await (await fetch(videoFileUrl)).blob();
+  const videoBlobUrl = URL.createObjectURL(videoBlob);
+
+  // fetch the geometry file
+  const geometryFileUrl = api.videos.getGeometryUrl(video.id)
+  const frameGeometries = await (
+    await fetch(geometryFileUrl)
+  ).json() as FrameGeometry[];
 
   return {
     video,
-    blob,
-    blobUrl,
+    videoBlob,
+    videoBlobUrl,
+    frameGeometries,
   };
 }
 
@@ -47,8 +55,9 @@ export function VideoPage() {
 
       <VideoPlayer
         videoFile={video_file}
-        videoBlob={data.blob}
-        videoBlobUrl={data.blobUrl}
+        videoBlob={data.videoBlob}
+        videoBlobUrl={data.videoBlobUrl}
+        frameGeometries={data.frameGeometries}
       />
 
       <pre>{ JSON.stringify(data.video, null, 2) }</pre>

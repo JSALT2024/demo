@@ -21,6 +21,10 @@ class FileFrameStream(FrameStream):
     def reset(self):
         """Jumps to the beginning of the file and opens it up"""
         self.close()
+
+        if not self.file_path.is_file():
+            raise Exception("There is no file at the given path.")
+
         self.video_capture = cv2.VideoCapture(self.file_path)
 
     def _assert_file_open(self):

@@ -4,6 +4,7 @@ from ..domain.Video import Video
 from ..domain.VideoFile import VideoFile
 from ..preprocessing.VideoNormalizer import VideoNormalizer
 from ..preprocessing.FrameEnumerator import FrameEnumerator
+from ..preprocessing.MediapipeProcessor import MediapipeProcessor
 from pathlib import Path
 import shutil
 from typing import Union
@@ -35,6 +36,7 @@ class VideoProcessor:
         # define common file paths
         self.UPLOADED_FILE = self.path(video.uploaded_file.file_path)
         self.NORMALIZED_FILE = self.path("normalized_file.mp4") # always mp4
+        self.GEOMETRY_FILE = self.path("geometry.json")
     
     def path(self, relative_path: Union[str, Path]) -> Path:
         """Returns the global path of a file inside the storage video folder"""
@@ -48,6 +50,7 @@ class VideoProcessor:
         self.enumerate_normalized_file()
 
         # mediapipe
+        self.run_mediapipe()
 
         # encoders
 
@@ -88,3 +91,10 @@ class VideoProcessor:
             file_path=self.NORMALIZED_FILE
         )
         self.videos_repository.store(self.video)
+    
+    def run_mediapipe(self):
+        mediapipe = MediapipeProcessor(
+            input_file=self.NORMALIZED_FILE,
+            geometry_file=self.GEOMETRY_FILE
+        )
+        mediapipe.run()

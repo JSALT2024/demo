@@ -32,6 +32,10 @@ export class VideosApi {
     return this.connection.url(`videos/${id}/normalized-file`);
   }
 
+  getGeometryUrl(id: string): URL {
+    return this.connection.url(`videos/${id}/geometry`);
+  }
+
   async upload(
     videoBlob: Blob,
     videoTitle: string,

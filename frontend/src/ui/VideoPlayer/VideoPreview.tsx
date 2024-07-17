@@ -2,15 +2,26 @@ import { Box } from "@mui/joy";
 import { VideoPlayerController, useFrameChangeEvent } from "./VideoPlayerController";
 import { FixedAspectBox } from "./FixedAspectBox";
 import { CSSProperties, useRef } from "react";
+import { FrameGeometry, buildMissingFrameGeometry } from "../../api/model/FrameGeometry";
+import * as d3 from "d3";
 
 export interface VideoPreviewProps {
   readonly videoPlayerController: VideoPlayerController;
   readonly videoBlobUrl: string;
+  readonly frameGeometries: FrameGeometry[];
+}
+
+function sigmoid(z) {
+  return 1 / (1 + Math.exp(-z));
+}
+
+function lerp(t, a, b) {
+  return a + t * (b - a);
 }
 
 export function VideoPreview(props: VideoPreviewProps) {
-  
   const signingSpaceSvgRectRef = useRef<SVGRectElement | null>(null);
+  const bodyPoseSvgRef = useRef<SVGSVGElement | null>(null);
 
   // how much smaller is the signing space compared to the preview square
   const zoomScaling = 0.8;
@@ -21,14 +32,19 @@ export function VideoPreview(props: VideoPreviewProps) {
     //   1 - (frameIndex / props.videoPlayerController.videoFile.frame_count)
     // );
 
-    // TODO: fetch data for the frame
+    // fetch data for the frame
+    const frameGeometry: FrameGeometry = (
+      props.frameGeometries[frameIndex] || buildMissingFrameGeometry(
+        props.videoPlayerController.videoFile
+      )
+    );
     
     // signing space in video-pixel coordinates
     const signingSpaceVpx = {
-      x: -360,
-      y: -50,
-      w: 1080 - (-360),
-      h: 1390 - (-50),
+      x: frameGeometry.sign_space[0],
+      y: frameGeometry.sign_space[1],
+      w: frameGeometry.sign_space[2] - frameGeometry.sign_space[0],
+      h: frameGeometry.sign_space[3] - frameGeometry.sign_space[1],
     };
 
     // frame size in video-pixel coordinates
@@ -73,6 +89,21 @@ export function VideoPreview(props: VideoPreviewProps) {
       e.setAttribute("width", String(signingSpacePct.w) + "%");
       e.setAttribute("height", String(signingSpacePct.h) + "%");
     }
+
+    // display the body pose
+    if (bodyPoseSvgRef.current !== null) {
+      const e = bodyPoseSvgRef.current;
+      d3.select(e)
+        .selectAll("circle")
+        .data(frameGeometry.pose_landmarks)
+        .join("circle")
+        .attr("cx", d => String(videoRectPct.x + d[0] * videoVpx2PctScale) + "%")
+        .attr("cy", d => String(videoRectPct.y + d[1] * videoVpx2PctScale) + "%")
+        // .attr("r", d => lerp((-d[2] / signingSpaceVpx.w) * 100 + 0.1, 2, 50))
+        .attr("r", 5)
+        .attr("opacity", d => sigmoid(d[3]))
+        .attr("fill", "lime");
+    }
   }
 
   useFrameChangeEvent(
@@ -107,13 +138,23 @@ export function VideoPreview(props: VideoPreviewProps) {
           onPause={props.videoPlayerController.video_onPause}
         ></video>
 
-        {/* SVG overlay */}
+        {/* signing space overlay */}
         <svg style={FILL_STYLE}>
           <rect
             ref={signingSpaceSvgRectRef}
             stroke="lime"
             strokeWidth="2"
             fill="transparent"
+          />
+        </svg>
+
+        {/* body pose overlay */}
+        <svg style={FILL_STYLE} ref={bodyPoseSvgRef}>
+          <circle
+            cx="50%"
+            cy="50%"
+            r="2"
+            fill="lime"
           />
         </svg>
       </FixedAspectBox>

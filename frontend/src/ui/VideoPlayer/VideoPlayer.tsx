@@ -5,11 +5,13 @@ import { VideoNavigation } from "./VideoNavigation";
 import { useFrameChangeEvent, useVideoPlayerController } from "./VideoPlayerController";
 import * as d3 from "d3";
 import { VideoPreview } from "./VideoPreview";
+import { FrameGeometry } from "../../api/model/FrameGeometry";
 
 export interface VideoPlayerProps {
   readonly videoFile: VideoFile;
   readonly videoBlob: Blob;
   readonly videoBlobUrl: string;
+  readonly frameGeometries: FrameGeometry[];
 }
 
 export function VideoPlayer(props: VideoPlayerProps) {
@@ -18,20 +20,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
   });
 
   const debugElementRef = useRef<HTMLPreElement | null>(null);
-  const svgElementRef = useRef<SVGSVGElement | null>(null);
 
   function onFrameChange(frameIndex: number) {
     if (debugElementRef.current === null) return;
     debugElementRef.current.innerHTML = "Frame: " + String(frameIndex);
-
-    // update overlay
-    const svg = svgElementRef.current;
-    d3.select(svg)
-      .select("circle")
-      .attr("cx", frameIndex)
-      .attr("cy", frameIndex)
-      .attr("r", 10)
-      .style("fill", "tomato");
   }
 
   useFrameChangeEvent(
@@ -44,11 +36,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
       <VideoPreview
         videoBlobUrl={props.videoBlobUrl}
         videoPlayerController={videoPlayerController}
+        frameGeometries={props.frameGeometries}
       />
-
-      <svg ref={svgElementRef} width={51} height={51}>
-        <circle r={10} fill="tomato" />
-      </svg>
 
       <pre ref={debugElementRef}></pre>
 

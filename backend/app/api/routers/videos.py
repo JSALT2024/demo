@@ -77,6 +77,19 @@ def get_normalized_file(video_id: str, app: ApplicationDependency) -> VideoOut:
     )
 
 
+@router.get("/{video_id}/geometry")
+def get_geometry(video_id: str, app: ApplicationDependency) -> VideoOut:
+    video = get_video_or_fail(video_id, app)
+    folder_repo = app.video_folder_repository_factory.get_repository(video.id)
+    file_path = folder_repo.to_global_path("geometry.json")
+    if not file_path.is_file():
+        raise HTTPException(
+            status_code=404,
+            detail="The video geometry has not been extracted yet."
+        )
+    return FileResponse(file_path, media_type="application/json")
+
+
 @router.post("", status_code=201)
 async def upload_new_video(
     media_type: Annotated[str, Form()],
