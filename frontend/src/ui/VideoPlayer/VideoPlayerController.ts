@@ -25,8 +25,7 @@ export interface VideoPlayerController {
 
   readonly _frameChangeEventHandlersRef: any;
 
-  readonly seekToTime: (timeSeconds: number) => void;
-  readonly seekToFrame: (timeSeconds: number) => void;
+  readonly seekToFrame: (frameIndex: number) => void;
   readonly play: () => void;
   readonly pause: () => void;
 
@@ -54,17 +53,19 @@ export function useVideoPlayerController(
   const frameChangeEventHandlersRef = useRef<FrameChangeEventHandler[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
 
+  function onFrameChange(frameIndex: number) {
+    // dispatch the frame change event
+    const event: FrameChangeEvent = { frameIndex };
+    for (const handler of frameChangeEventHandlersRef.current) {
+      handler(event);
+    }
+  }
+
   // video frame-tracking logic
   const frameTracking = useVideoFrameTracking({
     videoElementRef,
     framerate: props.videoFile.framerate,
-    onFrameChange(frameIndex: number) {
-      // dispatch the frame change event
-      const event: FrameChangeEvent = { frameIndex };
-      for (const handler of frameChangeEventHandlersRef.current) {
-        handler(event);
-      }
-    },
+    onFrameChange,
   });
 
   // returned value refreshes when these values change
@@ -86,10 +87,6 @@ export function useVideoPlayerController(
     _frameChangeEventHandlersRef: frameChangeEventHandlersRef,
 
     // video player manipulation methods
-    seekToTime(timeSeconds: number) {
-      if (videoElementRef.current === null) return;
-      videoElementRef.current.currentTime = timeSeconds;
-    },
     seekToFrame(frameIndex: number) {
       if (videoElementRef.current === null) return;
       const timeSeconds = (
@@ -97,6 +94,10 @@ export function useVideoPlayerController(
         * props.videoFile.duration_seconds
       );
       videoElementRef.current.currentTime = timeSeconds;
+      
+      // emulate the event, because the frameTracking code was not really
+      // designed for seeking and it might not fire properly
+      onFrameChange(frameIndex);
     },
     play() {
       if (videoElementRef.current === null) return;

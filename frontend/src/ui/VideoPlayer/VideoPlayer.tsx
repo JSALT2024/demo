@@ -46,7 +46,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
         videoPlayerController={videoPlayerController}
       />
 
-      <svg ref={svgElementRef} width={512} height={512}>
+      <svg ref={svgElementRef} width={51} height={51}>
         <circle r={10} fill="tomato" />
       </svg>
 
