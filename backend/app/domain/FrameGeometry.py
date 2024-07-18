@@ -27,7 +27,8 @@ class FrameGeometry:
     Defines the signing space rectangle detected in the video frame
     in the form [X_min, Y_min, X_max, Y_max]. The numbers are rounded
     to integers because they were used to produce the crops
-    for subsequent encoders.
+    for subsequent encoders. If no pose is detected, the signing space
+    snaps such that it contains the entire video precisely.
     """
 
     def __post_init__(self):

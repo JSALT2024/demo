@@ -1,5 +1,7 @@
 import { Connection } from "./connection/Connection";
+import { FrameGeometry } from "./model/FrameGeometry";
 import { Video } from "./model/Video";
+import { VideoCrops } from "./model/VideoCrops";
 
 export class VideosApi {
   private connection: Connection;
@@ -32,8 +34,49 @@ export class VideosApi {
     return this.connection.url(`videos/${id}/normalized-file`);
   }
 
-  getGeometryUrl(id: string): URL {
-    return this.connection.url(`videos/${id}/geometry`);
+  getCropsUrl(id: string, cropName: string): URL {
+    return this.connection.url(`videos/${id}/cropped/${cropName}`);
+  }
+
+  async getFrameGeometries(id: string): Promise<FrameGeometry[]> {
+    const response = await this.connection.request(
+      "GET",
+      `videos/${id}/geometry`
+    );
+    if (response.status !== 200) {
+      throw response;
+    }
+    return (await response.json()) as FrameGeometry[];
+  }
+
+  async getCropFrames(id: string, cropName: string): Promise<Blob[]> {
+    const response = await this.connection.request(
+      "GET",
+      `videos/${id}/cropped/${cropName}`
+    );
+    if (response.status !== 200) {
+      throw response;
+    }
+    const json = await response.json();
+
+    const blobs: Blob[] = [];
+    for (const base64Text of json) {
+      const binary = atob(base64Text);
+      var array = new Uint8Array(binary.length)
+      for (let i = 0; i < binary.length; i++) {
+        array[i] = binary.charCodeAt(i);
+      }
+      const blob = new Blob([array], {type: "image/jpeg"});
+      blobs.push(blob);
+    }
+
+    return blobs;
+  }
+
+  async getCrops(id: string): Promise<VideoCrops> {
+    return {
+      face: await this.getCropFrames(id, "face")
+    }
   }
 
   async upload(

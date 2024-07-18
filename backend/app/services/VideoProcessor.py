@@ -45,12 +45,16 @@ class VideoProcessor:
         """Returns the global path of a file inside the storage video folder"""
         return self.folder_repo.to_global_path(Path(relative_path))
 
-    def run(self):
-        """Runs all of the processing tasks"""
+    def run(self, force_all=False):
+        """
+        Runs all of the processing tasks. The force_all forces even
+        the execution of phases that have already been executed before.
+        """
         
         # initial preprocessing
-        # self.normalize_uploaded_file()
-        # self.enumerate_normalized_file()
+        if not self.NORMALIZED_FILE.exists() and not force_all:
+            self.normalize_uploaded_file()
+            self.enumerate_normalized_file()
 
         # mediapipe
         self.run_mediapipe()

@@ -3,15 +3,16 @@ import { useRef } from "react";
 import { VideoFile } from "../../api/model/Video";
 import { VideoNavigation } from "./VideoNavigation";
 import { useFrameChangeEvent, useVideoPlayerController } from "./VideoPlayerController";
-import * as d3 from "d3";
 import { VideoPreview } from "./VideoPreview";
 import { FrameGeometry } from "../../api/model/FrameGeometry";
+import { VideoCrops } from "../../api/model/VideoCrops";
 
 export interface VideoPlayerProps {
   readonly videoFile: VideoFile;
   readonly videoBlob: Blob;
   readonly videoBlobUrl: string;
   readonly frameGeometries: FrameGeometry[];
+  readonly videoCrops: VideoCrops;
 }
 
 export function VideoPlayer(props: VideoPlayerProps) {
@@ -20,10 +21,22 @@ export function VideoPlayer(props: VideoPlayerProps) {
   });
 
   const debugElementRef = useRef<HTMLPreElement | null>(null);
+  const cropPreviewRef = useRef<HTMLImageElement | null>(null);
 
   function onFrameChange(frameIndex: number) {
-    if (debugElementRef.current === null) return;
-    debugElementRef.current.innerHTML = "Frame: " + String(frameIndex);
+    // update the frame number
+    if (debugElementRef.current !== null) {
+      debugElementRef.current.innerHTML = "Frame: " + String(frameIndex);
+    }
+
+    // update the crop preview
+    if (cropPreviewRef.current !== null && props.videoCrops.face[frameIndex]) {
+      const e = cropPreviewRef.current;
+      const newCropUrl = URL.createObjectURL(props.videoCrops.face[frameIndex]);
+      const oldCropUrl = e.src;
+      e.src = newCropUrl;
+      URL.revokeObjectURL(oldCropUrl);
+    }
   }
 
   useFrameChangeEvent(
@@ -38,6 +51,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
         videoPlayerController={videoPlayerController}
         frameGeometries={props.frameGeometries}
       />
+
+      <img ref={cropPreviewRef} />
 
       <pre ref={debugElementRef}></pre>
 

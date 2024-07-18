@@ -4,12 +4,14 @@ import { Video } from "../api/model/Video";
 import { useLoaderData } from "react-router-dom";
 import { VideoPlayer } from "./VideoPlayer/VideoPlayer";
 import { FrameGeometry } from "../api/model/FrameGeometry";
+import { VideoCrops } from "../api/model/VideoCrops";
 
 interface VideoPageLoaderData {
   readonly video: Video;
   readonly videoBlob: Blob;
   readonly videoBlobUrl: string;
   readonly frameGeometries: FrameGeometry[];
+  readonly videoCrops: VideoCrops;
 }
 
 export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> {
@@ -25,16 +27,17 @@ export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> 
   const videoBlobUrl = URL.createObjectURL(videoBlob);
 
   // fetch the geometry file
-  const geometryFileUrl = api.videos.getGeometryUrl(video.id)
-  const frameGeometries = await (
-    await fetch(geometryFileUrl)
-  ).json() as FrameGeometry[];
+  const frameGeometries = await api.videos.getFrameGeometries(video.id);
+
+  // fetch video crops
+  const videoCrops = await api.videos.getCrops(video.id);
 
   return {
     video,
     videoBlob,
     videoBlobUrl,
     frameGeometries,
+    videoCrops,
   };
 }
 
@@ -58,6 +61,7 @@ export function VideoPage() {
         videoBlob={data.videoBlob}
         videoBlobUrl={data.videoBlobUrl}
         frameGeometries={data.frameGeometries}
+        videoCrops={data.videoCrops}
       />
 
       <pre>{ JSON.stringify(data.video, null, 2) }</pre>

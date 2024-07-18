@@ -14,6 +14,8 @@ import mimetypes
 from pathlib import Path
 from ...services.process_video import process_video
 import threading
+import glob
+import base64
 
 
 router = APIRouter()
@@ -88,6 +90,30 @@ def get_geometry(video_id: str, app: ApplicationDependency) -> VideoOut:
             detail="The video geometry has not been extracted yet."
         )
     return FileResponse(file_path, media_type="application/json")
+
+
+@router.get("/{video_id}/cropped/{crop_name}")
+def get_crops(video_id: str, crop_name: str, app: ApplicationDependency):
+    if crop_name not in ["left_hand", "right_hand", "face", "images"]:
+        raise HTTPException(status_code=404, detail="Unknown crop name.")
+    video = get_video_or_fail(video_id, app)
+    folder_repo = app.video_folder_repository_factory.get_repository(video.id)
+    folder_path = folder_repo.to_global_path("cropped_" + crop_name)
+    if not folder_path.is_dir():
+        raise HTTPException(
+            status_code=404,
+            detail="Request crops have not been extracted yet."
+        )
+    
+    # build up the JSON response (because I couldn't get BSON to work)
+    frame_files = sorted(glob.glob(
+        pathname="frame_*.jpg",
+        root_dir=folder_path
+    ))
+    return [
+        base64.b64encode(Path(folder_path, file).read_bytes())
+        for file in frame_files
+    ]
 
 
 @router.post("", status_code=201)
