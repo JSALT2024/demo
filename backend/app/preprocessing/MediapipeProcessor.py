@@ -68,10 +68,15 @@ class ChunkJob:
     ) -> FrameGeometry:
         keypoints: dict = prediction["keypoints"][chunk_frame_index]
 
+        def nullify(landmarks):
+            if len(landmarks) == 0:
+                return None
+            return landmarks
+
         # build up the geometry data
         return FrameGeometry(
             # TODO: not detected pose?
-            pose_landmarks=keypoints["pose_landmarks"],
+            pose_landmarks=nullify(keypoints["pose_landmarks"]),
             # TODO: hands and face landmarks
             # TODO: signing space bbox
             sign_space=[

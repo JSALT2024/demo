@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 import numpy as np
-from typing import List
+from typing import List, Optional
 
 
 @dataclass
@@ -8,9 +8,10 @@ class FrameGeometry:
     """
     Contains geometry information about a single video frame.
     All the X, Y coordinates are in the pixel-space of the video frames.
+    Is None if the pose was not detected.
     """
     
-    pose_landmarks: np.ndarray
+    pose_landmarks: Optional[np.ndarray]
     """
     Contains 33 pose landmarks from the mediapipe pose landmarker model.
     Each landmark consists of 4 numbers: [X, Y, Z, visibility].
@@ -30,21 +31,28 @@ class FrameGeometry:
     """
 
     def __post_init__(self):
-        assert str(self.pose_landmarks.dtype) == "float64"
-        assert self.pose_landmarks.shape == (33, 4)
+        if self.pose_landmarks is not None:
+            assert str(self.pose_landmarks.dtype) == "float64"
+            assert self.pose_landmarks.shape == (33, 4)
 
         assert len(self.sign_space) == 4
         assert all((type(i) is int) for i in self.sign_space)
     
     def to_json(self) -> dict:
         return {
-            "pose_landmarks": self.pose_landmarks.tolist(),
+            "pose_landmarks": (
+                None if self.pose_landmarks is None
+                else self.pose_landmarks.tolist()
+            ),
             "sign_space": self.sign_space,
         }
     
     @staticmethod
     def from_json(json: dict) -> "FrameGeometry":
         return FrameGeometry(
-            pose_landmarks=np.array(json["pose_landmarks"], np.float64),
+            pose_landmarks=(
+                None if json["pose_landmarks"] is None
+                else np.array(json["pose_landmarks"], np.float64)
+            ),
             sign_space=[int(i) for i in json["sign_space"]],
         )

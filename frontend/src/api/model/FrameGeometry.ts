@@ -1,7 +1,7 @@
 import { VideoFile } from "./Video";
 
 export interface FrameGeometry {
-  readonly pose_landmarks: number[][];
+  readonly pose_landmarks: number[][] | null;
   readonly sign_space: number[];
 }
 

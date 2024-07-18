@@ -95,7 +95,7 @@ export function VideoPreview(props: VideoPreviewProps) {
       const e = bodyPoseSvgRef.current;
       d3.select(e)
         .selectAll("circle")
-        .data(frameGeometry.pose_landmarks)
+        .data(frameGeometry.pose_landmarks || [])
         .join("circle")
         .attr("cx", d => String(videoRectPct.x + d[0] * videoVpx2PctScale) + "%")
         .attr("cy", d => String(videoRectPct.y + d[1] * videoVpx2PctScale) + "%")
