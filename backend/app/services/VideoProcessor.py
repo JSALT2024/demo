@@ -37,6 +37,9 @@ class VideoProcessor:
         self.UPLOADED_FILE = self.path(video.uploaded_file.file_path)
         self.NORMALIZED_FILE = self.path("normalized_file.mp4") # always mp4
         self.GEOMETRY_FILE = self.path("geometry.json")
+        self.CROPPED_LEFT_HAND_FOLDER = self.path("cropped_left_hand")
+        self.CROPPED_RIGHT_HAND_FOLDER = self.path("cropped_right_hand")
+        self.CROPPED_FACE_FOLDER = self.path("cropped_face")
     
     def path(self, relative_path: Union[str, Path]) -> Path:
         """Returns the global path of a file inside the storage video folder"""
@@ -95,6 +98,9 @@ class VideoProcessor:
     def run_mediapipe(self):
         mediapipe = MediapipeProcessor(
             input_file=self.NORMALIZED_FILE,
-            geometry_file=self.GEOMETRY_FILE
+            geometry_file=self.GEOMETRY_FILE,
+            cropped_left_hand_folder=self.CROPPED_LEFT_HAND_FOLDER,
+            cropped_right_hand_folder=self.CROPPED_RIGHT_HAND_FOLDER,
+            cropped_face_folder=self.CROPPED_FACE_FOLDER,
         )
         mediapipe.run()
