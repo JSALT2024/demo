@@ -49,8 +49,8 @@ class VideoProcessor:
         """Runs all of the processing tasks"""
         
         # initial preprocessing
-        self.normalize_uploaded_file()
-        self.enumerate_normalized_file()
+        # self.normalize_uploaded_file()
+        # self.enumerate_normalized_file()
 
         # mediapipe
         self.run_mediapipe()
