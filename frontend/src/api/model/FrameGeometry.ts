@@ -16,7 +16,7 @@ export interface FrameGeometry {
 export function buildMissingFrameGeometry(videoFile: VideoFile): FrameGeometry {
   const sign_space_size = Math.min(
     videoFile.frame_width,
-    videoFile.frame_height
+    videoFile.frame_height,
   );
 
   return {
@@ -30,5 +30,5 @@ export function buildMissingFrameGeometry(videoFile: VideoFile): FrameGeometry {
     right_hand_bbox: null,
     left_hand_bbox: null,
     face_bbox: null,
-  }
+  };
 }

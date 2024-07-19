@@ -19,9 +19,8 @@ export function useApplyVideoBlob(props: ApplyVideoBlobProps) {
     // assign it to the src attribute. If the blob is null,
     // set the src to emptystring.
     const element = props.videoPlayerController.videoElementRef.current;
-    const blobUrl = (
-      props.videoBlob === null ? "" : URL.createObjectURL(props.videoBlob)
-    );
+    const blobUrl =
+      props.videoBlob === null ? "" : URL.createObjectURL(props.videoBlob);
     element.src = blobUrl;
 
     // when the blob value changes or the componen unmounts, release the
@@ -32,6 +31,6 @@ export function useApplyVideoBlob(props: ApplyVideoBlobProps) {
       if (blobUrl != "") {
         URL.revokeObjectURL(blobUrl);
       }
-    }
+    };
   }, [props.videoBlob]);
 }

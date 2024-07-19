@@ -2,7 +2,10 @@ import { Box, Sheet, Stack, Typography } from "@mui/joy";
 import { useRef } from "react";
 import { VideoFile } from "../../api/model/Video";
 import { VideoNavigation } from "./VideoNavigation";
-import { useFrameChangeEvent, useVideoPlayerController } from "./VideoPlayerController";
+import {
+  useFrameChangeEvent,
+  useVideoPlayerController,
+} from "./VideoPlayerController";
 import { VideoPreview } from "./VideoPreview";
 import { FrameGeometry } from "../../api/model/FrameGeometry";
 import { VideoCrops } from "../../api/model/VideoCrops";
@@ -32,10 +35,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
   // listening for frame changes
   useFrameChangeEvent(
     videoPlayerController,
-    e => onFrameChange(e.frameIndex),
+    (e) => onFrameChange(e.frameIndex),
     [], // dependencies of the handler function
   );
-  
+
   return (
     <Sheet variant="outlined" sx={{ borderRadius: "5px", overflow: "hidden" }}>
       <Box sx={{ display: "flex", flexDirection: "row" }}>
@@ -50,7 +53,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
             display: "flex",
             flexDirection: "column",
             flexGrow: "1",
-            padding: 2
+            padding: 2,
           }}
         >
           <Typography level="h4" gutterBottom>

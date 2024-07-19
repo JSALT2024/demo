@@ -11,7 +11,9 @@ interface VideoPageLoaderData {
   readonly video: Video;
 }
 
-export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> {
+export async function videoPageLoader({
+  params,
+}): Promise<VideoPageLoaderData> {
   // fetch only the video record
   const api = BackendApi.current();
   const video = await api.videos.get(params.videoId);
@@ -23,8 +25,12 @@ export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> 
 export function VideoPage() {
   const data = useLoaderData() as VideoPageLoaderData;
 
-  const [normalizedVideoBlob, setNormalizedVideoBlob] = useState<Blob | null>(null);
-  const [frameGeometries, setFrameGeometries] = useState<FrameGeometry[] | null>(null);
+  const [normalizedVideoBlob, setNormalizedVideoBlob] = useState<Blob | null>(
+    null,
+  );
+  const [frameGeometries, setFrameGeometries] = useState<
+    FrameGeometry[] | null
+  >(null);
   const [videoCrops, setVideoCrops] = useState<VideoCrops | null>(null);
 
   // download the heavy video data
@@ -32,14 +38,10 @@ export function VideoPage() {
     (async () => {
       const api = BackendApi.current();
       setNormalizedVideoBlob(
-        await api.videos.getNormalizedVideoBlob(data.video.id)
+        await api.videos.getNormalizedVideoBlob(data.video.id),
       );
-      setFrameGeometries(
-        await api.videos.getFrameGeometries(data.video.id)
-      );
-      setVideoCrops(
-        await api.videos.getCrops(data.video.id)
-      );
+      setFrameGeometries(await api.videos.getFrameGeometries(data.video.id));
+      setVideoCrops(await api.videos.getCrops(data.video.id));
     })();
   }, [data.video.id]);
 
@@ -51,11 +53,8 @@ export function VideoPage() {
   return (
     <Box>
       Video detail!
-
       <Button onClick={() => reprocessVideo()}>Re-process video</Button>
-
       <Box sx={{ margin: "0 auto", maxWidth: "850px" }}>
-
         <Typography level="h1" gutterBottom>
           Video Title Goes Here
         </Typography>
@@ -72,11 +71,8 @@ export function VideoPage() {
             The video has not beed normalized yet, wait and reload the page.
           </Typography>
         )}
-
       </Box>
-
-      <pre>{ JSON.stringify(data.video, null, 2) }</pre>
-
+      <pre>{JSON.stringify(data.video, null, 2)}</pre>
     </Box>
   );
 }

@@ -1,8 +1,14 @@
 import { Box } from "@mui/joy";
-import { VideoPlayerController, useFrameChangeEvent } from "./VideoPlayerController";
+import {
+  VideoPlayerController,
+  useFrameChangeEvent,
+} from "./VideoPlayerController";
 import { FixedAspectBox } from "./FixedAspectBox";
 import { CSSProperties, useEffect, useRef } from "react";
-import { FrameGeometry, buildMissingFrameGeometry } from "../../api/model/FrameGeometry";
+import {
+  FrameGeometry,
+  buildMissingFrameGeometry,
+} from "../../api/model/FrameGeometry";
 import * as d3 from "d3";
 import { SxProps } from "@mui/joy/styles/types";
 import { useApplyVideoBlob } from "./useApplyVideoBlob";
@@ -31,12 +37,10 @@ export function VideoPreview(props: VideoPreviewProps) {
 
   function onFrameChange(frameIndex: number) {
     // fetch data for the frame
-    const frameGeometry: FrameGeometry = (
-      props.frameGeometries?.[frameIndex] || buildMissingFrameGeometry(
-        props.videoPlayerController.videoFile
-      )
-    );
-    
+    const frameGeometry: FrameGeometry =
+      props.frameGeometries?.[frameIndex] ||
+      buildMissingFrameGeometry(props.videoPlayerController.videoFile);
+
     // signing space in video-pixel coordinates
     const signingSpaceVpx = {
       x: frameGeometry.sign_space[0],
@@ -64,8 +68,8 @@ export function VideoPreview(props: VideoPreviewProps) {
 
     // position the video element inside the preview percentage coordinates
     const videoRectPct = {
-      x: signingSpacePct.x + (-signingSpaceVpx.x * videoVpx2PctScale),
-      y: signingSpacePct.y + (-signingSpaceVpx.y * videoVpx2PctScale),
+      x: signingSpacePct.x + -signingSpaceVpx.x * videoVpx2PctScale,
+      y: signingSpacePct.y + -signingSpaceVpx.y * videoVpx2PctScale,
       w: frameSizeVpx.w * videoVpx2PctScale,
       h: frameSizeVpx.h * videoVpx2PctScale,
     };
@@ -95,18 +99,24 @@ export function VideoPreview(props: VideoPreviewProps) {
         .selectAll("circle")
         .data(frameGeometry.pose_landmarks || [])
         .join("circle")
-        .attr("cx", d => String(videoRectPct.x + d[0] * videoVpx2PctScale) + "%")
-        .attr("cy", d => String(videoRectPct.y + d[1] * videoVpx2PctScale) + "%")
+        .attr(
+          "cx",
+          (d) => String(videoRectPct.x + d[0] * videoVpx2PctScale) + "%",
+        )
+        .attr(
+          "cy",
+          (d) => String(videoRectPct.y + d[1] * videoVpx2PctScale) + "%",
+        )
         // .attr("r", d => lerp((-d[2] / signingSpaceVpx.w) * 100 + 0.1, 2, 50))
         .attr("r", 5)
-        .attr("opacity", d => sigmoid(d[3]))
+        .attr("opacity", (d) => sigmoid(d[3]))
         .attr("fill", "lime");
     }
   }
 
   useFrameChangeEvent(
     props.videoPlayerController,
-    e => onFrameChange(e.frameIndex),
+    (e) => onFrameChange(e.frameIndex),
     [props.frameGeometries],
   );
 
@@ -153,13 +163,8 @@ export function VideoPreview(props: VideoPreviewProps) {
 
       {/* body pose overlay */}
       <svg style={FILL_STYLE} ref={bodyPoseSvgRef}>
-        <circle
-          cx="50%"
-          cy="50%"
-          r="2"
-          fill="lime"
-        />
+        <circle cx="50%" cy="50%" r="2" fill="lime" />
       </svg>
     </FixedAspectBox>
-  )
+  );
 }

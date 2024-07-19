@@ -1,13 +1,17 @@
 import { SxProps } from "@mui/joy/styles/types";
 import { FixedAspectBox } from "./FixedAspectBox";
-import { VideoPlayerController, useFrameChangeEvent } from "./VideoPlayerController";
+import {
+  VideoPlayerController,
+  useFrameChangeEvent,
+} from "./VideoPlayerController";
 import { Box, CircularProgress, IconButton, Typography } from "@mui/joy";
 import { CSSProperties, useEffect, useRef } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 
 // https://stackoverflow.com/a/14115340
-const EMPTY_IMAGE_URL = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+const EMPTY_IMAGE_URL =
+  "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
 
 export interface CropViewProps {
   readonly videoPlayerController: VideoPlayerController;
@@ -28,16 +32,15 @@ export function CropView(props: CropViewProps) {
     }
 
     // prepare the new URL
-    const newCropUrl = (
-      blob === null ? EMPTY_IMAGE_URL : URL.createObjectURL(blob)
-    );
-    
+    const newCropUrl =
+      blob === null ? EMPTY_IMAGE_URL : URL.createObjectURL(blob);
+
     // remember the old URL
     const oldCropUrl = imgElementRef.current.src;
 
     // swap the URL
     imgElementRef.current.src = newCropUrl;
-    
+
     // clean up the old URL
     if (oldCropUrl != "" && oldCropUrl !== EMPTY_IMAGE_URL) {
       URL.revokeObjectURL(oldCropUrl);
@@ -47,7 +50,7 @@ export function CropView(props: CropViewProps) {
   // listening for frame changes
   useFrameChangeEvent(
     props.videoPlayerController,
-    e => onFrameChange(e.frameIndex),
+    (e) => onFrameChange(e.frameIndex),
     [props.cropFrames], // dependencies of the handler function
   );
 
@@ -58,7 +61,7 @@ export function CropView(props: CropViewProps) {
       if (oldCropUrl != "" && oldCropUrl !== EMPTY_IMAGE_URL) {
         URL.revokeObjectURL(oldCropUrl);
       }
-    }
+    };
   }, []);
 
   const FILL_STYLE: CSSProperties = {
@@ -72,7 +75,7 @@ export function CropView(props: CropViewProps) {
   return (
     <Box sx={{ ...props.sx }}>
       <Typography level="body-xs" sx={{ textAlign: "center" }}>
-        { props.label }
+        {props.label}
       </Typography>
       <FixedAspectBox
         aspectRatio={1 / 1}
@@ -85,21 +88,20 @@ export function CropView(props: CropViewProps) {
             },
             "& .cropViewSpinner": {
               opacity: 0,
-            }
-          }
+            },
+          },
         }}
       >
         {/* The image element that renders the crop frame */}
-        <img
-          ref={imgElementRef}
-          style={{ ...FILL_STYLE }}
-        />
+        <img ref={imgElementRef} style={{ ...FILL_STYLE }} />
 
         {/* Spinner shown when the crops have not been loaded yet */}
         {props.cropFrames === null && (
           <CircularProgress
             className="cropViewSpinner"
-            sx={FILL_STYLE} size="sm" variant="solid"
+            sx={FILL_STYLE}
+            size="sm"
+            variant="solid"
           />
         )}
 

@@ -1,10 +1,16 @@
-import { MutableRefObject, useRef, useEffect, useCallback, ReactEventHandler } from "react";
+import {
+  MutableRefObject,
+  useRef,
+  useEffect,
+  useCallback,
+  ReactEventHandler,
+} from "react";
 
 function getPaintCount(video: HTMLVideoElement): number | undefined {
   return (
-    (video as any).mozPaintedFrames
-    || (video as any).webkitDecodedFrameCount
-    || undefined
+    (video as any).mozPaintedFrames ||
+    (video as any).webkitDecodedFrameCount ||
+    undefined
   );
 }
 
@@ -30,7 +36,7 @@ export interface VideoFrameTrackingOutput {
  * Based on: https://github.com/Daiz/frame-accurate-ish
  */
 export function useVideoFrameTracking(
-  props: VideoFrameTrackingProps
+  props: VideoFrameTrackingProps,
 ): VideoFrameTrackingOutput {
   const dependencies = [props.framerate];
 
@@ -39,7 +45,7 @@ export function useVideoFrameTracking(
   const FRAME = 1 / FPS;
   const FRAME_WINDOW_LOWER = FRAME * 0.95;
   const FRAME_WINDOW_UPPER = FRAME * 0.25;
-  
+
   // state of the tracker
   const driftRef = useRef<number | null>(null);
   const currentFrameRef = useRef<number>(0);
@@ -89,16 +95,15 @@ export function useVideoFrameTracking(
     if (paintCount !== undefined) {
       const currentPaintCount = paintCount;
       const diffPaintCount = currentPaintCount - lastPaintCountRef.current;
-      const check = (
-        time >= nextFrameTimeRef.current - FRAME_WINDOW_LOWER
-        && time <= nextFrameTimeRef.current + FRAME_WINDOW_UPPER
-      );
+      const check =
+        time >= nextFrameTimeRef.current - FRAME_WINDOW_LOWER &&
+        time <= nextFrameTimeRef.current + FRAME_WINDOW_UPPER;
       if (check && diffPaintCount > 0) {
         currentFrameRef.current = nextFrameRef.current++;
         nextFrameTimeRef.current = nextFrameRef.current * FRAME;
       } else if (
-        time >= nextFrameTimeRef.current
-        && currentFrameRef.current < nextFrameRef.current
+        time >= nextFrameTimeRef.current &&
+        currentFrameRef.current < nextFrameRef.current
       ) {
         currentFrameRef.current = frame;
         nextFrameRef.current = currentFrameRef.current + 1;
@@ -135,7 +140,7 @@ export function useVideoFrameTracking(
       }
     };
   }, [...dependencies]);
-  
+
   return {
     onCanPlay,
     onSeeked,

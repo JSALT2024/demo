@@ -1,6 +1,9 @@
 import { Box, Button } from "@mui/joy";
 import { useRef, ChangeEvent } from "react";
-import { VideoPlayerController, useFrameChangeEvent } from "./VideoPlayerController";
+import {
+  VideoPlayerController,
+  useFrameChangeEvent,
+} from "./VideoPlayerController";
 
 export interface VideoNavigationProps {
   readonly videoPlayerController: VideoPlayerController;
@@ -11,13 +14,12 @@ export function VideoNavigation(props: VideoNavigationProps) {
 
   function updateNavigationPosition(frameIndex: number) {
     if (sliderElementRef.current === null) return;
-    
+
     sliderElementRef.current.value = String(frameIndex);
   }
 
-  useFrameChangeEvent(
-    props.videoPlayerController,
-    e => updateNavigationPosition(e.frameIndex)
+  useFrameChangeEvent(props.videoPlayerController, (e) =>
+    updateNavigationPosition(e.frameIndex),
   );
 
   function onSliderChange(e: ChangeEvent<HTMLInputElement>) {
@@ -32,15 +34,17 @@ export function VideoNavigation(props: VideoNavigationProps) {
       props.videoPlayerController.play();
     }
   }
-  
+
   return (
-    <Box sx={{
-      display: "flex",
-      flexDirection: "row",
-      padding: 2,
-    }}>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        padding: 2,
+      }}
+    >
       <Button onClick={handlePlayPauseClick}>
-        { props.videoPlayerController.isPlaying ? "Pause" : "Play" }
+        {props.videoPlayerController.isPlaying ? "Pause" : "Play"}
       </Button>
       <input
         ref={sliderElementRef}

@@ -1,4 +1,11 @@
-import { MutableRefObject, useEffect, useMemo, useRef, useState, SyntheticEvent } from "react";
+import {
+  MutableRefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  SyntheticEvent,
+} from "react";
 import { VideoFile } from "../../api/model/Video";
 import { useVideoFrameTracking } from "./useVideoFrameTracking";
 
@@ -15,7 +22,7 @@ export interface VideoPlayerControllerProps {
 /**
  * Provides vanilla-js access to the video player, bypassing react so that
  * we get maximal performance and avoid lagging for frame-based changes.
- * 
+ *
  * It pretends to be a react state value so you can pass it around as such.
  */
 export interface VideoPlayerController {
@@ -31,10 +38,10 @@ export interface VideoPlayerController {
   readonly pause: () => void;
 
   readonly addFrameChangeEventListener: (
-    handler: FrameChangeEventHandler
+    handler: FrameChangeEventHandler,
   ) => void;
   readonly removeFrameChangeEventListener: (
-    handler: FrameChangeEventHandler
+    handler: FrameChangeEventHandler,
   ) => void;
 
   readonly video_onCanPlay: (e: SyntheticEvent<HTMLVideoElement>) => void;
@@ -47,7 +54,7 @@ export interface VideoPlayerController {
  * Creates a video player controller and returns it for use
  */
 export function useVideoPlayerController(
-  props: VideoPlayerControllerProps
+  props: VideoPlayerControllerProps,
 ): VideoPlayerController {
   // state of the controller
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
@@ -76,72 +83,71 @@ export function useVideoPlayerController(
   // returned value refreshes when these values change
   // (change in these will trigger React re-render, to watch others you need
   // to subscribe to the corresponding vanilla-js events)
-  const memoDependencies = [
-    isPlaying,
-    props.videoFile,
-  ];
+  const memoDependencies = [isPlaying, props.videoFile];
 
   // returns the object that users use to access the controller
-  return useMemo<VideoPlayerController>(() => ({
-    // readable state
-    videoElementRef,
-    isPlaying,
-    videoFile: props.videoFile,
-    currentFrameIndexRef,
+  return useMemo<VideoPlayerController>(
+    () => ({
+      // readable state
+      videoElementRef,
+      isPlaying,
+      videoFile: props.videoFile,
+      currentFrameIndexRef,
 
-    // private readable state
-    _frameChangeEventHandlersRef: frameChangeEventHandlersRef,
+      // private readable state
+      _frameChangeEventHandlersRef: frameChangeEventHandlersRef,
 
-    // video player manipulation methods
-    seekToFrame(frameIndex: number) {
-      if (videoElementRef.current === null) return;
-      const timeSeconds = (
-        (frameIndex / props.videoFile.frame_count)
-        * props.videoFile.duration_seconds
-      );
-      videoElementRef.current.currentTime = timeSeconds;
-      
-      // emulate the event, because the frameTracking code was not really
-      // designed for seeking and it might not fire properly
-      onFrameChange(frameIndex);
-    },
-    play() {
-      if (videoElementRef.current === null) return;
-      videoElementRef.current.play();
-      setIsPlaying(true);
-    },
-    pause() {
-      if (videoElementRef.current === null) return;
-      videoElementRef.current.pause();
-      setIsPlaying(false);
-    },
+      // video player manipulation methods
+      seekToFrame(frameIndex: number) {
+        if (videoElementRef.current === null) return;
+        const timeSeconds =
+          (frameIndex / props.videoFile.frame_count) *
+          props.videoFile.duration_seconds;
+        videoElementRef.current.currentTime = timeSeconds;
 
-    // frame change event handling
-    addFrameChangeEventListener(handler: FrameChangeEventHandler) {
-      frameChangeEventHandlersRef.current.push(handler);
-      handler({ frameIndex: currentFrameIndexRef.current });
-    },
-    removeFrameChangeEventListener(handler: FrameChangeEventHandler) {
-      const index = frameChangeEventHandlersRef.current.indexOf(handler);
-      if (index > -1) {
-        frameChangeEventHandlersRef.current.splice(index, 1);
-      }
-    },
+        // emulate the event, because the frameTracking code was not really
+        // designed for seeking and it might not fire properly
+        onFrameChange(frameIndex);
+      },
+      play() {
+        if (videoElementRef.current === null) return;
+        videoElementRef.current.play();
+        setIsPlaying(true);
+      },
+      pause() {
+        if (videoElementRef.current === null) return;
+        videoElementRef.current.pause();
+        setIsPlaying(false);
+      },
 
-    // video event handlers
-    video_onCanPlay(e: SyntheticEvent<HTMLVideoElement>) {
-      frameTracking.onCanPlay(e);
-    },
-    video_onSeeked(e: SyntheticEvent<HTMLVideoElement>) {
-      frameTracking.onSeeked(e);
-    },
-    video_onPlay(e: SyntheticEvent<HTMLVideoElement>) {
-      setIsPlaying(true);
-    },
-    video_onPause(e: SyntheticEvent<HTMLVideoElement>) {
-      setIsPlaying(false);
-    }
-  }), memoDependencies);
+      // frame change event handling
+      addFrameChangeEventListener(handler: FrameChangeEventHandler) {
+        frameChangeEventHandlersRef.current.push(handler);
+        handler({ frameIndex: currentFrameIndexRef.current });
+      },
+      removeFrameChangeEventListener(handler: FrameChangeEventHandler) {
+        const index = frameChangeEventHandlersRef.current.indexOf(handler);
+        if (index > -1) {
+          frameChangeEventHandlersRef.current.splice(index, 1);
+        }
+      },
+
+      // video event handlers
+      video_onCanPlay(e: SyntheticEvent<HTMLVideoElement>) {
+        frameTracking.onCanPlay(e);
+      },
+      video_onSeeked(e: SyntheticEvent<HTMLVideoElement>) {
+        frameTracking.onSeeked(e);
+      },
+      video_onPlay(e: SyntheticEvent<HTMLVideoElement>) {
+        setIsPlaying(true);
+      },
+      video_onPause(e: SyntheticEvent<HTMLVideoElement>) {
+        setIsPlaying(false);
+      },
+    }),
+    memoDependencies,
+  );
 }
 
 /**
@@ -154,7 +160,7 @@ export function useVideoPlayerController(
 export function useFrameChangeEvent(
   controller: VideoPlayerController,
   handler: FrameChangeEventHandler,
-  dependencies?: any[]
+  dependencies?: any[],
 ) {
   // analogous to window.onscroll event binding usually done in react
   // (cached based on the "event hub" object identity)

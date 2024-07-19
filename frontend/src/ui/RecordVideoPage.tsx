@@ -10,7 +10,7 @@ export function RecordVideoPage() {
     if (videoBlob === null) {
       return;
     }
-    
+
     const api = BackendApi.current();
     await api.videos.upload(
       videoBlob,

@@ -12,22 +12,22 @@ export function FixedAspectBox(props: FixedAspectBoxProps) {
 
   return (
     <Box sx={{ position: "relative", display: "block", ...props.sx }}>
-      
       {/* The stretcher element */}
       <Box sx={{ position: "relative", paddingTop: percentage + "%" }} />
-      
-      {/* The content wrapper */}
-      <Box sx={{
-        position: "absolute",
-        left: 0,
-        top: 0,
-        right: 0, 
-        bottom: 0,
-        overflow: "hidden",
-      }}>
 
+      {/* The content wrapper */}
+      <Box
+        sx={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          overflow: "hidden",
+        }}
+      >
         {/* Content */}
-        { props.children }
+        {props.children}
       </Box>
     </Box>
   );

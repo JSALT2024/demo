@@ -41,7 +41,7 @@ export class VideosApi {
   async getNormalizedVideoBlob(id: string): Promise<Blob | null> {
     const response = await this.connection.request(
       "GET",
-      `videos/${id}/normalized-file`
+      `videos/${id}/normalized-file`,
     );
     if (response.status !== 200) {
       throw response;
@@ -52,7 +52,7 @@ export class VideosApi {
   async getFrameGeometries(id: string): Promise<FrameGeometry[]> {
     const response = await this.connection.request(
       "GET",
-      `videos/${id}/geometry`
+      `videos/${id}/geometry`,
     );
     if (response.status !== 200) {
       throw response;
@@ -63,7 +63,7 @@ export class VideosApi {
   async getCropFrames(id: string, cropName: string): Promise<Blob[]> {
     const response = await this.connection.request(
       "GET",
-      `videos/${id}/cropped/${cropName}`
+      `videos/${id}/cropped/${cropName}`,
     );
     if (response.status !== 200) {
       throw response;
@@ -73,11 +73,11 @@ export class VideosApi {
     const blobs: Blob[] = [];
     for (const base64Text of json) {
       const binary = atob(base64Text);
-      var array = new Uint8Array(binary.length)
+      var array = new Uint8Array(binary.length);
       for (let i = 0; i < binary.length; i++) {
         array[i] = binary.charCodeAt(i);
       }
-      const blob = new Blob([array], {type: "image/jpeg"});
+      const blob = new Blob([array], { type: "image/jpeg" });
       blobs.push(blob);
     }
 
@@ -90,7 +90,7 @@ export class VideosApi {
       left_hand: await this.getCropFrames(id, "left_hand"),
       face: await this.getCropFrames(id, "face"),
       images: await this.getCropFrames(id, "images"),
-    }
+    };
   }
 
   async upload(
@@ -119,7 +119,7 @@ export class VideosApi {
   async reprocess(id: string): Promise<void> {
     const response = await this.connection.request(
       "POST",
-      `videos/${id}/reprocess`
+      `videos/${id}/reprocess`,
     );
 
     if (response.status !== 202) {
