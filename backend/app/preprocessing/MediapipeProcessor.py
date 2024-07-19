@@ -12,7 +12,6 @@ import numpy as np
 import cv2
 import queue
 import threading
-import time
 
 
 sys.path.append("models/PoseEstimation")
@@ -27,6 +26,7 @@ class ChunkJob:
         cropped_left_hand_folder: Path,
         cropped_right_hand_folder: Path,
         cropped_face_folder: Path,
+        cropped_images_folder: Path,
         chunk_stream: InMemoryFrameStream,
         chunk_start_frame: int
     ):
@@ -35,13 +35,14 @@ class ChunkJob:
         self.cropped_left_hand_folder = cropped_left_hand_folder
         self.cropped_right_hand_folder = cropped_right_hand_folder
         self.cropped_face_folder = cropped_face_folder
+        self.cropped_images_folder = cropped_images_folder
         self.chunk_stream = chunk_stream
         self.chunk_start_frame = chunk_start_frame
 
         self.chunk_length = len(self.chunk_stream)
         self.chunk_end_frame = chunk_start_frame + self.chunk_length
 
-    def run(self, mediapipe_models):
+    def run(self, mediapipe_models: Any):
         prediction: dict = predict_pose(
             [frame.img for frame in self.chunk_stream],
             mediapipe_models
@@ -72,19 +73,32 @@ class ChunkJob:
             if len(landmarks) == 0:
                 return None
             return landmarks
-
+        
+        def intify(bbox):
+            if bbox is None:
+                return None
+            # convert to python int from np.int64 and other weird int types
+            return [int(i) for i in bbox]
+        
         # build up the geometry data
         return FrameGeometry(
-            # TODO: not detected pose?
             pose_landmarks=nullify(keypoints["pose_landmarks"]),
-            # TODO: hands and face landmarks
-            # TODO: signing space bbox
-            sign_space=[
-                # convert to python int from np.int64
-                int(c) for c in prediction["sign_space"][chunk_frame_index]
-            ],
-            # TODO: hand crops bboxes
-            # TODO: face crop bbox
+            right_hand_landmarks=nullify(keypoints["right_hand_landmarks"]),
+            left_hand_landmarks=nullify(keypoints["left_hand_landmarks"]),
+            face_landmarks=nullify(keypoints["face_landmarks"]),
+            sign_space=intify(
+                # no nullify here; is never None
+                prediction["sign_space"][chunk_frame_index]
+            ),
+            right_hand_bbox=intify(
+                nullify(prediction["bbox_right_hand"][chunk_frame_index])
+            ),
+            left_hand_bbox=intify(
+                nullify(prediction["bbox_left_hand"][chunk_frame_index])
+            ),
+            face_bbox=intify(
+                nullify(prediction["bbox_face"][chunk_frame_index])
+            )
         )
     
     def store_crops(self, prediction: dict):
@@ -118,6 +132,11 @@ class ChunkJob:
             framerate=self.source_framerate,
             width=DINO_SIZE, height=DINO_SIZE
         )
+        cropped_images_stream = FolderJpgFrameStream.create(
+            self.cropped_images_folder,
+            framerate=self.source_framerate,
+            width=MAE_SIZE, height=MAE_SIZE
+        )
 
         # process each frame in the chunk
         for i in range(self.chunk_length):
@@ -131,6 +150,10 @@ class ChunkJob:
             )
             cropped_face_stream.write_frame(
                 normalize(prediction["cropped_face"][i], DINO_SIZE),
+                seek_to=self.chunk_start_frame + i
+            )
+            cropped_images_stream.write_frame(
+                normalize(prediction["cropped_images"][i], MAE_SIZE),
                 seek_to=self.chunk_start_frame + i
             )
 
@@ -151,7 +174,7 @@ class Worker:
         mediapipe_models = create_mediapipe_models("checkpoints/PoseEstimation")
 
         while True:
-            job = self.job_queue.get()
+            job: ChunkJob = self.job_queue.get()
             
             # stops the worker
             if job is None:
@@ -172,6 +195,7 @@ class MediapipeProcessor:
         cropped_left_hand_folder: Path,
         cropped_right_hand_folder: Path,
         cropped_face_folder: Path,
+        cropped_images_folder: Path,
         chunking_period_seconds=1.0,
         parallel_worker_count=8
     ):
@@ -180,6 +204,7 @@ class MediapipeProcessor:
         self.cropped_left_hand_folder = cropped_left_hand_folder
         self.cropped_right_hand_folder = cropped_right_hand_folder
         self.cropped_face_folder = cropped_face_folder
+        self.cropped_images_folder = cropped_images_folder
         self.chunking_period_seconds = chunking_period_seconds
         self.parallel_worker_count = parallel_worker_count
 
@@ -212,6 +237,7 @@ class MediapipeProcessor:
                 cropped_left_hand_folder=self.cropped_left_hand_folder,
                 cropped_right_hand_folder=self.cropped_right_hand_folder,
                 cropped_face_folder=self.cropped_face_folder,
+                cropped_images_folder=self.cropped_images_folder,
                 chunk_stream=chunk_stream,
                 chunk_start_frame=chunk_start_frame
             )

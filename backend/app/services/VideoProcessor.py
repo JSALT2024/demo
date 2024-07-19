@@ -40,6 +40,7 @@ class VideoProcessor:
         self.CROPPED_LEFT_HAND_FOLDER = self.path("cropped_left_hand")
         self.CROPPED_RIGHT_HAND_FOLDER = self.path("cropped_right_hand")
         self.CROPPED_FACE_FOLDER = self.path("cropped_face")
+        self.CROPPED_IMAGES_FOLDER = self.path("cropped_images")
     
     def path(self, relative_path: Union[str, Path]) -> Path:
         """Returns the global path of a file inside the storage video folder"""
@@ -106,5 +107,6 @@ class VideoProcessor:
             cropped_left_hand_folder=self.CROPPED_LEFT_HAND_FOLDER,
             cropped_right_hand_folder=self.CROPPED_RIGHT_HAND_FOLDER,
             cropped_face_folder=self.CROPPED_FACE_FOLDER,
+            cropped_images_folder=self.CROPPED_IMAGES_FOLDER
         )
         mediapipe.run()
