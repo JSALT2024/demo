@@ -1,17 +1,17 @@
-import { Box, Button } from "@mui/joy";
+import { Box, Button, Typography } from "@mui/joy";
 import { BackendApi } from "../api/BackendApi";
 import { Video } from "../api/model/Video";
 import { useLoaderData } from "react-router-dom";
 import { VideoPlayer } from "./VideoPlayer/VideoPlayer";
 import { FrameGeometry } from "../api/model/FrameGeometry";
 import { VideoCrops } from "../api/model/VideoCrops";
+import { useEffect, useState } from "react";
 
 interface VideoPageLoaderData {
   readonly video: Video;
   readonly videoBlob: Blob;
   readonly videoBlobUrl: string;
   readonly frameGeometries: FrameGeometry[];
-  readonly videoCrops: VideoCrops;
 }
 
 export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> {
@@ -29,21 +29,28 @@ export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> 
   // fetch the geometry file
   const frameGeometries = await api.videos.getFrameGeometries(video.id);
 
-  // fetch video crops
-  const videoCrops = await api.videos.getCrops(video.id);
-
   return {
     video,
     videoBlob,
     videoBlobUrl,
     frameGeometries,
-    videoCrops,
   };
 }
 
 export function VideoPage() {
   const data = useLoaderData() as VideoPageLoaderData;
   const video_file = data.video.normalized_file || data.video.uploaded_file;
+
+  const [videoCrops, setVideoCrops] = useState<VideoCrops | null>(null);
+
+  // download video crops
+  useEffect(() => {
+    (async () => {
+      const api = BackendApi.current();
+      const crops = await api.videos.getCrops(data.video.id)
+      setVideoCrops(crops);
+    })();
+  }, [data.video.id]);
 
   async function reprocessVideo() {
     const api = BackendApi.current();
@@ -56,13 +63,20 @@ export function VideoPage() {
 
       <Button onClick={() => reprocessVideo()}>Re-process video</Button>
 
-      <VideoPlayer
-        videoFile={video_file}
-        videoBlob={data.videoBlob}
-        videoBlobUrl={data.videoBlobUrl}
-        frameGeometries={data.frameGeometries}
-        videoCrops={data.videoCrops}
-      />
+      <Box sx={{ margin: "0 auto", maxWidth: "850px" }}>
+
+        <Typography level="h1" gutterBottom>
+          Video Title Goes Here
+        </Typography>
+
+        <VideoPlayer
+          videoFile={video_file}
+          videoBlob={data.videoBlob}
+          videoBlobUrl={data.videoBlobUrl}
+          frameGeometries={data.frameGeometries}
+          videoCrops={videoCrops}
+        />
+      </Box>
 
       <pre>{ JSON.stringify(data.video, null, 2) }</pre>
 

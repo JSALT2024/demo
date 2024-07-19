@@ -4,11 +4,13 @@ import { FixedAspectBox } from "./FixedAspectBox";
 import { CSSProperties, useRef } from "react";
 import { FrameGeometry, buildMissingFrameGeometry } from "../../api/model/FrameGeometry";
 import * as d3 from "d3";
+import { SxProps } from "@mui/joy/styles/types";
 
 export interface VideoPreviewProps {
   readonly videoPlayerController: VideoPlayerController;
   readonly videoBlobUrl: string;
   readonly frameGeometries: FrameGeometry[];
+  readonly sx?: SxProps;
 }
 
 function sigmoid(z) {
@@ -120,44 +122,42 @@ export function VideoPreview(props: VideoPreviewProps) {
   };
 
   return (
-    <Box>
-      <FixedAspectBox
-        aspectRatio={1 / 1}
-        sx={{ width: "400px", border: "1px solid black", background: "black" }}
-      >
-        {/* Video element */}
-        <video
-          ref={props.videoPlayerController.videoElementRef}
-          style={FILL_STYLE}
-          src={props.videoBlobUrl}
-          muted={true}
-          controls={false}
-          onCanPlay={props.videoPlayerController.video_onCanPlay}
-          onSeeked={props.videoPlayerController.video_onSeeked}
-          onPlay={props.videoPlayerController.video_onPlay}
-          onPause={props.videoPlayerController.video_onPause}
-        ></video>
+    <FixedAspectBox
+      aspectRatio={1 / 1}
+      sx={{ ...props.sx, background: "black" }}
+    >
+      {/* Video element */}
+      <video
+        ref={props.videoPlayerController.videoElementRef}
+        style={FILL_STYLE}
+        src={props.videoBlobUrl}
+        muted={true}
+        controls={false}
+        onCanPlay={props.videoPlayerController.video_onCanPlay}
+        onSeeked={props.videoPlayerController.video_onSeeked}
+        onPlay={props.videoPlayerController.video_onPlay}
+        onPause={props.videoPlayerController.video_onPause}
+      ></video>
 
-        {/* signing space overlay */}
-        <svg style={FILL_STYLE}>
-          <rect
-            ref={signingSpaceSvgRectRef}
-            stroke="lime"
-            strokeWidth="2"
-            fill="transparent"
-          />
-        </svg>
+      {/* signing space overlay */}
+      <svg style={FILL_STYLE}>
+        <rect
+          ref={signingSpaceSvgRectRef}
+          stroke="lime"
+          strokeWidth="2"
+          fill="transparent"
+        />
+      </svg>
 
-        {/* body pose overlay */}
-        <svg style={FILL_STYLE} ref={bodyPoseSvgRef}>
-          <circle
-            cx="50%"
-            cy="50%"
-            r="2"
-            fill="lime"
-          />
-        </svg>
-      </FixedAspectBox>
-    </Box>
+      {/* body pose overlay */}
+      <svg style={FILL_STYLE} ref={bodyPoseSvgRef}>
+        <circle
+          cx="50%"
+          cy="50%"
+          r="2"
+          fill="lime"
+        />
+      </svg>
+    </FixedAspectBox>
   )
 }

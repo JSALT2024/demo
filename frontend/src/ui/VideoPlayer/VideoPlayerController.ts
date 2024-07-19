@@ -22,6 +22,7 @@ export interface VideoPlayerController {
   readonly videoElementRef: MutableRefObject<HTMLVideoElement | null>;
   readonly isPlaying: boolean;
   readonly videoFile: VideoFile;
+  readonly currentFrameIndexRef: MutableRefObject<number>;
 
   readonly _frameChangeEventHandlersRef: any;
 
@@ -52,8 +53,12 @@ export function useVideoPlayerController(
   const videoElementRef = useRef<HTMLVideoElement | null>(null);
   const frameChangeEventHandlersRef = useRef<FrameChangeEventHandler[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const currentFrameIndexRef = useRef<number>(0);
 
   function onFrameChange(frameIndex: number) {
+    // remember the current frame index
+    currentFrameIndexRef.current = frameIndex;
+
     // dispatch the frame change event
     const event: FrameChangeEvent = { frameIndex };
     for (const handler of frameChangeEventHandlersRef.current) {
@@ -82,6 +87,7 @@ export function useVideoPlayerController(
     videoElementRef,
     isPlaying,
     videoFile: props.videoFile,
+    currentFrameIndexRef,
 
     // private readable state
     _frameChangeEventHandlersRef: frameChangeEventHandlersRef,
@@ -113,6 +119,7 @@ export function useVideoPlayerController(
     // frame change event handling
     addFrameChangeEventListener(handler: FrameChangeEventHandler) {
       frameChangeEventHandlersRef.current.push(handler);
+      handler({ frameIndex: currentFrameIndexRef.current });
     },
     removeFrameChangeEventListener(handler: FrameChangeEventHandler) {
       const index = frameChangeEventHandlersRef.current.indexOf(handler);
@@ -138,16 +145,21 @@ export function useVideoPlayerController(
 }
 
 /**
- * Subscribes a frame change event listener for the lifetime of the caller
+ * Subscribes a frame change event listener for the lifetime of the caller.
+ * Provide a list of dependencies to specify when to re-bind the handler
+ * function. This should be the list of props the handler function
+ * relies on (because the handler function has them attached in its closure
+ * otherwise and that needs to be broken)
  */
 export function useFrameChangeEvent(
   controller: VideoPlayerController,
-  handler: FrameChangeEventHandler
+  handler: FrameChangeEventHandler,
+  dependencies?: any[]
 ) {
   // analogous to window.onscroll event binding usually done in react
   // (cached based on the "event hub" object identity)
   useEffect(() => {
     controller.addFrameChangeEventListener(handler);
     return () => controller.removeFrameChangeEventListener(handler);
-  }, [controller._frameChangeEventHandlersRef]);
+  }, [controller._frameChangeEventHandlersRef, ...(dependencies || [])]);
 }

@@ -34,8 +34,11 @@ export function VideoNavigation(props: VideoNavigationProps) {
   }
   
   return (
-    <Box sx={{ background: "tomato", padding: "24px" }}>
-      Video navigation:
+    <Box sx={{
+      display: "flex",
+      flexDirection: "row",
+      padding: 2,
+    }}>
       <Button onClick={handlePlayPauseClick}>
         { props.videoPlayerController.isPlaying ? "Pause" : "Play" }
       </Button>
@@ -45,7 +48,7 @@ export function VideoNavigation(props: VideoNavigationProps) {
         min={0}
         max={props.videoPlayerController.videoFile.frame_count - 1}
         step={1}
-        style={{ width: "900px" }}
+        style={{ flexGrow: 1 }}
         onChange={onSliderChange}
       ></input>
     </Box>

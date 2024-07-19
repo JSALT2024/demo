@@ -75,7 +75,10 @@ export class VideosApi {
 
   async getCrops(id: string): Promise<VideoCrops> {
     return {
-      face: await this.getCropFrames(id, "face")
+      right_hand: await this.getCropFrames(id, "right_hand"),
+      left_hand: await this.getCropFrames(id, "left_hand"),
+      face: await this.getCropFrames(id, "face"),
+      images: await this.getCropFrames(id, "images"),
     }
   }
 
