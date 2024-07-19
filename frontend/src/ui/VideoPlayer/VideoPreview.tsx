@@ -1,15 +1,16 @@
 import { Box } from "@mui/joy";
 import { VideoPlayerController, useFrameChangeEvent } from "./VideoPlayerController";
 import { FixedAspectBox } from "./FixedAspectBox";
-import { CSSProperties, useRef } from "react";
+import { CSSProperties, useEffect, useRef } from "react";
 import { FrameGeometry, buildMissingFrameGeometry } from "../../api/model/FrameGeometry";
 import * as d3 from "d3";
 import { SxProps } from "@mui/joy/styles/types";
+import { useApplyVideoBlob } from "./useApplyVideoBlob";
 
 export interface VideoPreviewProps {
   readonly videoPlayerController: VideoPlayerController;
-  readonly videoBlobUrl: string;
-  readonly frameGeometries: FrameGeometry[];
+  readonly videoBlob: Blob | null;
+  readonly frameGeometries: FrameGeometry[] | null;
   readonly sx?: SxProps;
 }
 
@@ -26,17 +27,12 @@ export function VideoPreview(props: VideoPreviewProps) {
   const bodyPoseSvgRef = useRef<SVGSVGElement | null>(null);
 
   // how much smaller is the signing space compared to the preview square
-  const zoomScaling = 0.8;
+  const zoomScaling = 0.9;
 
   function onFrameChange(frameIndex: number) {
-    // TODO: DEBUG: scale when rendering
-    // const zoomScaling = (
-    //   1 - (frameIndex / props.videoPlayerController.videoFile.frame_count)
-    // );
-
     // fetch data for the frame
     const frameGeometry: FrameGeometry = (
-      props.frameGeometries[frameIndex] || buildMissingFrameGeometry(
+      props.frameGeometries?.[frameIndex] || buildMissingFrameGeometry(
         props.videoPlayerController.videoFile
       )
     );
@@ -110,8 +106,15 @@ export function VideoPreview(props: VideoPreviewProps) {
 
   useFrameChangeEvent(
     props.videoPlayerController,
-    e => onFrameChange(e.frameIndex)
+    e => onFrameChange(e.frameIndex),
+    [props.frameGeometries],
   );
+
+  // set the video blob to the video element
+  useApplyVideoBlob({
+    videoBlob: props.videoBlob,
+    videoPlayerController: props.videoPlayerController,
+  });
 
   const FILL_STYLE: CSSProperties = {
     position: "absolute",
@@ -130,7 +133,6 @@ export function VideoPreview(props: VideoPreviewProps) {
       <video
         ref={props.videoPlayerController.videoElementRef}
         style={FILL_STYLE}
-        src={props.videoBlobUrl}
         muted={true}
         controls={false}
         onCanPlay={props.videoPlayerController.video_onCanPlay}

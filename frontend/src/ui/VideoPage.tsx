@@ -9,46 +9,37 @@ import { useEffect, useState } from "react";
 
 interface VideoPageLoaderData {
   readonly video: Video;
-  readonly videoBlob: Blob;
-  readonly videoBlobUrl: string;
-  readonly frameGeometries: FrameGeometry[];
 }
 
 export async function videoPageLoader({ params }): Promise<VideoPageLoaderData> {
-  // fetch the video record
+  // fetch only the video record
   const api = BackendApi.current();
   const video = await api.videos.get(params.videoId);
-
-  // fetch the video file
-  const videoFileUrl = video.normalized_file
-    ? api.videos.getNormalizedVideoFileUrl(video.id)
-    : api.videos.getUploadedVideoFileUrl(video.id);
-  const videoBlob = await (await fetch(videoFileUrl)).blob();
-  const videoBlobUrl = URL.createObjectURL(videoBlob);
-
-  // fetch the geometry file
-  const frameGeometries = await api.videos.getFrameGeometries(video.id);
-
   return {
     video,
-    videoBlob,
-    videoBlobUrl,
-    frameGeometries,
   };
 }
 
 export function VideoPage() {
   const data = useLoaderData() as VideoPageLoaderData;
-  const video_file = data.video.normalized_file || data.video.uploaded_file;
 
+  const [normalizedVideoBlob, setNormalizedVideoBlob] = useState<Blob | null>(null);
+  const [frameGeometries, setFrameGeometries] = useState<FrameGeometry[] | null>(null);
   const [videoCrops, setVideoCrops] = useState<VideoCrops | null>(null);
 
-  // download video crops
+  // download the heavy video data
   useEffect(() => {
     (async () => {
       const api = BackendApi.current();
-      const crops = await api.videos.getCrops(data.video.id)
-      setVideoCrops(crops);
+      setNormalizedVideoBlob(
+        await api.videos.getNormalizedVideoBlob(data.video.id)
+      );
+      setFrameGeometries(
+        await api.videos.getFrameGeometries(data.video.id)
+      );
+      setVideoCrops(
+        await api.videos.getCrops(data.video.id)
+      );
     })();
   }, [data.video.id]);
 
@@ -69,13 +60,19 @@ export function VideoPage() {
           Video Title Goes Here
         </Typography>
 
-        <VideoPlayer
-          videoFile={video_file}
-          videoBlob={data.videoBlob}
-          videoBlobUrl={data.videoBlobUrl}
-          frameGeometries={data.frameGeometries}
-          videoCrops={videoCrops}
-        />
+        {data.video.normalized_file ? (
+          <VideoPlayer
+            videoFile={data.video.normalized_file}
+            videoBlob={normalizedVideoBlob}
+            frameGeometries={frameGeometries}
+            videoCrops={videoCrops}
+          />
+        ) : (
+          <Typography level="body-md" color="warning">
+            The video has not beed normalized yet, wait and reload the page.
+          </Typography>
+        )}
+
       </Box>
 
       <pre>{ JSON.stringify(data.video, null, 2) }</pre>

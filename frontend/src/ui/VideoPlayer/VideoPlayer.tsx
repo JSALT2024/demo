@@ -10,9 +10,8 @@ import { CropView } from "./CropView";
 
 export interface VideoPlayerProps {
   readonly videoFile: VideoFile;
-  readonly videoBlob: Blob;
-  readonly videoBlobUrl: string;
-  readonly frameGeometries: FrameGeometry[];
+  readonly videoBlob: Blob | null;
+  readonly frameGeometries: FrameGeometry[] | null;
   readonly videoCrops: VideoCrops | null;
 }
 
@@ -42,7 +41,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
       <Box sx={{ display: "flex", flexDirection: "row" }}>
         <VideoPreview
           sx={{ width: "50%" }}
-          videoBlobUrl={props.videoBlobUrl}
+          videoBlob={props.videoBlob}
           videoPlayerController={videoPlayerController}
           frameGeometries={props.frameGeometries}
         />
@@ -60,9 +59,9 @@ export function VideoPlayer(props: VideoPlayerProps) {
           <Stack direction="row" spacing={1}>
             <CropView
               sx={{ width: "32px", flexGrow: 1 }}
-              label="Left Hand"
+              label="Right Hand"
               videoPlayerController={videoPlayerController}
-              cropFrames={props.videoCrops?.left_hand || null}
+              cropFrames={props.videoCrops?.right_hand || null}
             />
             <CropView
               sx={{ width: "32px", flexGrow: 1 }}
@@ -72,9 +71,9 @@ export function VideoPlayer(props: VideoPlayerProps) {
             />
             <CropView
               sx={{ width: "32px", flexGrow: 1 }}
-              label="Right Hand"
+              label="Left Hand"
               videoPlayerController={videoPlayerController}
-              cropFrames={props.videoCrops?.right_hand || null}
+              cropFrames={props.videoCrops?.left_hand || null}
             />
             <CropView
               sx={{ width: "32px", flexGrow: 1 }}

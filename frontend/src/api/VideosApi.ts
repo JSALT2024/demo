@@ -38,6 +38,17 @@ export class VideosApi {
     return this.connection.url(`videos/${id}/cropped/${cropName}`);
   }
 
+  async getNormalizedVideoBlob(id: string): Promise<Blob | null> {
+    const response = await this.connection.request(
+      "GET",
+      `videos/${id}/normalized-file`
+    );
+    if (response.status !== 200) {
+      throw response;
+    }
+    return await response.blob();
+  }
+
   async getFrameGeometries(id: string): Promise<FrameGeometry[]> {
     const response = await this.connection.request(
       "GET",
