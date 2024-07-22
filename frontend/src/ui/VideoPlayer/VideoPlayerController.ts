@@ -5,6 +5,8 @@ import {
   useRef,
   useState,
   SyntheticEvent,
+  SetStateAction,
+  Dispatch,
 } from "react";
 import { VideoFile } from "../../api/model/Video";
 import { useVideoFrameTracking } from "./useVideoFrameTracking";
@@ -30,6 +32,15 @@ export interface VideoPlayerController {
   readonly isPlaying: boolean;
   readonly videoFile: VideoFile;
   readonly currentFrameIndexRef: MutableRefObject<number>;
+
+  readonly overlayPose: boolean;
+  readonly overlayFace: boolean;
+  readonly overlayLeftHand: boolean;
+  readonly overlayRightHand: boolean;
+  readonly setOverlayPose: Dispatch<SetStateAction<boolean>>;
+  readonly setOverlayFace: Dispatch<SetStateAction<boolean>>;
+  readonly setOverlayLeftHand: Dispatch<SetStateAction<boolean>>;
+  readonly setOverlayRightHand: Dispatch<SetStateAction<boolean>>;
 
   readonly _frameChangeEventHandlersRef: any;
 
@@ -62,6 +73,11 @@ export function useVideoPlayerController(
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const currentFrameIndexRef = useRef<number>(0);
 
+  const [overlayPose, setOverlayPose] = useState<boolean>(true);
+  const [overlayFace, setOverlayFace] = useState<boolean>(true);
+  const [overlayLeftHand, setOverlayLeftHand] = useState<boolean>(true);
+  const [overlayRightHand, setOverlayRightHand] = useState<boolean>(true);
+
   function onFrameChange(frameIndex: number) {
     // remember the current frame index
     currentFrameIndexRef.current = frameIndex;
@@ -83,7 +99,14 @@ export function useVideoPlayerController(
   // returned value refreshes when these values change
   // (change in these will trigger React re-render, to watch others you need
   // to subscribe to the corresponding vanilla-js events)
-  const memoDependencies = [isPlaying, props.videoFile];
+  const memoDependencies = [
+    isPlaying,
+    props.videoFile,
+    overlayPose,
+    overlayFace,
+    overlayLeftHand,
+    overlayRightHand,
+  ];
 
   // returns the object that users use to access the controller
   return useMemo<VideoPlayerController>(
@@ -93,6 +116,15 @@ export function useVideoPlayerController(
       isPlaying,
       videoFile: props.videoFile,
       currentFrameIndexRef,
+
+      overlayPose,
+      overlayFace,
+      overlayLeftHand,
+      overlayRightHand,
+      setOverlayPose,
+      setOverlayFace,
+      setOverlayLeftHand,
+      setOverlayRightHand,
 
       // private readable state
       _frameChangeEventHandlersRef: frameChangeEventHandlersRef,

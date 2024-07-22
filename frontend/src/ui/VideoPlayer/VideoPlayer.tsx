@@ -65,24 +65,44 @@ export function VideoPlayer(props: VideoPlayerProps) {
               label="Right Hand"
               videoPlayerController={videoPlayerController}
               cropFrames={props.videoCrops?.right_hand || null}
+              overlayVisible={videoPlayerController.overlayRightHand}
+              toggleOverlay={() =>
+                videoPlayerController.setOverlayRightHand((v) => !v)
+              }
+              color="yellow"
             />
             <CropView
               sx={{ width: "32px", flexGrow: 1 }}
               label="Face"
               videoPlayerController={videoPlayerController}
               cropFrames={props.videoCrops?.face || null}
+              overlayVisible={videoPlayerController.overlayFace}
+              toggleOverlay={() =>
+                videoPlayerController.setOverlayFace((v) => !v)
+              }
+              color="tomato"
             />
             <CropView
               sx={{ width: "32px", flexGrow: 1 }}
               label="Left Hand"
               videoPlayerController={videoPlayerController}
               cropFrames={props.videoCrops?.left_hand || null}
+              overlayVisible={videoPlayerController.overlayLeftHand}
+              toggleOverlay={() =>
+                videoPlayerController.setOverlayLeftHand((v) => !v)
+              }
+              color="cyan"
             />
             <CropView
               sx={{ width: "32px", flexGrow: 1 }}
               label="MAE"
               videoPlayerController={videoPlayerController}
               cropFrames={props.videoCrops?.images || null}
+              overlayVisible={videoPlayerController.overlayPose}
+              toggleOverlay={() =>
+                videoPlayerController.setOverlayPose((v) => !v)
+              }
+              color="lime"
             />
           </Stack>
           <Typography level="body-xs" gutterBottom sx={{ marginTop: 2 }}>

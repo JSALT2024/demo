@@ -1,17 +1,16 @@
-import { Box } from "@mui/joy";
 import {
   VideoPlayerController,
   useFrameChangeEvent,
 } from "./VideoPlayerController";
 import { FixedAspectBox } from "./FixedAspectBox";
-import { CSSProperties, useEffect, useRef } from "react";
+import { CSSProperties, useRef } from "react";
 import {
   FrameGeometry,
   buildMissingFrameGeometry,
 } from "../../api/model/FrameGeometry";
-import * as d3 from "d3";
 import { SxProps } from "@mui/joy/styles/types";
 import { useApplyVideoBlob } from "./useApplyVideoBlob";
+import { renderPreviewOverlay } from "./renderPreviewOverlay";
 
 export interface VideoPreviewProps {
   readonly videoPlayerController: VideoPlayerController;
@@ -20,17 +19,8 @@ export interface VideoPreviewProps {
   readonly sx?: SxProps;
 }
 
-function sigmoid(z) {
-  return 1 / (1 + Math.exp(-z));
-}
-
-function lerp(t, a, b) {
-  return a + t * (b - a);
-}
-
 export function VideoPreview(props: VideoPreviewProps) {
-  const signingSpaceSvgRectRef = useRef<SVGRectElement | null>(null);
-  const bodyPoseSvgRef = useRef<SVGSVGElement | null>(null);
+  const overlaySvgRef = useRef<SVGSVGElement | null>(null);
 
   // how much smaller is the signing space compared to the preview square
   const zoomScaling = 0.9;
@@ -83,41 +73,22 @@ export function VideoPreview(props: VideoPreviewProps) {
       e.style.height = String(videoRectPct.h) + "%";
     }
 
-    // position the signing space rectangle
-    if (signingSpaceSvgRectRef.current !== null) {
-      const e = signingSpaceSvgRectRef.current;
-      e.setAttribute("x", String(signingSpacePct.x) + "%");
-      e.setAttribute("y", String(signingSpacePct.y) + "%");
-      e.setAttribute("width", String(signingSpacePct.w) + "%");
-      e.setAttribute("height", String(signingSpacePct.h) + "%");
-    }
-
-    // display the body pose
-    if (bodyPoseSvgRef.current !== null) {
-      const e = bodyPoseSvgRef.current;
-      d3.select(e)
-        .selectAll("circle")
-        .data(frameGeometry.pose_landmarks || [])
-        .join("circle")
-        .attr(
-          "cx",
-          (d) => String(videoRectPct.x + d[0] * videoVpx2PctScale) + "%",
-        )
-        .attr(
-          "cy",
-          (d) => String(videoRectPct.y + d[1] * videoVpx2PctScale) + "%",
-        )
-        // .attr("r", d => lerp((-d[2] / signingSpaceVpx.w) * 100 + 0.1, 2, 50))
-        .attr("r", 5)
-        .attr("opacity", (d) => sigmoid(d[3]))
-        .attr("fill", "lime");
+    // render the overlay
+    if (overlaySvgRef.current !== null) {
+      renderPreviewOverlay(
+        overlaySvgRef.current,
+        frameGeometry,
+        videoRectPct,
+        videoVpx2PctScale,
+        props.videoPlayerController,
+      );
     }
   }
 
   useFrameChangeEvent(
     props.videoPlayerController,
     (e) => onFrameChange(e.frameIndex),
-    [props.frameGeometries],
+    [props.frameGeometries, props.videoPlayerController],
   );
 
   // set the video blob to the video element
@@ -151,20 +122,8 @@ export function VideoPreview(props: VideoPreviewProps) {
         onPause={props.videoPlayerController.video_onPause}
       ></video>
 
-      {/* signing space overlay */}
-      <svg style={FILL_STYLE}>
-        <rect
-          ref={signingSpaceSvgRectRef}
-          stroke="lime"
-          strokeWidth="2"
-          fill="transparent"
-        />
-      </svg>
-
-      {/* body pose overlay */}
-      <svg style={FILL_STYLE} ref={bodyPoseSvgRef}>
-        <circle cx="50%" cy="50%" r="2" fill="lime" />
-      </svg>
+      {/* video preview overlay */}
+      <svg style={FILL_STYLE} ref={overlaySvgRef}></svg>
     </FixedAspectBox>
   );
 }

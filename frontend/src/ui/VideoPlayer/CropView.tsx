@@ -17,6 +17,9 @@ export interface CropViewProps {
   readonly videoPlayerController: VideoPlayerController;
   readonly cropFrames: Blob[] | null;
   readonly label: string;
+  readonly overlayVisible: boolean;
+  readonly toggleOverlay: () => void;
+  readonly color: string;
   readonly sx?: SxProps;
 }
 
@@ -93,7 +96,15 @@ export function CropView(props: CropViewProps) {
         }}
       >
         {/* The image element that renders the crop frame */}
-        <img ref={imgElementRef} style={{ ...FILL_STYLE }} />
+        <img
+          ref={imgElementRef}
+          style={{
+            ...FILL_STYLE,
+            border: props.overlayVisible
+              ? "2px solid " + props.color
+              : "2px solid transparent",
+          }}
+        />
 
         {/* Spinner shown when the crops have not been loaded yet */}
         {props.cropFrames === null && (
@@ -115,9 +126,9 @@ export function CropView(props: CropViewProps) {
           }}
           size="lg"
           variant="plain"
+          onClick={() => props.toggleOverlay()}
         >
-          <VisibilityIcon />
-          {/* <VisibilityOffIcon /> */}
+          {props.overlayVisible ? <VisibilityOffIcon /> : <VisibilityIcon />}
         </IconButton>
       </FixedAspectBox>
     </Box>
