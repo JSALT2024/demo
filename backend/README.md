@@ -117,3 +117,21 @@ You can test the MAE encoder by running:
 ```bash
 .venv/bin/python3 -m app.debug.test_mae
 ```
+
+
+## Installing Sign2Vec encoder
+
+Clone the Sign2Vec repo into the `models` folder:
+
+```bash
+cd models
+git clone git@github.com:JSALT2024/sign2vec.git
+cd sign2vec
+git checkout pretraining --
+git pull
+cd ../..
+```
+
+The project is not a python package, so it cannot be installed via pip. Instead, the `sys.path.append("...")` method is used to import it.
+
+The model checkpoint will be downloaded from huggingface.

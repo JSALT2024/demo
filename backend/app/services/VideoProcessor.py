@@ -58,9 +58,11 @@ class VideoProcessor:
             self.enumerate_normalized_file()
 
         # mediapipe
-        self.run_mediapipe()
+        if not self.GEOMETRY_FILE.exists() and not force_all:
+            self.run_mediapipe()
 
         # encoders
+        self.run_sign2vec()
 
         # LLaVA
 
@@ -110,3 +112,6 @@ class VideoProcessor:
             cropped_images_folder=self.CROPPED_IMAGES_FOLDER
         )
         mediapipe.run()
+    
+    def run_sign2vec(self):
+        print("HELLO!")
