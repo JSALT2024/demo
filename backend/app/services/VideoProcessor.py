@@ -6,6 +6,8 @@ from ..preprocessing.VideoNormalizer import VideoNormalizer
 from ..preprocessing.FrameEnumerator import FrameEnumerator
 from ..preprocessing.MediapipeProcessor import MediapipeProcessor
 from ..encoding.MaeProcessor import MaeProcessor
+from ..encoding.DinoProcessor import DinoProcessor
+from ..encoding.Sign2VecProcessor import Sign2VecProcessor
 from pathlib import Path
 import shutil
 import torch
@@ -44,6 +46,8 @@ class VideoProcessor:
         self.CROPPED_FACE_FOLDER = self.path("cropped_face")
         self.CROPPED_IMAGES_FOLDER = self.path("cropped_images")
         self.EMBEDDINGS_MAE_FILE = self.path("embeddings_mae.npy")
+        self.EMBEDDINGS_S2V_FILE = self.path("embeddings_s2v.npy")
+        self.EMBEDDINGS_DINO_FILE = self.path("embeddings_dino.npy")
     
     def path(self, relative_path: Union[str, Path]) -> Path:
         """Returns the global path of a file inside the storage video folder"""
@@ -65,9 +69,15 @@ class VideoProcessor:
             self.run_mediapipe()
 
         # encoders
-        self.run_mae()
+        if not self.EMBEDDINGS_MAE_FILE.exists() and not force_all:
+            self.run_mae()
+        if not self.EMBEDDINGS_S2V_FILE.exists() and not force_all:
+            self.run_sign2vec()
+        if not self.EMBEDDINGS_DINO_FILE.exists() and not force_all:
+            self.run_dino()
 
         # LLaVA
+        # TODO ...
 
     def normalize_uploaded_file(self):
         normalizer = VideoNormalizer(
@@ -124,3 +134,17 @@ class VideoProcessor:
             embeddings_mae_file=self.EMBEDDINGS_MAE_FILE
         )
         mae.run()
+    
+    def run_sign2vec(self):
+        pass
+
+    def run_dino(self):
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        dino = DinoProcessor(
+            device=device,
+            cropped_face_folder=self.CROPPED_FACE_FOLDER,
+            cropped_left_hand_folder=self.CROPPED_LEFT_HAND_FOLDER,
+            cropped_right_hand_folder=self.CROPPED_RIGHT_HAND_FOLDER,
+            embeddings_dino_file=self.EMBEDDINGS_DINO_FILE
+        )
+        dino.run()

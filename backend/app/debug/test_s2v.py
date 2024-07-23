@@ -1,20 +1,26 @@
 import torch
 import numpy as np
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 
 import sys
 sys.path.append("models/sign2vec")
 
-from sign2vec.modeling_sign2vec import Sign2VecModel, Sign2VecFeatureExtractor
+
+from sign2vec.modeling_sign2vec import Sign2VecModel
+from sign2vec.feature_extraction_sign2vec import Sign2VecFeatureExtractor
 
 model = Sign2VecModel.from_pretrained(
-    "karahansahin/sign2vec-yasl-sc-sc-64-8-d1",
-    token=None # TODO: enter my personal hf access token
+    "karahansahin/sign2vec-yasl-mc-sc-64-2-d1-decay",
+    token=os.environ.get("HUGGINGFACE_TOKEN")
 )
-
 feature_extractor = Sign2VecFeatureExtractor()
 
 # structure of the feature_extractor inputs
-inputs = {
+frame_count = 125
+sample_pose = {
     # shape: [TIME, LANDMARKS, (X,Y,Z,vis)]
     # with zeros where the pose was not detected
     # the temporal:
@@ -27,20 +33,22 @@ inputs = {
     # - the sign2vec model uses only the first two feature dimensions (X, Y)
     #   of the input data, so the number and meaning of the remaining ones
     #   does not matter.
-    "pose_landmarks": np.ndarray, # 33 landmarks
+    "pose_landmarks": np.zeros(shape=(frame_count, 33, 4), dtype=np.float64),
 
     # these have analogous structure
-    "right_hand_landmarks": np.ndarray, # 21 landmarks
-    "left_hand_landmarks": np.ndarray, # 21 landmarks
-    "face_landmarks": np.ndarray, # 478 landmarks
+    "right_hand_landmarks": np.zeros(shape=(frame_count, 21, 4), dtype=np.float64),
+    "left_hand_landmarks": np.zeros(shape=(frame_count, 21, 4), dtype=np.float64),
+    "face_landmarks": np.zeros(shape=(frame_count, 478, 4), dtype=np.float64),
 }
 
-features = feature_extractor(inputs) # numpy array
+inputs = feature_extractor(sample_pose)
+features = inputs["input_values"][0]
 features = torch.tensor(features).float()
-features = features.unsqueeze(0)
 features = features.transpose(1, 2)
-features = model(input_values=features.to("cuda:0"), output_hidden_states=True)
-features = features.last_hidden_state.detach().cpu().numpy()[0]
+out = model(features)
+sign2vec_features = out.last_hidden_state.detach().cpu().numpy()[0]
+
+print(sign2vec_features.shape)
 
 # the structure of features:
 # - it's a numpy array

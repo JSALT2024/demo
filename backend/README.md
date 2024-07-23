@@ -135,3 +135,33 @@ cd ../..
 The project is not a python package, so it cannot be installed via pip. Instead, the `sys.path.append("...")` method is used to import it.
 
 The model checkpoint will be downloaded from huggingface.
+
+
+## Installing Dino encoder
+
+Clone the DINO repo into the `models` folder:
+
+```bash
+cd models
+git clone git@github.com:JSALT2024/DINOv2.git
+cd ..
+```
+
+The project is not a python package, so it cannot be installed via pip. Instead, the `sys.path.append("...")` method is used to import it.
+
+Now, download the trained model(s) into the `checkpoints` folder:
+
+```bash
+# create the dir (and/or symlink it to some cluster storage mountpoint, since theres going to be more data present here)
+mkdir -p checkpoints/DINOv2
+
+# download if not downloaded already
+wget -nc https://github.com/JSALT2024/DINOv2/releases/download/dinov2_model/face_dinov2_vits14_reg_teacher_checkpoint.pth -P checkpoints/DINOv2
+wget -nc https://github.com/JSALT2024/DINOv2/releases/download/dinov2_model/hand_dinov2_vits14_reg_teacher_checkpoint.pth -P checkpoints/DINOv2
+```
+
+You can test the DINO encoder by running:
+
+```bash
+.venv/bin/python3 -m app.debug.test_dino
+```
