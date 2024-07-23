@@ -43,8 +43,13 @@ class ChunkJob:
         self.chunk_end_frame = chunk_start_frame + self.chunk_length
 
     def run(self, mediapipe_models: Any):
+        images = [
+            # mediapipe expects RGB, not BGR
+            cv2.cvtColor(frame.img, cv2.COLOR_BGR2RGB)
+            for frame in self.chunk_stream
+        ]
         prediction: dict = predict_pose(
-            [frame.img for frame in self.chunk_stream],
+            images,
             mediapipe_models
         )
 
@@ -117,9 +122,14 @@ class ChunkJob:
         MAE_SIZE = 224
 
         def normalize(img: np.ndarray, target_size: int) -> Frame:
-            return Frame(
-                cv2.resize(img, dsize=(target_size, target_size))
-            )
+            # mediapipe produces RGB, we expect BGR
+            img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+            
+            # we resize to the desired size, mediapipe returns the
+            # original crop resolution unmodified
+            img = cv2.resize(img, dsize=(target_size, target_size))
+            
+            return Frame(img)
 
         # prepare output streams for the crops
         # (here, for each chunk, because the stream has the current frame state

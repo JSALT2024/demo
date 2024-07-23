@@ -106,7 +106,11 @@ class FolderJpgFrameStream(FrameStream):
         return self._folder_path / f"frame_{str(frame_index).zfill(6)}.jpg"
     
     def read_frame(self, advance_pointer=True) -> Optional[Frame]:
-        img = cv2.imread(self._frame_path(self._next_frame_index))
+        frame_path = self._frame_path(self._next_frame_index)
+        if not frame_path.is_file():
+            return None
+
+        img = cv2.imread(frame_path)
         frame = Frame(img)
 
         if self.is_heterogenous:
