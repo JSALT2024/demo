@@ -31,7 +31,7 @@ timm >= 0.9.16
 # pose estimation
 # ---------------
 mediapipe >= 0.10.14
-# ultralytics >= 8.2.18  # YOLO has been removed from preprocessing
+ultralytics >= 8.2.18
 
 # sign2vec
 # --------
