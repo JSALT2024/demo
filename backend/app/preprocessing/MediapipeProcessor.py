@@ -69,6 +69,11 @@ class ChunkJob:
     ) -> FrameGeometry:
         keypoints: dict = prediction["keypoints"][chunk_frame_index]
 
+        def numpyfy(landmarks):
+            if landmarks is None:
+                return None
+            return np.array(landmarks, dtype=np.float64)
+        
         def nullify(landmarks):
             if len(landmarks) == 0:
                 return None
@@ -80,12 +85,14 @@ class ChunkJob:
             # convert to python int from np.int64 and other weird int types
             return [int(i) for i in bbox]
         
+        # print(numpyfy(nullify(keypoints["face_landmarks"])))
+        
         # build up the geometry data
         return FrameGeometry(
-            pose_landmarks=nullify(keypoints["pose_landmarks"]),
-            right_hand_landmarks=nullify(keypoints["right_hand_landmarks"]),
-            left_hand_landmarks=nullify(keypoints["left_hand_landmarks"]),
-            face_landmarks=nullify(keypoints["face_landmarks"]),
+            pose_landmarks=numpyfy(nullify(keypoints["pose_landmarks"])),
+            right_hand_landmarks=numpyfy(nullify(keypoints["right_hand_landmarks"])),
+            left_hand_landmarks=numpyfy(nullify(keypoints["left_hand_landmarks"])),
+            face_landmarks=numpyfy(nullify(keypoints["face_landmarks"])),
             sign_space=intify(
                 # no nullify here; is never None
                 prediction["sign_space"][chunk_frame_index]
