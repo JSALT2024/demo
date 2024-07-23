@@ -109,7 +109,7 @@ Now, download the trained model into `checkpoints/MAE`:
 mkdir -p checkpoints/MAE
 
 # download if not downloaded already
-wget -nc https://dl.fbaipublicfiles.com/mae/visualize/mae_visualize_vit_large.pth -P checkpoints/MAE
+wget -nc https://github.com/JSALT2024/MAE/releases/download/mae_model/vit_base_16_16-07_21-52-12_checkpoint-440.pth -P checkpoints/MAE
 ```
 
 You can test the MAE encoder by running:
