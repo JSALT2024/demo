@@ -5,8 +5,10 @@ from ..domain.VideoFile import VideoFile
 from ..preprocessing.VideoNormalizer import VideoNormalizer
 from ..preprocessing.FrameEnumerator import FrameEnumerator
 from ..preprocessing.MediapipeProcessor import MediapipeProcessor
+from ..encoding.MaeProcessor import MaeProcessor
 from pathlib import Path
 import shutil
+import torch
 from typing import Union
 
 
@@ -41,6 +43,7 @@ class VideoProcessor:
         self.CROPPED_RIGHT_HAND_FOLDER = self.path("cropped_right_hand")
         self.CROPPED_FACE_FOLDER = self.path("cropped_face")
         self.CROPPED_IMAGES_FOLDER = self.path("cropped_images")
+        self.EMBEDDINGS_MAE_FILE = self.path("embeddings_mae.npy")
     
     def path(self, relative_path: Union[str, Path]) -> Path:
         """Returns the global path of a file inside the storage video folder"""
@@ -62,7 +65,7 @@ class VideoProcessor:
             self.run_mediapipe()
 
         # encoders
-        self.run_sign2vec()
+        self.run_mae()
 
         # LLaVA
 
@@ -113,5 +116,11 @@ class VideoProcessor:
         )
         mediapipe.run()
     
-    def run_sign2vec(self):
-        print("HELLO!")
+    def run_mae(self):
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        mae = MaeProcessor(
+            device=device,
+            cropped_images_folder=self.CROPPED_IMAGES_FOLDER,
+            embeddings_mae_file=self.EMBEDDINGS_MAE_FILE
+        )
+        mae.run()
