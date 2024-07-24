@@ -55,9 +55,9 @@ export function VideoPage() {
       Video detail!
       <Button onClick={() => reprocessVideo()}>Re-process video</Button>
       <Box sx={{ margin: "0 auto", maxWidth: "850px" }}>
-        <Typography level="h1" gutterBottom>
+        {/* <Typography level="h1" gutterBottom>
           Video Title Goes Here
-        </Typography>
+        </Typography> */}
 
         {data.video.normalized_file ? (
           <VideoPlayer

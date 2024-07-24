@@ -73,8 +73,16 @@ def get_normalized_file(video_id: str, app: ApplicationDependency) -> VideoOut:
         )
     
     folder_repo = app.video_folder_repository_factory.get_repository(video_id)
+    normalized_file_path = folder_repo.to_global_path(
+        video.normalized_file.file_path
+    )
+    if not normalized_file_path.is_file():
+        raise HTTPException(
+            status_code=404,
+            detail="The normalized video file is missing"
+        )
     return FileResponse(
-        folder_repo.to_global_path(video.normalized_file.file_path),
+        normalized_file_path,
         media_type=video.normalized_file.media_type
     )
 

@@ -43,28 +43,37 @@ export class VideosApi {
       "GET",
       `videos/${id}/normalized-file`,
     );
+    if (response.status === 404) {
+      return null;
+    }
     if (response.status !== 200) {
       throw response;
     }
     return await response.blob();
   }
 
-  async getFrameGeometries(id: string): Promise<FrameGeometry[]> {
+  async getFrameGeometries(id: string): Promise<FrameGeometry[] | null> {
     const response = await this.connection.request(
       "GET",
       `videos/${id}/geometry`,
     );
+    if (response.status === 404) {
+      return null;
+    }
     if (response.status !== 200) {
       throw response;
     }
     return (await response.json()) as FrameGeometry[];
   }
 
-  async getCropFrames(id: string, cropName: string): Promise<Blob[]> {
+  async getCropFrames(id: string, cropName: string): Promise<Blob[] | null> {
     const response = await this.connection.request(
       "GET",
       `videos/${id}/cropped/${cropName}`,
     );
+    if (response.status === 404) {
+      return null;
+    }
     if (response.status !== 200) {
       throw response;
     }
@@ -84,13 +93,18 @@ export class VideosApi {
     return blobs;
   }
 
-  async getCrops(id: string): Promise<VideoCrops> {
-    return {
+  async getCrops(id: string): Promise<VideoCrops | null> {
+    const data = {
       right_hand: await this.getCropFrames(id, "right_hand"),
       left_hand: await this.getCropFrames(id, "left_hand"),
       face: await this.getCropFrames(id, "face"),
       images: await this.getCropFrames(id, "images"),
     };
+    if (data.right_hand === null) return null;
+    if (data.left_hand === null) return null;
+    if (data.face === null) return null;
+    if (data.images === null) return null;
+    return data as VideoCrops;
   }
 
   async upload(
