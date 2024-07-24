@@ -46,6 +46,10 @@ export class Connection {
       method,
       headers,
       body,
+
+      // disable caching, since it causes trouble in devevelopment
+      // and we are only building a prototype
+      cache: "no-store",
     };
 
     // send the request
