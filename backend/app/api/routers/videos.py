@@ -124,6 +124,19 @@ def get_crops(video_id: str, crop_name: str, app: ApplicationDependency):
     ]
 
 
+@router.get("/{video_id}/clips-collection")
+def get_geometry(video_id: str, app: ApplicationDependency) -> VideoOut:
+    video = get_video_or_fail(video_id, app)
+    folder_repo = app.video_folder_repository_factory.get_repository(video.id)
+    file_path = folder_repo.to_global_path("clips_collection.json")
+    if not file_path.is_file():
+        raise HTTPException(
+            status_code=404,
+            detail="Clips collection file has not been extracted yet."
+        )
+    return FileResponse(file_path, media_type="application/json")
+
+
 @router.post("", status_code=201)
 async def upload_new_video(
     media_type: Annotated[str, Form()],

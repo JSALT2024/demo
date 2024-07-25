@@ -79,6 +79,15 @@ export function useVideoPlayerController(
   const [overlayRightHand, setOverlayRightHand] = useState<boolean>(true);
 
   function onFrameChange(frameIndex: number) {
+    // clamp the frame index to the video frames (because it sometimes runs)
+    // one frame after the end of the video due to the +-1 acuracy of tracking
+    if (frameIndex >= props.videoFile.frame_count) {
+      frameIndex = props.videoFile.frame_count - 1;
+    }
+    if (frameIndex < 0) {
+      frameIndex = 0;
+    }
+
     // remember the current frame index
     currentFrameIndexRef.current = frameIndex;
 

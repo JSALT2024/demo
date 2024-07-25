@@ -1,5 +1,5 @@
 import { Box, Sheet, Stack, Typography } from "@mui/joy";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { VideoFile } from "../../api/model/Video";
 import { VideoNavigation } from "./VideoNavigation";
 import {
@@ -10,12 +10,14 @@ import { VideoPreview } from "./VideoPreview";
 import { FrameGeometry } from "../../api/model/FrameGeometry";
 import { VideoCrops } from "../../api/model/VideoCrops";
 import { CropView } from "./CropView";
+import { ClipsCollection } from "../../api/model/ClipsCollection";
 
 export interface VideoPlayerProps {
   readonly videoFile: VideoFile;
   readonly videoBlob: Blob | null;
   readonly frameGeometries: FrameGeometry[] | null;
   readonly videoCrops: VideoCrops | null;
+  readonly clipsCollection: ClipsCollection | null;
 }
 
 export function VideoPlayer(props: VideoPlayerProps) {
@@ -23,12 +25,30 @@ export function VideoPlayer(props: VideoPlayerProps) {
     videoFile: props.videoFile,
   });
 
-  const frameNumberRef = useRef<HTMLPreElement | null>(null);
+  const frameNumberRef = useRef<HTMLSpanElement | null>(null);
+  const clipNumberRef = useRef<HTMLSpanElement | null>(null);
+  const [clipTranslation, setClipTranslation] = useState<string | null>(null);
 
   function onFrameChange(frameIndex: number) {
     // update the frame number
     if (frameNumberRef.current !== null) {
       frameNumberRef.current.innerHTML = String(frameIndex);
+    }
+
+    // the rest of the function updates clip-related data
+    if (props.clipsCollection === null) return;
+
+    let clipIndex = props.clipsCollection.clip_index_lookup[frameIndex];
+    let clip = props.clipsCollection.clips[clipIndex];
+
+    // update the clip number
+    if (clipNumberRef.current !== null) {
+      clipNumberRef.current.innerHTML = String(clipIndex);
+    }
+
+    // update the displayed translation
+    if (clipTranslation !== clip.translation_result) {
+      setClipTranslation(clip.translation_result);
     }
   }
 
@@ -36,7 +56,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
   useFrameChangeEvent(
     videoPlayerController,
     (e) => onFrameChange(e.frameIndex),
-    [], // dependencies of the handler function
+    [props.clipsCollection, clipTranslation], // dependencies of the handler
   );
 
   return (
@@ -57,7 +77,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
           }}
         >
           <Typography level="h4" gutterBottom>
-            Frame <span ref={frameNumberRef}>0</span>, Clip <span>XYZ</span>
+            Frame <span ref={frameNumberRef}>0</span>, Clip{" "}
+            <span ref={clipNumberRef}>0</span>
           </Typography>
           <Stack direction="row" spacing={1}>
             <CropView
@@ -130,7 +151,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
                 padding: 2,
               }}
             >
-              Lorem ipsum dolor sit amet...
+              {String(clipTranslation)}
             </Typography>
           </Sheet>
         </Box>

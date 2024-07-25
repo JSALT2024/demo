@@ -1,4 +1,5 @@
 import { Connection } from "./connection/Connection";
+import { ClipsCollection } from "./model/ClipsCollection";
 import { FrameGeometry } from "./model/FrameGeometry";
 import { Video } from "./model/Video";
 import { VideoCrops } from "./model/VideoCrops";
@@ -64,6 +65,20 @@ export class VideosApi {
       throw response;
     }
     return (await response.json()) as FrameGeometry[];
+  }
+
+  async getClipsCollection(id: string): Promise<ClipsCollection | null> {
+    const response = await this.connection.request(
+      "GET",
+      `videos/${id}/clips-collection`,
+    );
+    if (response.status === 404) {
+      return null;
+    }
+    if (response.status !== 200) {
+      throw response;
+    }
+    return (await response.json()) as ClipsCollection;
   }
 
   async getCropFrames(id: string, cropName: string): Promise<Blob[] | null> {

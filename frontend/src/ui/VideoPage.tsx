@@ -6,6 +6,7 @@ import { VideoPlayer } from "./VideoPlayer/VideoPlayer";
 import { FrameGeometry } from "../api/model/FrameGeometry";
 import { VideoCrops } from "../api/model/VideoCrops";
 import { useEffect, useState } from "react";
+import { ClipsCollection } from "../api/model/ClipsCollection";
 
 interface VideoPageLoaderData {
   readonly video: Video;
@@ -32,6 +33,8 @@ export function VideoPage() {
     FrameGeometry[] | null
   >(null);
   const [videoCrops, setVideoCrops] = useState<VideoCrops | null>(null);
+  const [clipsCollection, setClipsCollection] =
+    useState<ClipsCollection | null>(null);
 
   // download the heavy video data
   useEffect(() => {
@@ -42,6 +45,7 @@ export function VideoPage() {
       );
       setFrameGeometries(await api.videos.getFrameGeometries(data.video.id));
       setVideoCrops(await api.videos.getCrops(data.video.id));
+      setClipsCollection(await api.videos.getClipsCollection(data.video.id));
     })();
   }, [data.video.id]);
 
@@ -63,6 +67,7 @@ export function VideoPage() {
             videoBlob={normalizedVideoBlob}
             frameGeometries={frameGeometries}
             videoCrops={videoCrops}
+            clipsCollection={clipsCollection}
           />
         ) : (
           <Typography level="body-md" color="warning">
