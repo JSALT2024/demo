@@ -52,8 +52,6 @@ export function VideoPage() {
 
   return (
     <Box>
-      Video detail!
-      <Button onClick={() => reprocessVideo()}>Re-process video</Button>
       <Box sx={{ margin: "0 auto", maxWidth: "850px" }}>
         {/* <Typography level="h1" gutterBottom>
           Video Title Goes Here
@@ -73,6 +71,7 @@ export function VideoPage() {
         )}
       </Box>
       <pre>{JSON.stringify(data.video, null, 2)}</pre>
+      <Button onClick={() => reprocessVideo()}>Re-process video</Button>
     </Box>
   );
 }

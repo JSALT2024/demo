@@ -5,6 +5,7 @@ from ..domain.VideoFile import VideoFile
 from ..preprocessing.VideoNormalizer import VideoNormalizer
 from ..preprocessing.FrameEnumerator import FrameEnumerator
 from ..preprocessing.MediapipeProcessor import MediapipeProcessor
+from ..preprocessing.FixedLengthClipSlicer import FixedLengthClipSlicer
 from ..encoding.MaeProcessor import MaeProcessor
 from ..encoding.DinoProcessor import DinoProcessor
 from ..encoding.Sign2VecProcessor import Sign2VecProcessor
@@ -45,6 +46,7 @@ class VideoProcessor:
         self.CROPPED_RIGHT_HAND_FOLDER = self.path("cropped_right_hand")
         self.CROPPED_FACE_FOLDER = self.path("cropped_face")
         self.CROPPED_IMAGES_FOLDER = self.path("cropped_images")
+        self.CLIPS_COLLECTION_FILE = self.path("clips_collection.json")
         self.EMBEDDINGS_MAE_FILE = self.path("embeddings_mae.npy")
         self.EMBEDDINGS_S2V_FILE = self.path("embeddings_s2v.npy")
         self.EMBEDDINGS_DINO_FILE = self.path("embeddings_dino.npy")
@@ -67,6 +69,10 @@ class VideoProcessor:
         # mediapipe
         if not self.GEOMETRY_FILE.exists() and not force_all:
             self.run_mediapipe()
+
+        # clip splitting
+        if not self.CLIPS_COLLECTION_FILE.exists() and not force_all:
+            self.slice_into_clips()
 
         # encoders
         if not self.EMBEDDINGS_MAE_FILE.exists() and not force_all:
@@ -126,6 +132,16 @@ class VideoProcessor:
         )
         mediapipe.run()
     
+    def slice_into_clips(self):
+        # This can later be replaced by a slicer that separates utterances
+        # properly. This is just a minimal implementation to get things going.
+        slicer = FixedLengthClipSlicer(
+            normalized_video_file=self.NORMALIZED_FILE,
+            clip_length_seconds=2.0 # TODO: increase to more seconds later!
+        )
+        clips_collection = slicer.run()
+        clips_collection.store(self.CLIPS_COLLECTION_FILE)
+
     def run_mae(self):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         mae = MaeProcessor(
