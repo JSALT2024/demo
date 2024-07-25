@@ -1,18 +1,24 @@
-from llava.sign_public_api import SignLlava, SignLlavaInput, SignLlavaOutput
+from llava.sign_public_api import SignLlava, SignLlavaInput, \
+    SignLlavaOutput, GenerationConfig, prepare_translation_prompt
+import numpy as np
 
 
 def test_sign_llava():
-    print(SignLlava)
-    print("TODO...")
+    print("Loading the Sign LLaVA model...")
+    our_model = SignLlava.load_from_checkpoint("checkpoints/Sign_LLaVA")
 
-    # TODO: use the model, something like this:
-    our_model = SignLlava.load_from_checkpoint("xuan/sign-llava-80")
-    my_input = SignLlavaInput("asdasd", "....")
-    my_output = our_model.run_inference(my_input)
+    input_data = SignLlavaInput(
+        sign2vec_features=np.zeros(shape=(150, 768), dtype=np.float32),
+        mae_features=np.zeros(shape=(300, 768), dtype=np.float32),
+        dino_features=np.zeros(shape=(300, 1152), dtype=np.float32),
+        prompt=prepare_translation_prompt(context=None),
+        generation_config=GenerationConfig()
+    )
+    output_data: SignLlavaOutput = our_model.run_inference(input_data)
 
-    print(my_output.text)
-    print(my_output.text_embeddings)
-    print(my_output.projected_mae_embeddings)
+    print(output_data.text)
+    print(output_data.text_embeddings)
+    print(output_data.projected_mae_embeddings)
 
 
 if __name__ == "__main__":
