@@ -2,6 +2,7 @@ from .VideoFolderRepository import VideoFolderRepository
 from .VideosRepository import VideosRepository
 from ..domain.Video import Video
 from .VideoProcessor import VideoProcessor
+import os
 
 
 def process_video(
@@ -16,7 +17,8 @@ def process_video(
     processor = VideoProcessor(
         video=video,
         videos_repository=videos_repository,
-        folder_repo=folder_repo
+        folder_repo=folder_repo,
+        huggingface_token=os.environ.get("HUGGINGFACE_TOKEN")
     )
     processor.run()
 

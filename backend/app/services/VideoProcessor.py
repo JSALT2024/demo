@@ -12,7 +12,7 @@ from ..encoding.Sign2VecProcessor import Sign2VecProcessor
 from pathlib import Path
 import shutil
 import torch
-from typing import Union
+from typing import Union, Optional
 
 
 class VideoProcessor:
@@ -25,11 +25,13 @@ class VideoProcessor:
         self,
         video: Video,
         videos_repository: VideosRepository,
-        folder_repo: VideoFolderRepository
+        folder_repo: VideoFolderRepository,
+        huggingface_token: Optional[str]
     ):
         self.video = video
         self.videos_repository = videos_repository
         self.folder_repo = folder_repo
+        self.huggingface_token = huggingface_token
 
         # check upload finished
         if video.uploaded_file is None:
@@ -48,7 +50,7 @@ class VideoProcessor:
         self.CROPPED_IMAGES_FOLDER = self.path("cropped_images")
         self.CLIPS_COLLECTION_FILE = self.path("clips_collection.json")
         self.EMBEDDINGS_MAE_FILE = self.path("embeddings_mae.npy")
-        self.EMBEDDINGS_S2V_FILE = self.path("embeddings_s2v.npy")
+        self.EMBEDDINGS_S2V_FILE = self.path("embeddings_s2v.npz")
         self.EMBEDDINGS_DINO_FILE = self.path("embeddings_dino.npy")
     
     def path(self, relative_path: Union[str, Path]) -> Path:
@@ -152,7 +154,13 @@ class VideoProcessor:
         mae.run()
     
     def run_sign2vec(self):
-        pass
+        s2v = Sign2VecProcessor(
+            geometry_file=self.GEOMETRY_FILE,
+            embeddings_s2v_file=self.EMBEDDINGS_S2V_FILE,
+            clips_collection_file=self.CLIPS_COLLECTION_FILE,
+            huggingface_token=self.huggingface_token
+        )
+        s2v.run()
 
     def run_dino(self):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
