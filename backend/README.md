@@ -45,4 +45,4 @@ make start-production
 
 ## Environment variables (the `.env` file)
 
-- `HUGGINGFACE_TOKEN` Your huggingface token, may be required to download private models (e.g. sign2vec before it gets published), otherwise it can be removed.
+- `HF_TOKEN` Your huggingface token, may be required to download private models (e.g. sign2vec before it gets published), otherwise it can be removed.

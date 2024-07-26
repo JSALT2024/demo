@@ -14,7 +14,7 @@ def test_s2v():
     print("Loading the S2V model...")
     model = Sign2VecModel.from_pretrained(
         "karahansahin/sign2vec-yasl-mc-sc-64-2-d1-decay",
-        token=os.environ.get("HUGGINGFACE_TOKEN")
+        token=os.environ.get("HF_TOKEN")
     )
     feature_extractor = Sign2VecFeatureExtractor()
 

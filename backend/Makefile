@@ -69,16 +69,16 @@ install-s2v:
 	cd models; git clone git@github.com:JSALT2024/sign2vec.git
 	cd models/sign2vec; git reset --hard 2395fe0759c4e8510ebc665c406e185d582baf7d
 
-# TODO: freeze a specific commit ID instead of branch
-# install-sign-llava:
-# 	mkdir -p models
-# 	rm -rf models/Sign_LLaVA
-# 	cd models; git clone git@github.com:JSALT2024/Sign_LLaVA.git
-# 	cd models/Sign_LLaVA; git checkout multi_task
-# 	cd models/Sign_LLaVA; git pull
-# 	rm -rf checkpoints/Sign_LLaVA
-# 	mkdir -p checkpoints/Sign_LLaVA
-# TODO: pip install the package!
+install-sign-llava:
+	mkdir -p models
+	rm -rf models/Sign_LLaVA
+	cd models; git clone git@github.com:JSALT2024/Sign_LLaVA.git
+	cd models/Sign_LLaVA; git reset --hard 5185d0afbf1fa4240e42ac105ae19c2ec621a0f1
+	.venv/bin/python3 -m pip install --no-deps --editable ./models/Sign_LLaVA
+	rm -rf checkpoints/Sign_LLaVA
+	mkdir -p checkpoints/Sign_LLaVA
+	cd checkpoints/Sign_LLaVA; wget https://github.com/JSALT2024/Sign_LLaVA/releases/download/checkpoint/test_ckpt_July_26_2024_11am.zip
+	cd checkpoints/Sign_LLaVA; unzip test_ckpt_July_26_2024_11am.zip
 
 test-all-models:
 	@echo "TESTING FFMPEG..."
@@ -91,5 +91,7 @@ test-all-models:
 	.venv/bin/python3 -m app.debug.test_dino
 	@echo "TESTING SIGN2VEC..."
 	.venv/bin/python3 -m app.debug.test_s2v
+	@echo "TESTING SIGN_LLAVA"
+	.venv/bin/python3 -m app.debug.test_sign_llava
 	@echo ========================
 	@echo SUCCESS!

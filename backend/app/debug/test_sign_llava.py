@@ -1,11 +1,16 @@
 from llava.sign_public_api import SignLlava, SignLlavaInput, \
     SignLlavaOutput, GenerationConfig, prepare_translation_prompt
 import numpy as np
+import os
+from dotenv import load_dotenv
+load_dotenv() # because of huggingface token
 
 
 def test_sign_llava():
     print("Loading the Sign LLaVA model...")
-    our_model = SignLlava.load_from_checkpoint("checkpoints/Sign_LLaVA")
+    our_model = SignLlava.load_from_checkpoint(
+        "checkpoints/Sign_LLaVA/test_ckpt_July_26_2024_11am"
+    )
 
     input_data = SignLlavaInput(
         sign2vec_features=np.zeros(shape=(150, 768), dtype=np.float32),
@@ -16,9 +21,11 @@ def test_sign_llava():
     )
     output_data: SignLlavaOutput = our_model.run_inference(input_data)
 
-    print(output_data.text)
-    print(output_data.text_embeddings)
-    print(output_data.projected_mae_embeddings)
+    print("The LLM says:", repr(output_data.output))
+    assert len(output_data.mae_embeddings.shape) == 2
+    assert output_data.mae_embeddings.shape[0] == 300
+
+    print("The result form the LLM seems ok.")
 
 
 if __name__ == "__main__":

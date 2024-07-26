@@ -18,7 +18,7 @@ def process_video(
         video=video,
         videos_repository=videos_repository,
         folder_repo=folder_repo,
-        huggingface_token=os.environ.get("HUGGINGFACE_TOKEN")
+        huggingface_token=os.environ.get("HF_TOKEN")
     )
     processor.run()
 

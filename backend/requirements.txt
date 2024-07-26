@@ -12,29 +12,28 @@ ffmpeg-python
 
 # llava
 # -----
-torch >= 2.1.2
-torchvision >= 0.16.2
-transformers >= 4.37.2
-sentencepiece >= 0.1.99
+torch == 2.4.0
+torchvision == 0.19.0
+transformers == 4.37.2
+sentencepiece == 0.2.0
 bitsandbytes
-tokenizers >= 0.15.1
+tokenizers == 0.15.2
 protobuf
-accelerate >= 0.21.0
+accelerate == 0.33.0
 
 # MAE
 # ---
-# torch >= 2.2.0 # works ok with the older 2.1 pytroch version from llava
-timm >= 0.9.16
+timm == 1.0.7
 
 # DINO
 # ----
-# TODO
+# only pytorch
 
 # pose estimation
 # ---------------
-mediapipe >= 0.10.14
-ultralytics >= 8.2.18
+mediapipe == 0.10.14
+ultralytics == 8.2.66
 
 # sign2vec
 # --------
-# just transformers, probbably...
+# transformers and torch
