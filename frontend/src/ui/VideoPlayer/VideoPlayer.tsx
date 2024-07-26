@@ -20,6 +20,19 @@ export interface VideoPlayerProps {
   readonly clipsCollection: ClipsCollection | null;
 }
 
+/**
+ * Returns the font size to use based ony the length of the translated text
+ */
+function fontSizeFromTranslationLength(length: number): string {
+  let size: number = 24;
+  if (length > 50) size = 20;
+  if (length > 150) size = 18;
+  if (length > 300) size = 14;
+  if (length > 500) size = 12;
+  if (length > 700) size = 10;
+  return String(size) + "px";
+}
+
 export function VideoPlayer(props: VideoPlayerProps) {
   const videoPlayerController = useVideoPlayerController({
     videoFile: props.videoFile,
@@ -149,6 +162,9 @@ export function VideoPlayer(props: VideoPlayerProps) {
                 alignItems: "center",
                 textAlign: "center",
                 padding: 2,
+                fontSize: fontSizeFromTranslationLength(
+                  clipTranslation ? clipTranslation.length : 0
+                ),
               }}
             >
               {String(clipTranslation)}
