@@ -3,6 +3,7 @@ fastapi >= 0.97.0
 uvicorn[standard] >= 0.22.0
 aiofiles
 dotenv
+requests
 
 # video processing
 opencv-python

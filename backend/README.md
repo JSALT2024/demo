@@ -24,6 +24,12 @@ make install-all-models
 
 Then you need to set up environment variables file. Copy the `.env.example` to create a file `.env` and fill out the values. See the section below on which to fill out when and how.
 
+You can verify that all models can be executed by running this command, which also causes models downloaded from huggingface to actually get downloaded.
+
+```bash
+make test-all-models
+```
+
 Now you can start the development uvicorn FastApi server on port `1817`:
 
 ```bash

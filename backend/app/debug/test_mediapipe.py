@@ -1,31 +1,54 @@
-from ..preprocessing.FileFrameStream import FileFrameStream
-from ..preprocessing.InMemoryFrameStream import InMemoryFrameStream
-from ..preprocessing.ClipSplitter import ClipSplitter
-from pathlib import Path
 import sys
+import numpy as np
+import requests
+from typing import List
+import cv2
+import os
 
 
 sys.path.append("models/PoseEstimation")
 from predict_pose import predict_pose, create_mediapipe_models
 
 
-def test_mediapipe(video_file_path: Path):
-    frame_stream = FileFrameStream(video_file_path)
+def download_and_load_test_video() -> List[np.ndarray]:
+    """
+    Loads first 30 frames of the test video (and downloads the video if needed)
+    """
+    file_path = "checkpoints/PoseEstimation/testing-video.mp4"
+    
+    if not os.path.exists(file_path):
+        url = "https://videos.pexels.com/video-files/5212084/"\
+            "5212084-uhd_2560_1440_25fps.mp4"
+        request = requests.get(url)
+        with open(file_path, "wb") as f:
+            f.write(request.content)
+    
+    video_capture = cv2.VideoCapture(file_path)
+    video_frames = [
+        cv2.cvtColor(video_capture.read()[1], cv2.COLOR_BGR2RGB) # RGB!
+        for _ in range(30)
+    ]
+    video_capture.release()
 
-    # splitter = ClipSplitter(frame_stream, target_clip_length_seconds=1)
-    # for i, clip in enumerate(splitter):
-    #     clip.dump_npz(video_file_path.parent / f"clip_{str(i).zfill(6)}.npz")
+    return video_frames
 
+
+def test_mediapipe():
+    print("Loading mediapipe models...")
     models = create_mediapipe_models("checkpoints/PoseEstimation")
-    video = [frame.img for frame in frame_stream]
+
+    # prepare dummy black 1 second video
+    video = download_and_load_test_video()
+
+    print("Running mediapipe models...")
     prediction = predict_pose(video, models)
 
-    print(prediction)
+    assert type(prediction) is dict
+    assert len(prediction["cropped_images"]) == 30
+    assert len(prediction["keypoints"]) == 30
+    
+    print("Mediapipe returns sensible results.")
 
 
 if __name__ == "__main__":
-    from ..bootstrap import bootstrap
-    app = bootstrap()
-    video = app.videos_repository.all()[0]
-    files_repo = app.video_folder_repository_factory.get_repository(video.id)
-    test_mediapipe(files_repo.to_global_path(video.normalized_file.file_path))
+    test_mediapipe()

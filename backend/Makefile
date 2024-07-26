@@ -19,20 +19,9 @@ start-production:
 # Installing ML models used by the demo #
 #########################################
 
-.PHONY: install-all-models install-sign-llava install-mediapipe install-mae install-dino install-s2v
+.PHONY: install-all-models install-mediapipe install-mae install-dino install-s2v install-sign-llava
 
-install-all-models: install-sign-llava install-mediapipe install-mae install-dino install-s2v
-
-# TODO: freeze a specific commit ID instead of branch
-# install-sign-llava:
-# 	mkdir -p models
-# 	rm -rf models/Sign_LLaVA
-# 	cd models; git clone git@github.com:JSALT2024/Sign_LLaVA.git
-# 	cd models/Sign_LLaVA; git checkout multi_task
-# 	cd models/Sign_LLaVA; git pull
-# 	rm -rf checkpoints/Sign_LLaVA
-# 	mkdir -p checkpoints/Sign_LLaVA
-# TODO: pip install the package!
+install-all-models: install-mediapipe install-mae install-dino install-s2v install-sign-llava
 
 install-mediapipe:
 	mkdir -p models
@@ -69,3 +58,26 @@ install-s2v:
 	rm -rf models/sign2vec
 	cd models; git clone git@github.com:JSALT2024/sign2vec.git
 	cd models/sign2vec; git reset --hard 2395fe0759c4e8510ebc665c406e185d582baf7d
+
+# TODO: freeze a specific commit ID instead of branch
+# install-sign-llava:
+# 	mkdir -p models
+# 	rm -rf models/Sign_LLaVA
+# 	cd models; git clone git@github.com:JSALT2024/Sign_LLaVA.git
+# 	cd models/Sign_LLaVA; git checkout multi_task
+# 	cd models/Sign_LLaVA; git pull
+# 	rm -rf checkpoints/Sign_LLaVA
+# 	mkdir -p checkpoints/Sign_LLaVA
+# TODO: pip install the package!
+
+test-all-models:
+	@echo "TESTING MEDIAPIPE..."
+	.venv/bin/python3 -m app.debug.test_mediapipe
+	@echo "TESTING MAE..."
+	.venv/bin/python3 -m app.debug.test_mae
+	@echo "TESTING DINO..."
+	.venv/bin/python3 -m app.debug.test_dino
+	@echo "TESTING SIGN2VEC..."
+	.venv/bin/python3 -m app.debug.test_s2v
+	@echo ========================
+	@echo SUCCESS!
