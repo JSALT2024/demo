@@ -26,6 +26,8 @@ Then you need to set up environment variables file. Copy the `.env.example` to c
 
 You can verify that all models can be executed by running this command, which also causes models downloaded from huggingface to actually get downloaded.
 
+> **Note:** Huggingface models are downloaded into `~/.cache/huggingface`. If you don't have the necessary disk quota in your home folder, you can turn this folder into a symlink to a place where you do have the quota. This is important for the LLaMa model which has several gigabytes. You can do the same for the `checkpoints` folder in this `backend` folder.
+
 ```bash
 make test-all-models
 ```

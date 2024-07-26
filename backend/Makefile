@@ -19,9 +19,19 @@ start-production:
 # Installing ML models used by the demo #
 #########################################
 
-.PHONY: install-all-models install-mediapipe install-mae install-dino install-s2v install-sign-llava
+.PHONY: install-ffmpeg install-all-models install-mediapipe install-mae install-dino install-s2v install-sign-llava
 
-install-all-models: install-mediapipe install-mae install-dino install-s2v install-sign-llava
+install-all-models: install-ffmpeg install-mediapipe install-mae install-dino install-s2v install-sign-llava
+
+install-ffmpeg:
+	mkdir -p models
+	rm -rf models/ffmpeg
+	mkdir -p models/ffmpeg
+	cd models/ffmpeg; wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+	cd models/ffmpeg; tar xf ffmpeg-release-amd64-static.tar.xz
+	rm -rf .venv/bin/ffmpeg .venv/bin/ffprobe
+	ln -s ../../models/ffmpeg/ffmpeg-7.0.1-amd64-static/ffmpeg .venv/bin/ffmpeg
+	ln -s ../../models/ffmpeg/ffmpeg-7.0.1-amd64-static/ffprobe .venv/bin/ffprobe
 
 install-mediapipe:
 	mkdir -p models
@@ -71,6 +81,8 @@ install-s2v:
 # TODO: pip install the package!
 
 test-all-models:
+	@echo "TESTING FFMPEG..."
+	.venv/bin/python3 -m app.debug.test_ffmpeg
 	@echo "TESTING MEDIAPIPE..."
 	.venv/bin/python3 -m app.debug.test_mediapipe
 	@echo "TESTING MAE..."
