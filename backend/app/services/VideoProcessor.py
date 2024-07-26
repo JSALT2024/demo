@@ -9,6 +9,7 @@ from ..preprocessing.FixedLengthClipSlicer import FixedLengthClipSlicer
 from ..encoding.MaeProcessor import MaeProcessor
 from ..encoding.DinoProcessor import DinoProcessor
 from ..encoding.Sign2VecProcessor import Sign2VecProcessor
+from ..translation.SignLlavaTranslator import SignLlavaTranslator
 from pathlib import Path
 import shutil
 import torch
@@ -85,7 +86,7 @@ class VideoProcessor:
             self.run_dino()
 
         # LLaVA
-        # TODO ...
+        self.run_llm_translation()
 
     def normalize_uploaded_file(self):
         normalizer = VideoNormalizer(
@@ -172,3 +173,12 @@ class VideoProcessor:
             embeddings_dino_file=self.EMBEDDINGS_DINO_FILE
         )
         dino.run()
+
+    def run_llm_translation(self):
+        translator = SignLlavaTranslator(
+            clips_collection_file=self.CLIPS_COLLECTION_FILE,
+            embeddings_mae_file=self.EMBEDDINGS_MAE_FILE,
+            embeddings_s2v_file=self.EMBEDDINGS_S2V_FILE,
+            embeddings_dino_file=self.EMBEDDINGS_DINO_FILE,
+        )
+        translator.run()
