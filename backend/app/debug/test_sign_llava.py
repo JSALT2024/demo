@@ -8,7 +8,7 @@ load_dotenv() # because of huggingface token
 
 def test_sign_llava():
     print("Loading the Sign LLaVA model...")
-    our_model = SignLlava.load_from_checkpoint(
+    sign_llava = SignLlava.load_from_checkpoint(
         "checkpoints/Sign_LLaVA/test_ckpt_July_26_2024_11am"
     )
 
@@ -19,7 +19,12 @@ def test_sign_llava():
         prompt=prepare_translation_prompt(context=None),
         generation_config=GenerationConfig()
     )
-    output_data: SignLlavaOutput = our_model.run_inference(input_data)
+    output_data: SignLlavaOutput = sign_llava.run_inference(input_data)
+
+    # visual_embedding = output_data.mae_embeddings[0:1, :]
+    # all_tokens = sign_llava.get_all_tokens()
+    # em_matrix = sign_llava.get_embedding_layer_weights()
+    # import pdb; pdb.set_trace()
 
     print("The LLM says:", repr(output_data.output))
     assert len(output_data.mae_embeddings.shape) == 2

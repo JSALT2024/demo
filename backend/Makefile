@@ -73,7 +73,7 @@ install-sign-llava:
 	mkdir -p models
 	rm -rf models/Sign_LLaVA
 	cd models; git clone git@github.com:JSALT2024/Sign_LLaVA.git
-	cd models/Sign_LLaVA; git reset --hard 5185d0afbf1fa4240e42ac105ae19c2ec621a0f1
+	cd models/Sign_LLaVA; git reset --hard 19cd35769b898517e2eacbbebaa4791cb84e000d
 	.venv/bin/python3 -m pip install --no-deps --editable ./models/Sign_LLaVA
 	rm -rf checkpoints/Sign_LLaVA
 	mkdir -p checkpoints/Sign_LLaVA
