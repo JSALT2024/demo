@@ -3,6 +3,7 @@ from ..domain.ClipsCollection import ClipsCollection
 from ..domain.Clip import Clip
 import numpy as np
 from typing import List, Optional
+from .EmbeddingNeighborLookup import EmbeddingNeighborLookup
 
 
 from llava.sign_public_api import SignLlava, SignLlavaInput, \
@@ -55,6 +56,10 @@ class SignLlavaTranslator:
         sign_llava = SignLlava.load_from_checkpoint(
             self.MODEL_CHECKPOINT_FOLDER
         )
+        lookup = EmbeddingNeighborLookup(
+            token_embeddings=sign_llava.get_embedding_layer_weights(),
+            tokens=sign_llava.get_all_tokens()
+        )
 
         # load input data
         with open(self.embeddings_s2v_file, "rb") as file:
@@ -75,23 +80,36 @@ class SignLlavaTranslator:
             frames_from = clip.start_frame
             frames_to = clip.start_frame + clip.frame_count
             context = context_tracker.get_current_context()
-            clip_data = SignLlavaInput(
+            llm_input = SignLlavaInput(
                 sign2vec_features=embeddings_s2v[f"clip_{clip_index}"],
                 mae_features=embeddings_mae[frames_from:frames_to, :],
                 dino_features=embeddings_dino[frames_from:frames_to, :],
                 prompt=prepare_translation_prompt(context=context),
                 generation_config=GenerationConfig()
             )
-            output_data: SignLlavaOutput = sign_llava.run_inference(clip_data)
+            llm_output: SignLlavaOutput = sign_llava.run_inference(llm_input)
             
             clip.translation_context = context
-            clip.translation_result = output_data.output
+            clip.translation_result = llm_output.output
+            context_tracker.add_next_output(llm_output.output)
 
-            context_tracker.add_next_output(output_data.output)
+            # compute visual embedding neighbors
+            clip.embedding_neighbor_tokens_mae = lookup.find_neighbors_for(
+                llm_output.mae_embeddings
+            )
+            clip.embedding_neighbor_tokens_dino = lookup.find_neighbors_for(
+                llm_output.dino_embeddings
+            )
+            clip.embedding_neighbor_tokens_s2v = lookup.find_neighbors_for(
+                llm_output.sign2vec_embeddings
+            )
 
             print(
                 f"Clip {clip_index} was translated as:",
-                repr(output_data.output)
+                repr(llm_output.output),
+                "With MAE:", clip.embedding_neighbor_tokens_mae,
+                "With DINO:", clip.embedding_neighbor_tokens_dino,
+                "With S2V:", clip.embedding_neighbor_tokens_s2v
             )
         
         # store the modified clips collection file
