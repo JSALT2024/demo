@@ -6,6 +6,9 @@ import aiofiles
 from ..models.VideoOut import VideoOut
 from ...domain.Video import Video
 from ...domain.VideoFile import VideoFile
+from ...domain.ClipsCollection import ClipsCollection
+from ..models.RetranslateClipRequest import RetranslateClipRequest
+from ..models.RetranslateClipResponse import RetranslateClipResponse
 from ..application import ApplicationDependency
 from datetime import datetime, timezone
 import uuid
@@ -213,6 +216,7 @@ async def upload_new_video(
 
     return {"message": f"Successfuly uploaded {file.filename}"}
 
+
 @router.post("/{video_id}/reprocess", status_code=202)
 async def reprocess_video(video_id: str, app: ApplicationDependency):
     video = get_video_or_fail(video_id, app)
@@ -231,3 +235,38 @@ async def reprocess_video(video_id: str, app: ApplicationDependency):
     thread.start()
 
     return {"message": "Re-processing started."}
+
+
+@router.post("/{video_id}/clip/{clip_id}/retranslate")
+def retranslate_clip(
+    video_id: str,
+    clip_id: int,
+    request: RetranslateClipRequest,
+    app: ApplicationDependency
+) -> RetranslateClipResponse:
+    video = get_video_or_fail(video_id, app)
+    folder_repo = app.video_folder_repository_factory.get_repository(video_id)
+
+    clips_collection_file = folder_repo.to_global_path("clips_collection.json")
+    if not clips_collection_file.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=f"The video has not yet beed sliced up into clips.",
+        )
+    
+    clips_collection = ClipsCollection.load(clips_collection_file)
+    if clip_id >= len(clips_collection.clips) or clip_id < 0:
+        raise HTTPException(
+            status_code=404,
+            detail=f"There is no clip with the given ID in the video.",
+        )
+    
+    clip = clips_collection.clips[clip_id]
+    
+    # TODO: get the loaded model (cache model loading)
+    # TODO: load visual features
+    # TODO: run translation for one clip
+
+    return RetranslateClipResponse(
+        llm_response="Lorem ipsum..."
+    )
