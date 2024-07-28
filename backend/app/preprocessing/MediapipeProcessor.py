@@ -214,7 +214,7 @@ class MediapipeProcessor:
         cropped_face_folder: Path,
         cropped_images_folder: Path,
         chunking_period_seconds=1.0,
-        parallel_worker_count=4
+        parallel_worker_count=2
     ):
         self.input_file = input_file
         self.geometry_file = geometry_file
