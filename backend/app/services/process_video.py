@@ -14,6 +14,10 @@ def process_video(
     Runs all of the processing after the video is uploaded, including
     preprocessing, encoders, and autoregressive llama translation.
     """
+    
+    print("STARTING VIDEO PROCESSING")
+    print("-------------------------")
+    
     processor = VideoProcessor(
         video=video,
         videos_repository=videos_repository,
@@ -21,6 +25,9 @@ def process_video(
         huggingface_token=os.environ.get("HF_TOKEN")
     )
     processor.run()
+    
+    print("=====================")
+    print("VIDEO PROCESSING DONE")
 
 
 # DEBUGGING

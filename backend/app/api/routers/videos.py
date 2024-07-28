@@ -3,6 +3,7 @@ from fastapi import APIRouter, HTTPException, UploadFile, HTTPException, \
 from fastapi.responses import FileResponse
 from typing import List, Annotated
 import aiofiles
+import asyncio
 from ..models.VideoOut import VideoOut
 from ...domain.Video import Video
 from ...domain.VideoFile import VideoFile
@@ -16,7 +17,7 @@ import logging
 import mimetypes
 from pathlib import Path
 from ...services.process_video import process_video
-import threading
+from ...services.retranslate_clip import retranslate_clip
 import glob
 import base64
 
@@ -204,41 +205,33 @@ async def upload_new_video(
 
     # === trigger processing of the video ===
 
-    # TODO: run this in a proper background job instead of this clunky
-    # threading code that does not care about server termination
-    def run_processing():
-        print("Processing video...")
-        process_video(video, app.videos_repository, folder_repo)
-        print("Processing done.")
-    
-    thread = threading.Thread(target=run_processing)
-    thread.start()
+    # NOTE: this could be awaited, but we do not await it
+    # because it whould take too long
+    asyncio.get_event_loop().run_in_executor(
+        app.executor,
+        lambda: process_video(video, app.videos_repository, folder_repo)
+    )
 
     return {"message": f"Successfuly uploaded {file.filename}"}
 
 
 @router.post("/{video_id}/reprocess", status_code=202)
-async def reprocess_video(video_id: str, app: ApplicationDependency):
+async def reprocess_video_endpoint(video_id: str, app: ApplicationDependency):
     video = get_video_or_fail(video_id, app)
     folder_repo = app.video_folder_repository_factory.get_repository(video_id)
 
-    # === trigger processing of the video ===
-
-    # TODO: run this in a proper background job instead of this clunky
-    # threading code that does not care about server termination
-    def run_processing():
-        print("Processing video...")
-        process_video(video, app.videos_repository, folder_repo)
-        print("Processing done.")
-    
-    thread = threading.Thread(target=run_processing)
-    thread.start()
+    # NOTE: this could be awaited, but we do not await it
+    # because it whould take too long
+    asyncio.get_event_loop().run_in_executor(
+        app.executor,
+        lambda: process_video(video, app.videos_repository, folder_repo)
+    )
 
     return {"message": "Re-processing started."}
 
 
 @router.post("/{video_id}/clip/{clip_id}/retranslate")
-def retranslate_clip(
+async def retranslate_clip_endpoint(
     video_id: str,
     clip_id: int,
     request: RetranslateClipRequest,
@@ -263,10 +256,17 @@ def retranslate_clip(
     
     clip = clips_collection.clips[clip_id]
     
-    # TODO: get the loaded model (cache model loading)
-    # TODO: load visual features
-    # TODO: run translation for one clip
+    # NOTE: here we DO await, beacuse we want to wait for the result
+    llm_response = await asyncio.get_event_loop().run_in_executor(
+        app.executor,
+        lambda: retranslate_clip(
+            use_mae=request.use_mae,
+            use_dino=request.use_dino,
+            use_sign2vec=request.use_sign2vec,
+            prompt=request.prompt
+        )
+    )
 
     return RetranslateClipResponse(
-        llm_response="Lorem ipsum..."
+        llm_response=llm_response
     )

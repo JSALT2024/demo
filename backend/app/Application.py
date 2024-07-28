@@ -1,6 +1,7 @@
 from .services.VideosRepository import VideosRepository
 from .services.VideoFolderRepositoryFactory import VideoFolderRepositoryFactory
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 
 class Application:
     """
@@ -21,3 +22,8 @@ class Application:
         self.video_folder_repository_factory = VideoFolderRepositoryFactory(
             videos_data_folder=storage_folder / "videos_data"
         )
+
+        self.executor = ThreadPoolExecutor(
+            max_workers=1
+        )
+        "Runs CPU-intensive tasks, such as video processing and LLM execution"
