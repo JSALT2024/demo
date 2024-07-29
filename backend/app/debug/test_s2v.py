@@ -3,6 +3,7 @@ import numpy as np
 import os
 import sys
 from dotenv import load_dotenv
+from ..encoding.Sign2VecProcessor import S2V_MODEL_NAME
 load_dotenv()
 
 sys.path.append("models/sign2vec")
@@ -13,7 +14,7 @@ from sign2vec.feature_extraction_sign2vec import Sign2VecFeatureExtractor
 def test_s2v():
     print("Loading the S2V model...")
     model = Sign2VecModel.from_pretrained(
-        "karahansahin/sign2vec-yasl-mc-sc-64-2-d1-decay",
+        S2V_MODEL_NAME,
         token=os.environ.get("HF_TOKEN")
     )
     feature_extractor = Sign2VecFeatureExtractor()

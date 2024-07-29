@@ -16,7 +16,7 @@ from sign2vec.modeling_sign2vec import Sign2VecModel
 from sign2vec.feature_extraction_sign2vec import Sign2VecFeatureExtractor
 
 
-S2V_MODEL_NAME = "karahansahin/sign2vec-yasl-mc-sc-64-2-d1-decay"
+S2V_MODEL_NAME = "karahansahin/sign2vec-yasl-mc-sc-64-2-d1"
 
 
 class Sign2VecProcessor:
@@ -82,9 +82,18 @@ class Sign2VecProcessor:
             features = inputs["input_values"][0]
             features = torch.tensor(features).float()
             features = features.transpose(1, 2)
+
+            # print("S2V SAMPLE POSE:", { k: len(v) for k, v in sample_pose.items() })
+            # print("S2V INPUTS:", inputs)
+            # print("S2V INPUTS SHAPE:", inputs["input_values"][0].shape)
+
             try:
                 out = model(features)
                 sign2vec_features = out.last_hidden_state.detach().cpu().numpy()[0]
+
+                # print("S2V OUTPUT:", out)
+                # print("S2V FEATURES:", sign2vec_features.shape, sign2vec_features)
+                # exit()
             except RuntimeError as e:
                 # survive an error and pretend there was no S2V output
                 sign2vec_features = np.zeros(

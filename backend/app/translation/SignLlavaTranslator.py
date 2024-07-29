@@ -78,13 +78,7 @@ class SignLlavaTranslator:
                 llm_output.sign2vec_embeddings
             )
 
-            print(
-                f"Clip {clip.clip_index} was translated as:",
-                repr(llm_output.output),
-                "With MAE:", clip.embedding_neighbor_tokens_mae,
-                "With DINO:", clip.embedding_neighbor_tokens_dino,
-                "With S2V:", clip.embedding_neighbor_tokens_s2v
-            )
+            print(f"Clip {clip.clip_index} was translated.")
         
         # store the modified clips collection file
         clips_collection.store(self.clips_collection_file)
