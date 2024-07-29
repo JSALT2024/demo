@@ -1,9 +1,10 @@
-import { Box, Chip, Typography } from "@mui/joy";
+import { Box, Checkbox, Chip, Typography } from "@mui/joy";
 import { ClipsCollection } from "../api/model/ClipsCollection";
 import TheatersIcon from "@mui/icons-material/Theaters";
 import BubbleChartIcon from "@mui/icons-material/BubbleChart";
 import * as d3 from "d3";
 import { Stack } from "@mui/system";
+import { useState } from "react";
 
 export interface EmbeddingsVisualizationProps {
   readonly clipIndex: number;
@@ -11,7 +12,7 @@ export interface EmbeddingsVisualizationProps {
 }
 
 function prettifyToken(token: string) {
-  return token.replace("Ġ", "");
+  return String(token).replace("Ġ", "");
 }
 
 function codifyToken(token: string) {
@@ -49,7 +50,10 @@ function renderBubbleChart(data: TokenCount[]): SVGSVGElement {
   const name = (d) => prettifyToken(d.token);
   const names = (d) => [prettifyToken(d.token), d.encoder];
 
-  const maxCount = data.map((d) => d.count).reduce((a, b) => Math.max(a, b));
+  const maxCount = data.map((d) => d.count).reduce(
+    (a, b) => Math.max(a, b),
+    1
+  );
 
   // Specify the number format for values.
   const format = d3.format(",d");
@@ -128,6 +132,16 @@ export function EmbeddingsVisualization(props: EmbeddingsVisualizationProps) {
   const clipsCollection = props.clipsCollection;
   const clip = clipsCollection.clips[clipIndex];
 
+  const [humanFriendlyTokens, setHumanFriendlyTokens] = useState<boolean>(true);
+
+  function displayToken(token: string) {
+    if (humanFriendlyTokens) {
+      return prettifyToken(token);
+    } else {
+      return codifyToken(token);
+    }
+  }
+
   const bubbleChartSvg = renderBubbleChart([
     ...countNeighbors(clip.embedding_neighbor_tokens_mae || [], "MAE"),
     ...countNeighbors(clip.embedding_neighbor_tokens_dino || [], "DINO"),
@@ -166,17 +180,23 @@ export function EmbeddingsVisualization(props: EmbeddingsVisualizationProps) {
         dangerouslySetInnerHTML={{ __html: bubbleChartSvg.outerHTML }}
       ></Box>
 
+      <Checkbox
+        label="Human friendly"
+        size="sm"
+        checked={humanFriendlyTokens}
+        onChange={e => setHumanFriendlyTokens(e.target.checked)}
+      />
       <Typography level="body-xs" color="primary" gutterBottom>
         <strong>MAE:</strong>{" "}
-        {clip.embedding_neighbor_tokens_mae?.map(prettifyToken).join(" ")}
+        {clip.embedding_neighbor_tokens_mae?.map(displayToken).join(" ")}
       </Typography>
       <Typography level="body-xs" color="success" gutterBottom>
         <strong>DINO:</strong>{" "}
-        {clip.embedding_neighbor_tokens_dino?.map(prettifyToken).join(" ")}
+        {clip.embedding_neighbor_tokens_dino?.map(displayToken).join(" ")}
       </Typography>
       <Typography level="body-xs" color="danger" sx={{ paddingBottom: 2 }}>
         <strong>S2V:</strong>{" "}
-        {clip.embedding_neighbor_tokens_s2v?.map(prettifyToken).join(" ")}
+        {clip.embedding_neighbor_tokens_s2v?.map(displayToken).join(" ")}
       </Typography>
     </Box>
   );
