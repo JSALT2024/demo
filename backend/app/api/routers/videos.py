@@ -60,9 +60,9 @@ def get_uploaded_file(video_id: str, app: ApplicationDependency) -> VideoOut:
             detail="The video file has not finished uploading yet."
         )
     
-    folder_repo = app.video_folder_repository_factory.get_repository(video_id)
+    video_folder = app.video_folder_repository_factory.get_repository(video_id)
     return FileResponse(
-        folder_repo.path(video.uploaded_file.file_path),
+        video_folder.path(video.uploaded_file.file_path),
         media_type=video.uploaded_file.media_type
     )
 
@@ -76,8 +76,8 @@ def get_normalized_file(video_id: str, app: ApplicationDependency) -> VideoOut:
             detail="The video has not been normalized yet."
         )
     
-    folder_repo = app.video_folder_repository_factory.get_repository(video_id)
-    normalized_file_path = folder_repo.path(
+    video_folder = app.video_folder_repository_factory.get_repository(video_id)
+    normalized_file_path = video_folder.path(
         video.normalized_file.file_path
     )
     if not normalized_file_path.is_file():
@@ -94,8 +94,8 @@ def get_normalized_file(video_id: str, app: ApplicationDependency) -> VideoOut:
 @router.get("/{video_id}/geometry")
 def get_geometry(video_id: str, app: ApplicationDependency) -> VideoOut:
     video = get_video_or_fail(video_id, app)
-    folder_repo = app.video_folder_repository_factory.get_repository(video.id)
-    file_path = folder_repo.path("geometry.json")
+    video_folder = app.video_folder_repository_factory.get_repository(video.id)
+    file_path = video_folder.path("geometry.json")
     if not file_path.is_file():
         raise HTTPException(
             status_code=404,
@@ -109,8 +109,8 @@ def get_crops(video_id: str, crop_name: str, app: ApplicationDependency):
     if crop_name not in ["left_hand", "right_hand", "face", "images"]:
         raise HTTPException(status_code=404, detail="Unknown crop name.")
     video = get_video_or_fail(video_id, app)
-    folder_repo = app.video_folder_repository_factory.get_repository(video.id)
-    folder_path = folder_repo.path("cropped_" + crop_name)
+    video_folder = app.video_folder_repository_factory.get_repository(video.id)
+    folder_path = video_folder.path("cropped_" + crop_name)
     if not folder_path.is_dir():
         raise HTTPException(
             status_code=404,
@@ -131,8 +131,8 @@ def get_crops(video_id: str, crop_name: str, app: ApplicationDependency):
 @router.get("/{video_id}/clips-collection")
 def get_geometry(video_id: str, app: ApplicationDependency) -> VideoOut:
     video = get_video_or_fail(video_id, app)
-    folder_repo = app.video_folder_repository_factory.get_repository(video.id)
-    file_path = folder_repo.path("clips_collection.json")
+    video_folder = app.video_folder_repository_factory.get_repository(video.id)
+    file_path = video_folder.path("clips_collection.json")
     if not file_path.is_file():
         raise HTTPException(
             status_code=404,
@@ -174,10 +174,10 @@ async def upload_new_video(
 
     CHUNK_SIZE = 1024 * 1024  # 1MB
     
-    folder_repo = app.video_folder_repository_factory.get_repository(video.id)
+    video_folder = app.video_folder_repository_factory.get_repository(video.id)
 
     file_extension: str = mimetypes.guess_extension(media_type)
-    file_path: Path = folder_repo.path(
+    file_path: Path = video_folder.path(
         Path("uploaded_file").with_suffix(file_extension)
     )
     file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -198,7 +198,7 @@ async def upload_new_video(
     # === extract file metadata ===
 
     video.uploaded_file = VideoFile.from_existing_file(
-        folder_repo.root_path,
+        video_folder.root_path,
         file_path
     )
     app.videos_repository.store(video)
@@ -209,7 +209,12 @@ async def upload_new_video(
     # because it whould take too long
     asyncio.get_event_loop().run_in_executor(
         app.executor,
-        lambda: process_video(video, app.videos_repository, folder_repo)
+        lambda: process_video(
+            video,
+            app.videos_repository,
+            video_folder,
+            app.sign_llava_cache
+        )
     )
 
     return {"message": f"Successfuly uploaded {file.filename}"}
@@ -218,13 +223,18 @@ async def upload_new_video(
 @router.post("/{video_id}/reprocess", status_code=202)
 async def reprocess_video_endpoint(video_id: str, app: ApplicationDependency):
     video = get_video_or_fail(video_id, app)
-    folder_repo = app.video_folder_repository_factory.get_repository(video_id)
+    video_folder = app.video_folder_repository_factory.get_repository(video.id)
 
     # NOTE: this could be awaited, but we do not await it
     # because it whould take too long
     asyncio.get_event_loop().run_in_executor(
         app.executor,
-        lambda: process_video(video, app.videos_repository, folder_repo)
+        lambda: process_video(
+            video,
+            app.videos_repository,
+            video_folder,
+            app.sign_llava_cache
+        )
     )
 
     return {"message": "Re-processing started."}
@@ -238,9 +248,9 @@ async def retranslate_clip_endpoint(
     app: ApplicationDependency
 ) -> RetranslateClipResponse:
     video = get_video_or_fail(video_id, app)
-    folder_repo = app.video_folder_repository_factory.get_repository(video_id)
+    video_folder = app.video_folder_repository_factory.get_repository(video.id)
 
-    clips_collection_file = folder_repo.path("clips_collection.json")
+    clips_collection_file = video_folder.path("clips_collection.json")
     if not clips_collection_file.exists():
         raise HTTPException(
             status_code=404,
@@ -263,7 +273,10 @@ async def retranslate_clip_endpoint(
             use_mae=request.use_mae,
             use_dino=request.use_dino,
             use_sign2vec=request.use_sign2vec,
-            prompt=request.prompt
+            prompt=request.prompt,
+            clip=clip,
+            video_folder=video_folder,
+            sign_llava_cache=app.sign_llava_cache,
         )
     )
 

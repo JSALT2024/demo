@@ -10,6 +10,7 @@ from ..encoding.MaeProcessor import MaeProcessor
 from ..encoding.DinoProcessor import DinoProcessor
 from ..encoding.Sign2VecProcessor import Sign2VecProcessor
 from ..translation.SignLlavaTranslator import SignLlavaTranslator
+from ..translation.SignLlavaCache import SignLlavaCache
 import shutil
 import torch
 from typing import Optional
@@ -26,11 +27,13 @@ class VideoProcessor:
         video: Video,
         videos_repository: VideosRepository,
         video_folder: VideoFolderRepository,
+        sign_llava_cache: SignLlavaCache,
         huggingface_token: Optional[str]
     ):
         self.video = video
         self.videos_repository = videos_repository
         self.video_folder = video_folder
+        self.sign_llava_cache = sign_llava_cache
         self.huggingface_token = huggingface_token
 
         # check upload finished
@@ -167,5 +170,6 @@ class VideoProcessor:
             mae_features_file=self.video_folder.MAE_FEATURES_FILE,
             s2v_features_file=self.video_folder.S2V_FEATURES_FILE,
             dino_features_file=self.video_folder.DINO_FEATURES_FILE,
+            sign_llava_cache=self.sign_llava_cache
         )
         translator.run()

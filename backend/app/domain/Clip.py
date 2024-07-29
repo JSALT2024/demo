@@ -44,6 +44,7 @@ class Clip:
 
     def to_json(self) -> dict:
         return {
+            "clip_index": self.clip_index,
             "start_frame": self.start_frame,
             "frame_count": self.frame_count,
             "translation_context": self.translation_context,
@@ -64,6 +65,7 @@ class Clip:
             return [str(n) for n in value]
         
         return Clip(
+            clip_index=int(json["clip_index"]),
             start_frame=int(json["start_frame"]),
             frame_count=int(json["frame_count"]),
             translation_context=(

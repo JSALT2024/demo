@@ -3,10 +3,14 @@ from ..domain.ClipsCollection import ClipsCollection
 from ..domain.VideoVisualFeatures import VideoVisualFeatures
 from .EmbeddingNeighborLookup import EmbeddingNeighborLookup
 from .ContextTracker import ContextTracker
+from .SignLlavaCache import SignLlavaCache
 
 
 from llava.sign_public_api import SignLlava, SignLlavaInput, \
     SignLlavaOutput, GenerationConfig, prepare_translation_prompt
+
+
+MAX_CONTEXT_LENGTH = 8_000
 
 
 class SignLlavaTranslator:
@@ -16,30 +20,26 @@ class SignLlavaTranslator:
         mae_features_file: Path,
         dino_features_file: Path,
         s2v_features_file: Path,
+        sign_llava_cache: SignLlavaCache
     ):
-        self.clips_collection_file=clips_collection_file
-        self.mae_features_dile=mae_features_file
-        self.dino_features_file=dino_features_file
-        self.s2v_features_file=s2v_features_file
+        self.clips_collection_file = clips_collection_file
+        self.mae_features_file = mae_features_file
+        self.dino_features_file = dino_features_file
+        self.s2v_features_file = s2v_features_file
+        self.sign_llava_cache = sign_llava_cache
 
-        self.MODEL_CHECKPOINT_FOLDER = \
-            "checkpoints/Sign_LLaVA/test_ckpt_July_26_2024_11am"
-        self.MAX_CONTEXT_LENGTH = 8_000
-    
     def run(self):
         print("Loading SignLlava model...")
-        sign_llava = SignLlava.load_from_checkpoint(
-            self.MODEL_CHECKPOINT_FOLDER
-        )
+        sign_llava: SignLlava = self.sign_llava_cache.resolve()
         lookup = EmbeddingNeighborLookup(
             token_embeddings=sign_llava.get_embedding_layer_weights(),
             tokens=sign_llava.get_all_tokens()
         )
-        context_tracker = ContextTracker(self.MAX_CONTEXT_LENGTH)
+        context_tracker = ContextTracker(MAX_CONTEXT_LENGTH)
 
         # load input data
         video_features = VideoVisualFeatures.load_all(
-            mae_features_file=self.mae_features_dile,
+            mae_features_file=self.mae_features_file,
             dino_features_file=self.dino_features_file,
             s2v_features_file=self.s2v_features_file
         )
