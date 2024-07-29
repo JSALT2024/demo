@@ -1,8 +1,8 @@
 import torch
 import sys
 from pathlib import Path
-from ..preprocessing.FolderJpgFrameStream import FolderJpgFrameStream
-from ..preprocessing.ClipSplitter import ClipSplitter
+from ..video.FolderJpgFrameStream import FolderJpgFrameStream
+from ..video.FrameStreamChunker import FrameStreamChunker
 from ..domain.VideoVisualFeatures \
     import VideoVisualFeatures, DINO_FEATURES_DIMENSION
 import numpy as np
@@ -68,21 +68,21 @@ class DinoProcessor:
 
         # process the video file in fixed-size batches
         print("Processing frames with DINO...")
-        face_splitter = ClipSplitter(
+        face_chunker = FrameStreamChunker(
             in_stream=cropped_face_stream,
             target_clip_length_seconds=self.batching_period_seconds
         )
-        left_hand_splitter = ClipSplitter(
+        left_hand_chunker = FrameStreamChunker(
             in_stream=cropped_left_hand_stream,
             target_clip_length_seconds=self.batching_period_seconds
         )
-        right_hand_splitter = ClipSplitter(
+        right_hand_chunker = FrameStreamChunker(
             in_stream=cropped_right_hand_stream,
             target_clip_length_seconds=self.batching_period_seconds
         )
         chunk_start_frame = 0
         for face_chunk_stream, left_hand_chunk_stream, right_hand_chunk_stream \
-        in zip(face_splitter, left_hand_splitter, right_hand_splitter):
+        in zip(face_chunker, left_hand_chunker, right_hand_chunker):
             face_images = [frame.img for frame in face_chunk_stream]
             left_hand_images = [frame.img for frame in left_hand_chunk_stream]
             right_hand_images = [frame.img for frame in right_hand_chunk_stream]

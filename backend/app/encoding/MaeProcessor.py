@@ -1,8 +1,8 @@
 import torch
 import sys
 from pathlib import Path
-from ..preprocessing.FolderJpgFrameStream import FolderJpgFrameStream
-from ..preprocessing.ClipSplitter import ClipSplitter
+from ..video.FolderJpgFrameStream import FolderJpgFrameStream
+from ..video.FrameStreamChunker import FrameStreamChunker
 from ..domain.VideoVisualFeatures \
     import VideoVisualFeatures, MAE_FEATURES_DIMENSION
 import numpy as np
@@ -50,12 +50,12 @@ class MaeProcessor:
 
         # process the video file in fixed-size batches
         print("Processing frames with MAE...")
-        splitter = ClipSplitter(
+        chunker = FrameStreamChunker(
             in_stream=cropped_images_stream,
             target_clip_length_seconds=self.batching_period_seconds
         )
         chunk_start_frame = 0
-        for chunk_stream in splitter:
+        for chunk_stream in chunker:
             images = [frame.img for frame in chunk_stream]
             chunk_features = predict_mae.mae_predict(
                 images,

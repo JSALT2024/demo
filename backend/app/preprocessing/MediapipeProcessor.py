@@ -1,10 +1,10 @@
 import sys
 from pathlib import Path
-from .FileFrameStream import FileFrameStream
-from .InMemoryFrameStream import InMemoryFrameStream
-from .FolderJpgFrameStream import FolderJpgFrameStream
-from .ClipSplitter import ClipSplitter
-from .Frame import Frame
+from ..video.FileFrameStream import FileFrameStream
+from ..video.InMemoryFrameStream import InMemoryFrameStream
+from ..video.FolderJpgFrameStream import FolderJpgFrameStream
+from ..video.FrameStreamChunker import FrameStreamChunker
+from ..video.Frame import Frame
 from ..domain.FrameGeometry import FrameGeometry
 from typing import List, Any, Optional
 import json
@@ -241,12 +241,12 @@ class MediapipeProcessor:
             w.start()
 
         # process the video file in fixed-size chunks
-        splitter = ClipSplitter(
+        chunker = FrameStreamChunker(
             in_stream=file_frame_stream,
             target_clip_length_seconds=self.chunking_period_seconds
         )
         chunk_start_frame = 0
-        for chunk_stream in splitter:
+        for chunk_stream in chunker:
             # create a job and enqueue it
             job = ChunkJob(
                 source_framerate=file_frame_stream.framerate,

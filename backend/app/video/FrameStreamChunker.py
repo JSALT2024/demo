@@ -3,8 +3,8 @@ from .InMemoryFrameStream import InMemoryFrameStream
 from typing import Optional
 
 
-class ClipSplitter:
-    """Chunks up a frame stream into video clips"""
+class FrameStreamChunker:
+    """Chunks up a frame stream into fixed-length in-memory frame streams"""
     def __init__(
         self,
         in_stream: FrameStream,

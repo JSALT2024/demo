@@ -1,11 +1,11 @@
 from ..domain.ClipsCollection import ClipsCollection
 from ..domain.Clip import Clip
-from .FileFrameStream import FileFrameStream
-from .ClipSplitter import ClipSplitter
+from ..video.FileFrameStream import FileFrameStream
+from ..video.FrameStreamChunker import FrameStreamChunker
 from pathlib import Path
 
 
-class FixedLengthClipSlicer:
+class FixedLengthVideoClipper:
     """
     Creates the clips collection datastructure for a video, i.e. defines the
     clips to be used during translation.
@@ -21,12 +21,12 @@ class FixedLengthClipSlicer:
 
     def run(self) -> ClipsCollection:
         file_stream = FileFrameStream(self.normalized_video_file)
-        splitter = ClipSplitter(file_stream, self.clip_length_seconds)
+        chunker = FrameStreamChunker(file_stream, self.clip_length_seconds)
         clips_collection = ClipsCollection()
         
         clip_starting_frame = 0
         clip_index = 0
-        for clip_frames in splitter:
+        for clip_frames in chunker:
             clip_frame_count = len(clip_frames)
             
             clip = Clip(

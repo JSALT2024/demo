@@ -5,7 +5,7 @@ from ..domain.VideoFile import VideoFile
 from ..preprocessing.VideoNormalizer import VideoNormalizer
 from ..preprocessing.FrameEnumerator import FrameEnumerator
 from ..preprocessing.MediapipeProcessor import MediapipeProcessor
-from ..preprocessing.FixedLengthClipSlicer import FixedLengthClipSlicer
+from ..preprocessing.FixedLengthVideoClipper import FixedLengthVideoClipper
 from ..encoding.MaeProcessor import MaeProcessor
 from ..encoding.DinoProcessor import DinoProcessor
 from ..encoding.Sign2VecProcessor import Sign2VecProcessor
@@ -125,11 +125,11 @@ class VideoProcessor:
     def slice_into_clips(self):
         # This can later be replaced by a slicer that separates utterances
         # properly. This is just a minimal implementation to get things going.
-        slicer = FixedLengthClipSlicer(
+        clipper = FixedLengthVideoClipper(
             normalized_video_file=self.video_folder.NORMALIZED_FILE,
             clip_length_seconds=2.0 # TODO: increase to more seconds later!
         )
-        clips_collection = slicer.run()
+        clips_collection = clipper.run()
         clips_collection.store(self.video_folder.CLIPS_COLLECTION_FILE)
 
     def run_mae(self):
