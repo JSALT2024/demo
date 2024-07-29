@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/joy";
+import { Box, Typography } from "@mui/joy";
 import { BackendApi } from "../api/BackendApi";
 import { Video } from "../api/model/Video";
 import { useLoaderData } from "react-router-dom";
@@ -10,6 +10,7 @@ import { ClipsCollection } from "../api/model/ClipsCollection";
 import { PromptingPlayground } from "./PromptingPlayground";
 import { Navigation } from "./Navigation";
 import { EmbeddingsVisualization } from "./EmbeddingsVisualization";
+import { DebugData } from "./DebugData";
 
 interface VideoPageLoaderData {
   readonly video: Video;
@@ -62,7 +63,7 @@ export function VideoPage() {
   return (
     <Box>
       <Navigation />
-      <Box sx={{ margin: "0 auto", maxWidth: "850px" }}>
+      <Box sx={{ margin: "0 auto", maxWidth: "850px", paddingBottom: "100px" }}>
         {/* <Typography level="h1" gutterBottom>
           Video Title Goes Here
         </Typography> */}
@@ -97,8 +98,11 @@ export function VideoPage() {
           />
         )}
 
-        <pre>{JSON.stringify(data.video, null, 2)}</pre>
-        <Button onClick={() => reprocessVideo()}>Re-process video</Button>
+        <DebugData
+          video={data.video}
+          clipIndex={clipIndex}
+          clipsCollection={clipsCollection}
+        />
       </Box>
     </Box>
   );
