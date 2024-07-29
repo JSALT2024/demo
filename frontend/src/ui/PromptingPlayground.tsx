@@ -75,13 +75,13 @@ export function PromptingPlayground(props: PromptingPlaygroundProps) {
       PROMPT_OPTIONS.translate_with_context.replace(
         "<context>",
         clip.translation_context,
-      )
+      ),
     );
   }
 
   async function sendCustomPrompt() {
     const api = BackendApi.current();
-    
+
     setIsLoading(true);
     const response = await api.videos.retranslate(
       props.videoId,
@@ -91,7 +91,7 @@ export function PromptingPlayground(props: PromptingPlaygroundProps) {
         use_dino: useDinoEmbeddings,
         use_sign2vec: useS2vEmbeddings,
         prompt: customPrompt,
-      }
+      },
     );
     setLlmResponse(response);
     setIsLoading(false);
@@ -158,21 +158,21 @@ export function PromptingPlayground(props: PromptingPlaygroundProps) {
         <Button
           variant="soft"
           size="sm"
-          onClick={e => setCustomPrompt(PROMPT_OPTIONS.one_word_present)}
+          onClick={(e) => setCustomPrompt(PROMPT_OPTIONS.one_word_present)}
         >
           1 Keyword
         </Button>
         <Button
           variant="soft"
           size="sm"
-          onClick={e => setCustomPrompt(PROMPT_OPTIONS.multi_words_present)}
+          onClick={(e) => setCustomPrompt(PROMPT_OPTIONS.multi_words_present)}
         >
           N Keywords
         </Button>
         <Button
           variant="soft"
           size="sm"
-          onClick={e => setCustomPrompt(PROMPT_OPTIONS.is_reversed)}
+          onClick={(e) => setCustomPrompt(PROMPT_OPTIONS.is_reversed)}
         >
           Is Reversed
         </Button>
@@ -194,7 +194,9 @@ export function PromptingPlayground(props: PromptingPlaygroundProps) {
           onChange={(e) => setCustomPrompt(e.target.value)}
           disabled={isLoading}
         />
-        <Button onClick={sendCustomPrompt} disabled={isLoading}>Send</Button>
+        <Button onClick={sendCustomPrompt} disabled={isLoading}>
+          Send
+        </Button>
       </Stack>
       {isLoading && (
         <Box
@@ -212,10 +214,7 @@ export function PromptingPlayground(props: PromptingPlaygroundProps) {
           <Typography level="h4" sx={{ marginTop: 2 }} gutterBottom>
             Sign LLaVA response
           </Typography>
-          <Alert
-            color="neutral"
-            startDecorator={<SmartToyIcon />}
-          >
+          <Alert color="neutral" startDecorator={<SmartToyIcon />}>
             {llmResponse}
           </Alert>
         </>

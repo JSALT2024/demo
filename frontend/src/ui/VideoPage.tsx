@@ -8,6 +8,7 @@ import { VideoCrops } from "../api/model/VideoCrops";
 import { useEffect, useState } from "react";
 import { ClipsCollection } from "../api/model/ClipsCollection";
 import { PromptingPlayground } from "./PromptingPlayground";
+import { Navigation } from "./Navigation";
 
 interface VideoPageLoaderData {
   readonly video: Video;
@@ -59,6 +60,7 @@ export function VideoPage() {
 
   return (
     <Box>
+      <Navigation />
       <Box sx={{ margin: "0 auto", maxWidth: "850px" }}>
         {/* <Typography level="h1" gutterBottom>
           Video Title Goes Here

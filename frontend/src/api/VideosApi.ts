@@ -166,12 +166,12 @@ export class VideosApi {
   async retranslate(
     videoId: string,
     clipIndex: number,
-    body: RetranslateRequest
+    body: RetranslateRequest,
   ): Promise<string> {
     const response = await this.connection.request(
       "POST",
       `videos/${videoId}/clip/${clipIndex}/retranslate`,
-      { body }
+      { body },
     );
 
     if (response.status !== 200) {
