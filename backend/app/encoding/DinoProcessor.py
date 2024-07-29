@@ -3,11 +3,19 @@ import sys
 from pathlib import Path
 from ..preprocessing.FolderJpgFrameStream import FolderJpgFrameStream
 from ..preprocessing.ClipSplitter import ClipSplitter
+from ..domain.VideoVisualFeatures \
+    import VideoVisualFeatures, DINO_FEATURES_DIMENSION
 import numpy as np
 
 
 sys.path.append("models/DINOv2/predict")
 import predict_dino
+
+
+DINO_FACE_CHECKPOINT = \
+    "checkpoints/DINOv2/face_dinov2_vits14_reg_teacher_checkpoint.pth"
+DINO_HAND_CHECKPOINT = \
+    "checkpoints/DINOv2/hand_dinov2_vits14_reg_teacher_checkpoint.pth"
 
 
 class DinoProcessor:
@@ -17,23 +25,20 @@ class DinoProcessor:
         cropped_face_folder: Path,
         cropped_left_hand_folder: Path,
         cropped_right_hand_folder: Path,
-        embeddings_dino_file: Path,
+        dino_features_file: Path,
         batching_period_seconds=1.0
     ):
         self.device = device
         self.cropped_face_folder = cropped_face_folder
         self.cropped_left_hand_folder = cropped_left_hand_folder
         self.cropped_right_hand_folder = cropped_right_hand_folder
-        self.embeddings_dino_file = embeddings_dino_file
+        self.dino_features_file = dino_features_file
         self.batching_period_seconds = batching_period_seconds
-
-        self.face_checkpoint = "checkpoints/DINOv2/face_dinov2_vits14_reg_teacher_checkpoint.pth"
-        self.hand_checkpoint = "checkpoints/DINOv2/hand_dinov2_vits14_reg_teacher_checkpoint.pth"
 
     def run(self):
         print("Loading the DINO models...")
-        face_model = predict_dino.create_dino_model(self.face_checkpoint)
-        hand_model = predict_dino.create_dino_model(self.hand_checkpoint)
+        face_model = predict_dino.create_dino_model(DINO_FACE_CHECKPOINT)
+        hand_model = predict_dino.create_dino_model(DINO_HAND_CHECKPOINT)
         face_model.to(self.device)
         hand_model.to(self.device)
 
@@ -54,7 +59,12 @@ class DinoProcessor:
         assert len(cropped_right_hand_stream) == total_frames
 
         # prepare the output matrix
-        all_embeddings = np.zeros(shape=(total_frames, 1152), dtype=np.float32)
+        visual_features = VideoVisualFeatures(
+            dino_features=np.zeros(
+                shape=(total_frames, DINO_FEATURES_DIMENSION),
+                dtype=np.float32
+            )
+        )
 
         # process the video file in fixed-size batches
         print("Processing frames with DINO...")
@@ -89,7 +99,7 @@ class DinoProcessor:
                 right_hand_images, hand_model,
                 predict_dino.transform_dino, self.device
             )
-            chunk_embeddings = np.concatenate(
+            chunk_features = np.concatenate(
                 [face_features, left_features, right_features],
                 1
             )
@@ -100,12 +110,12 @@ class DinoProcessor:
 
             frame_from = chunk_start_frame
             frame_to = chunk_start_frame + chunk_size
-            all_embeddings[frame_from:frame_to] = chunk_embeddings
+            visual_features.dino_features[frame_from:frame_to] = chunk_features
             print(f"Frames {frame_from}-{frame_to} were DINOed.")
 
             # update the state
             chunk_start_frame += chunk_size
 
-        # save the embeddings data
-        np.save(self.embeddings_dino_file, all_embeddings)
-        print("DINO embeddings are saved. DINO done.")
+        # save the features data
+        visual_features.save_dino(self.dino_features_file)
+        print("DINO features are saved. DINO done.")

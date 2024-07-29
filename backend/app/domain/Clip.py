@@ -8,6 +8,9 @@ class Clip:
     Contains data about a clip of a video
     """
 
+    clip_index: int
+    "Index of this clip within the video"
+
     start_frame: int
     "Index of the first frame in this clip"
 
@@ -28,6 +31,16 @@ class Clip:
 
     embedding_neighbor_tokens_s2v: Optional[List[str]] = None
     "For each projected embedding, contains the closest textual token"
+
+    @property
+    def end_frame(self) -> int:
+        """Index of the first frame after the last frame in the clip"""
+        return self.start_frame + self.frame_count
+    
+    @property
+    def frame_range(self) -> range:
+        """Range object that can be used to select clip frames in video"""
+        return range(self.start_frame, self.end_frame)
 
     def to_json(self) -> dict:
         return {

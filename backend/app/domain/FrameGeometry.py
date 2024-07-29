@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 import numpy as np
 from typing import List, Optional
+import json
+from pathlib import Path
 
 
 @dataclass
@@ -187,3 +189,9 @@ class FrameGeometry:
                 else [int(i) for i in json["face_bbox"]]
             )
         )
+
+    @staticmethod
+    def list_from_json(geometry_file: Path) -> List["FrameGeometry"]:
+        with open(geometry_file, "r") as f:
+            data = json.load(f)
+        return [FrameGeometry.from_json(d) for d in data]

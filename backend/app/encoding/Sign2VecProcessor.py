@@ -3,10 +3,10 @@ import sys
 from pathlib import Path
 import numpy as np
 import sys
-from typing import Optional, List, Dict
+from typing import Optional
 from ..domain.FrameGeometry import FrameGeometry
 from ..domain.ClipsCollection import ClipsCollection
-import json
+from ..domain.VideoVisualFeatures import VideoVisualFeatures
 
 
 sys.path.append("models/sign2vec")
@@ -14,37 +14,37 @@ from sign2vec.modeling_sign2vec import Sign2VecModel
 from sign2vec.feature_extraction_sign2vec import Sign2VecFeatureExtractor
 
 
+S2V_MODEL_NAME = "karahansahin/sign2vec-yasl-mc-sc-64-2-d1-decay"
+
+
 class Sign2VecProcessor:
     def __init__(
         self,
         geometry_file: Path,
-        embeddings_s2v_file: Path,
+        s2v_features_file: Path,
         clips_collection_file: Path,
         huggingface_token: Optional[str] = None
     ):
         self.geometry_file = geometry_file
-        self.embeddings_s2v_file = embeddings_s2v_file
+        self.s2v_features_file = s2v_features_file
         self.clips_collection_file = clips_collection_file
-
         self.huggingface_token = huggingface_token
-        self.model_name = "karahansahin/sign2vec-yasl-mc-sc-64-2-d1-decay"
-        self.embedding_dimension = 768
 
     def run(self):
         print("Loading the Sign2Vec model...")
         model = Sign2VecModel.from_pretrained(
-            self.model_name,
+            S2V_MODEL_NAME,
             token=self.huggingface_token
         )
         feature_extractor = Sign2VecFeatureExtractor()
 
         # load the input data
-        frame_geometries = self.load_frame_geometries()
+        frame_geometries = FrameGeometry.list_from_json(self.geometry_file)
         clips_collection = ClipsCollection.load(self.clips_collection_file)
         assert len(frame_geometries) == len(clips_collection.clip_index_lookup)
 
         # prepare the output embeddings matrices
-        all_embeddings: Dict[int, np.ndarray] = {}
+        visual_features = VideoVisualFeatures(s2v_features={})
 
         def coalesce(landmarks: Optional[np.ndarray], size: int) -> np.ndarray:
             "Replaces None with zeros matrix"
@@ -83,27 +83,11 @@ class Sign2VecProcessor:
             out = model(features)
             sign2vec_features = out.last_hidden_state.detach().cpu().numpy()[0]
 
-            assert len(sign2vec_features.shape) == 2
-            assert sign2vec_features.shape[1] == self.embedding_dimension
-            assert sign2vec_features.shape[0] <= len(clip_geometries)
-            assert str(sign2vec_features.dtype) == "float32"
-
-            all_embeddings[clip_index] = sign2vec_features
+            visual_features.s2v_features[clip_index] = sign2vec_features
 
             print(f"Clip {clip_index} was Sign2Vec'd...")
         
-        # save the embeddings data
-        np.savez(
-            self.embeddings_s2v_file,
-            **{
-                f"clip_{clip_index}": embeddings
-                for clip_index, embeddings in all_embeddings.items()
-            }
-        )
-        print("S2V embeddings are saved. S2V done.")
-
-    
-    def load_frame_geometries(self) -> List[FrameGeometry]:
-        with open(self.geometry_file, "r") as f:
-            data = json.load(f)
-        return [FrameGeometry.from_json(d) for d in data]
+        # save the features data
+        visual_features.validate()
+        visual_features.save_s2v(self.s2v_features_file)
+        print("S2V features are saved. S2V done.")

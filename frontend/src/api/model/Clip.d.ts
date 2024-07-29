@@ -1,4 +1,5 @@
 export interface Clip {
+  readonly clip_index: number;
   readonly start_frame: number;
   readonly frame_count: number;
   readonly translation_context: string | null;

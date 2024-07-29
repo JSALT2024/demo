@@ -1,51 +1,26 @@
 from pathlib import Path
 from ..domain.ClipsCollection import ClipsCollection
-from ..domain.Clip import Clip
-import numpy as np
-from typing import List, Optional
+from ..domain.VideoVisualFeatures import VideoVisualFeatures
 from .EmbeddingNeighborLookup import EmbeddingNeighborLookup
+from .ContextTracker import ContextTracker
 
 
 from llava.sign_public_api import SignLlava, SignLlavaInput, \
     SignLlavaOutput, GenerationConfig, prepare_translation_prompt
 
 
-class ContextTracker:
-    def __init__(self, max_length: int):
-        self.max_length = max_length
-        self._previous_clips: List[str] = []
-        self._total_length = 0
-    
-    def add_next_output(self, output: str):
-        self._previous_clips.append(output)
-        self._total_length += len(output)
-    
-    def _truncate_length(self):
-        while self._total_length > self.max_length:
-            if len(self._previous_clips) == 0:
-                return
-            size_delta = len(self._previous_clips[0])
-            self._previous_clips.pop(0)
-            self._total_length -= size_delta
-
-    def get_current_context(self) -> Optional[str]:
-        if len(self._previous_clips) == 0:
-            return None
-        return " ".join(self._previous_clips)
-
-
 class SignLlavaTranslator:
     def __init__(
         self,
         clips_collection_file: Path,
-        embeddings_mae_file: Path,
-        embeddings_s2v_file: Path,
-        embeddings_dino_file: Path,
+        mae_features_file: Path,
+        dino_features_file: Path,
+        s2v_features_file: Path,
     ):
         self.clips_collection_file=clips_collection_file
-        self.embeddings_mae_file=embeddings_mae_file
-        self.embeddings_s2v_file=embeddings_s2v_file
-        self.embeddings_dino_file=embeddings_dino_file
+        self.mae_features_dile=mae_features_file
+        self.dino_features_file=dino_features_file
+        self.s2v_features_file=s2v_features_file
 
         self.MODEL_CHECKPOINT_FOLDER = \
             "checkpoints/Sign_LLaVA/test_ckpt_July_26_2024_11am"
@@ -60,35 +35,34 @@ class SignLlavaTranslator:
             token_embeddings=sign_llava.get_embedding_layer_weights(),
             tokens=sign_llava.get_all_tokens()
         )
+        context_tracker = ContextTracker(self.MAX_CONTEXT_LENGTH)
 
         # load input data
-        with open(self.embeddings_s2v_file, "rb") as file:
-            embeddings_s2v: dict = np.load(file) # keys are "clip_123"
-            embeddings_s2v = { # keep all in memory
-                k: v
-                for k, v in embeddings_s2v.items()
-            }
-        with open(self.embeddings_mae_file, "rb") as file:
-            embeddings_mae: np.ndarray = np.load(file)
-        with open(self.embeddings_dino_file, "rb") as file:
-            embeddings_dino: np.ndarray = np.load(file)
+        video_features = VideoVisualFeatures.load_all(
+            mae_features_file=self.mae_features_dile,
+            dino_features_file=self.dino_features_file,
+            s2v_features_file=self.s2v_features_file
+        )
         clips_collection = ClipsCollection.load(self.clips_collection_file)
 
         # perform translation clip-by-clip
-        context_tracker = ContextTracker(self.MAX_CONTEXT_LENGTH)
-        for clip_index, clip in enumerate(clips_collection.clips):
-            frames_from = clip.start_frame
-            frames_to = clip.start_frame + clip.frame_count
+        for clip in clips_collection.clips:
+            
+            # prepare data for the clip translation
+            clip_features = video_features.select_clip(clip)
             context = context_tracker.get_current_context()
+
+            # run the LLM translation
             llm_input = SignLlavaInput(
-                sign2vec_features=embeddings_s2v[f"clip_{clip_index}"],
-                mae_features=embeddings_mae[frames_from:frames_to, :],
-                dino_features=embeddings_dino[frames_from:frames_to, :],
+                mae_features=clip_features.mae_features,
+                dino_features=clip_features.dino_features,
+                sign2vec_features=clip_features.s2v_features,
                 prompt=prepare_translation_prompt(context=context),
                 generation_config=GenerationConfig()
             )
             llm_output: SignLlavaOutput = sign_llava.run_inference(llm_input)
             
+            # store translation and its context
             clip.translation_context = context
             clip.translation_result = llm_output.output
             context_tracker.add_next_output(llm_output.output)
@@ -105,7 +79,7 @@ class SignLlavaTranslator:
             )
 
             print(
-                f"Clip {clip_index} was translated as:",
+                f"Clip {clip.clip_index} was translated as:",
                 repr(llm_output.output),
                 "With MAE:", clip.embedding_neighbor_tokens_mae,
                 "With DINO:", clip.embedding_neighbor_tokens_dino,

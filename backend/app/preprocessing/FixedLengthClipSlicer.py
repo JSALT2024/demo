@@ -25,16 +25,19 @@ class FixedLengthClipSlicer:
         clips_collection = ClipsCollection()
         
         clip_starting_frame = 0
+        clip_index = 0
         for clip_frames in splitter:
             clip_frame_count = len(clip_frames)
             
             clip = Clip(
+                clip_index=clip_index,
                 start_frame=clip_starting_frame,
                 frame_count=clip_frame_count
             )
             clips_collection.clips.append(clip)
 
             clip_starting_frame += clip_frame_count
+            clip_index += 1
 
         clips_collection.recompute_lookup_table()
 

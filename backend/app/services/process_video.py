@@ -21,7 +21,7 @@ def process_video(
     processor = VideoProcessor(
         video=video,
         videos_repository=videos_repository,
-        folder_repo=folder_repo,
+        video_folder=folder_repo,
         huggingface_token=os.environ.get("HF_TOKEN")
     )
     processor.run()

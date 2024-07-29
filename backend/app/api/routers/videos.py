@@ -62,7 +62,7 @@ def get_uploaded_file(video_id: str, app: ApplicationDependency) -> VideoOut:
     
     folder_repo = app.video_folder_repository_factory.get_repository(video_id)
     return FileResponse(
-        folder_repo.to_global_path(video.uploaded_file.file_path),
+        folder_repo.path(video.uploaded_file.file_path),
         media_type=video.uploaded_file.media_type
     )
 
@@ -77,7 +77,7 @@ def get_normalized_file(video_id: str, app: ApplicationDependency) -> VideoOut:
         )
     
     folder_repo = app.video_folder_repository_factory.get_repository(video_id)
-    normalized_file_path = folder_repo.to_global_path(
+    normalized_file_path = folder_repo.path(
         video.normalized_file.file_path
     )
     if not normalized_file_path.is_file():
@@ -95,7 +95,7 @@ def get_normalized_file(video_id: str, app: ApplicationDependency) -> VideoOut:
 def get_geometry(video_id: str, app: ApplicationDependency) -> VideoOut:
     video = get_video_or_fail(video_id, app)
     folder_repo = app.video_folder_repository_factory.get_repository(video.id)
-    file_path = folder_repo.to_global_path("geometry.json")
+    file_path = folder_repo.path("geometry.json")
     if not file_path.is_file():
         raise HTTPException(
             status_code=404,
@@ -110,7 +110,7 @@ def get_crops(video_id: str, crop_name: str, app: ApplicationDependency):
         raise HTTPException(status_code=404, detail="Unknown crop name.")
     video = get_video_or_fail(video_id, app)
     folder_repo = app.video_folder_repository_factory.get_repository(video.id)
-    folder_path = folder_repo.to_global_path("cropped_" + crop_name)
+    folder_path = folder_repo.path("cropped_" + crop_name)
     if not folder_path.is_dir():
         raise HTTPException(
             status_code=404,
@@ -132,7 +132,7 @@ def get_crops(video_id: str, crop_name: str, app: ApplicationDependency):
 def get_geometry(video_id: str, app: ApplicationDependency) -> VideoOut:
     video = get_video_or_fail(video_id, app)
     folder_repo = app.video_folder_repository_factory.get_repository(video.id)
-    file_path = folder_repo.to_global_path("clips_collection.json")
+    file_path = folder_repo.path("clips_collection.json")
     if not file_path.is_file():
         raise HTTPException(
             status_code=404,
@@ -177,7 +177,7 @@ async def upload_new_video(
     folder_repo = app.video_folder_repository_factory.get_repository(video.id)
 
     file_extension: str = mimetypes.guess_extension(media_type)
-    file_path: Path = folder_repo.to_global_path(
+    file_path: Path = folder_repo.path(
         Path("uploaded_file").with_suffix(file_extension)
     )
     file_path.parent.mkdir(parents=True, exist_ok=True)
@@ -240,7 +240,7 @@ async def retranslate_clip_endpoint(
     video = get_video_or_fail(video_id, app)
     folder_repo = app.video_folder_repository_factory.get_repository(video_id)
 
-    clips_collection_file = folder_repo.to_global_path("clips_collection.json")
+    clips_collection_file = folder_repo.path("clips_collection.json")
     if not clips_collection_file.exists():
         raise HTTPException(
             status_code=404,
