@@ -233,7 +233,8 @@ async def reprocess_video_endpoint(video_id: str, app: ApplicationDependency):
             video,
             app.videos_repository,
             video_folder,
-            app.sign_llava_cache
+            app.sign_llava_cache,
+            force_all=True
         )
     )
 

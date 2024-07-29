@@ -6,7 +6,9 @@ import sys
 from typing import Optional
 from ..domain.FrameGeometry import FrameGeometry
 from ..domain.ClipsCollection import ClipsCollection
-from ..domain.VideoVisualFeatures import VideoVisualFeatures
+from ..domain.VideoVisualFeatures \
+    import VideoVisualFeatures, S2V_FEATURES_DIMENSION
+import logging
 
 
 sys.path.append("models/sign2vec")
@@ -80,8 +82,16 @@ class Sign2VecProcessor:
             features = inputs["input_values"][0]
             features = torch.tensor(features).float()
             features = features.transpose(1, 2)
-            out = model(features)
-            sign2vec_features = out.last_hidden_state.detach().cpu().numpy()[0]
+            try:
+                out = model(features)
+                sign2vec_features = out.last_hidden_state.detach().cpu().numpy()[0]
+            except RuntimeError as e:
+                # survive an error and pretend there was no S2V output
+                sign2vec_features = np.zeros(
+                    shape=(0, S2V_FEATURES_DIMENSION),
+                    dtype=np.float32
+                )
+                logging.exception(f"SIGN2VEC Exception in clip {clip_index}:")
 
             visual_features.s2v_features[clip_index] = sign2vec_features
 

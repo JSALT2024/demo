@@ -50,24 +50,24 @@ class VideoProcessor:
         """
         
         # initial preprocessing
-        if not self.video_folder.NORMALIZED_FILE.exists() and not force_all:
+        if not self.video_folder.NORMALIZED_FILE.exists() or force_all:
             self.normalize_uploaded_file()
             self.enumerate_normalized_file()
 
         # mediapipe
-        if not self.video_folder.GEOMETRY_FILE.exists() and not force_all:
+        if not self.video_folder.GEOMETRY_FILE.exists() or force_all:
             self.run_mediapipe()
 
         # clip splitting
-        if not self.video_folder.CLIPS_COLLECTION_FILE.exists() and not force_all:
+        if not self.video_folder.CLIPS_COLLECTION_FILE.exists() or force_all:
             self.slice_into_clips()
 
         # encoders
-        if not self.video_folder.MAE_FEATURES_FILE.exists() and not force_all:
+        if not self.video_folder.MAE_FEATURES_FILE.exists() or force_all:
             self.run_mae()
-        if not self.video_folder.DINO_FEATURES_FILE.exists() and not force_all:
+        if not self.video_folder.DINO_FEATURES_FILE.exists() or force_all:
             self.run_dino()
-        if not self.video_folder.S2V_FEATURES_FILE.exists() and not force_all:
+        if not self.video_folder.S2V_FEATURES_FILE.exists() or force_all:
             self.run_sign2vec()
 
         # LLaVA

@@ -10,7 +10,8 @@ def process_video(
     video: Video,
     videos_repository: VideosRepository,
     folder_repo: VideoFolderRepository,
-    sign_llava_cache: SignLlavaCache
+    sign_llava_cache: SignLlavaCache,
+    force_all=False
 ):
     """
     Runs all of the processing after the video is uploaded, including
@@ -27,7 +28,7 @@ def process_video(
         sign_llava_cache=sign_llava_cache,
         huggingface_token=os.environ.get("HF_TOKEN")
     )
-    processor.run()
+    processor.run(force_all=force_all)
     
     print("=====================")
     print("VIDEO PROCESSING DONE")
