@@ -4,6 +4,13 @@ import { FrameGeometry } from "./model/FrameGeometry";
 import { Video } from "./model/Video";
 import { VideoCrops } from "./model/VideoCrops";
 
+export interface RetranslateRequest {
+  use_mae: boolean;
+  use_dino: boolean;
+  use_sign2vec: boolean;
+  prompt: string;
+}
+
 export class VideosApi {
   private connection: Connection;
 
@@ -154,5 +161,24 @@ export class VideosApi {
     if (response.status !== 202) {
       throw response;
     }
+  }
+
+  async retranslate(
+    videoId: string,
+    clipIndex: number,
+    body: RetranslateRequest
+  ): Promise<string> {
+    const response = await this.connection.request(
+      "POST",
+      `videos/${videoId}/clip/${clipIndex}/retranslate`,
+      { body }
+    );
+
+    if (response.status !== 200) {
+      throw response;
+    }
+
+    const data = await response.json();
+    return data.llm_response as string;
   }
 }

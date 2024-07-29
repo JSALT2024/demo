@@ -7,6 +7,7 @@ import { FrameGeometry } from "../api/model/FrameGeometry";
 import { VideoCrops } from "../api/model/VideoCrops";
 import { useEffect, useState } from "react";
 import { ClipsCollection } from "../api/model/ClipsCollection";
+import { PromptingPlayground } from "./PromptingPlayground";
 
 interface VideoPageLoaderData {
   readonly video: Video;
@@ -49,6 +50,8 @@ export function VideoPage() {
     })();
   }, [data.video.id]);
 
+  const [clipIndex, setClipIndex] = useState<number>(0);
+
   async function reprocessVideo() {
     const api = BackendApi.current();
     await api.videos.reprocess(data.video.id);
@@ -68,11 +71,21 @@ export function VideoPage() {
             frameGeometries={frameGeometries}
             videoCrops={videoCrops}
             clipsCollection={clipsCollection}
+            onClipIndexChange={setClipIndex}
           />
         ) : (
           <Typography level="body-md" color="warning">
             The video has not beed normalized yet, wait and reload the page.
           </Typography>
+        )}
+
+        <Box sx={{ paddingTop: 5 }}></Box>
+        {clipsCollection && (
+          <PromptingPlayground
+            videoId={data.video.id}
+            clipIndex={clipIndex}
+            clipsCollection={clipsCollection}
+          />
         )}
       </Box>
       <pre>{JSON.stringify(data.video, null, 2)}</pre>

@@ -18,6 +18,7 @@ export interface VideoPlayerProps {
   readonly frameGeometries: FrameGeometry[] | null;
   readonly videoCrops: VideoCrops | null;
   readonly clipsCollection: ClipsCollection | null;
+  readonly onClipIndexChange?: (clipIndex: number) => void;
 }
 
 /**
@@ -42,6 +43,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
   const clipNumberRef = useRef<HTMLSpanElement | null>(null);
   const [clipTranslation, setClipTranslation] = useState<string | null>(null);
 
+  const lastExportedClipIndexRef = useRef<number>(0);
+
   function onFrameChange(frameIndex: number) {
     // update the frame number
     if (frameNumberRef.current !== null) {
@@ -57,6 +60,12 @@ export function VideoPlayer(props: VideoPlayerProps) {
     // update the clip number
     if (clipNumberRef.current !== null) {
       clipNumberRef.current.innerHTML = String(clipIndex);
+    }
+
+    // export clip index
+    if (lastExportedClipIndexRef.current !== clipIndex) {
+      lastExportedClipIndexRef.current = clipIndex;
+      props.onClipIndexChange?.(clipIndex);
     }
 
     // update the displayed translation
@@ -163,7 +172,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
                 textAlign: "center",
                 padding: 2,
                 fontSize: fontSizeFromTranslationLength(
-                  clipTranslation ? clipTranslation.length : 0
+                  clipTranslation ? clipTranslation.length : 0,
                 ),
               }}
             >

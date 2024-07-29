@@ -3,14 +3,14 @@ export interface RequestOptions {
    * Body of the HTTP request as a javascript object
    * (the encoding format is handled by the connection)
    */
-  body?: Record<string, string> | FormData;
+  body?: Record<string, any> | FormData;
 }
 
 /**
  * Request options that are available after being populated with defaults
  */
 export interface RequestOptionsInternal {
-  body?: Record<string, string> | FormData;
+  body?: Record<string, any> | FormData;
 }
 
 /**
