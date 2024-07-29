@@ -15,6 +15,7 @@ import { useClipState } from "./useClipState";
 import { ClipsCollection } from "../api/model/ClipsCollection";
 import SmartToyIcon from "@mui/icons-material/SmartToy";
 import TheatersIcon from "@mui/icons-material/Theaters";
+import ChatIcon from "@mui/icons-material/Chat";
 import { BackendApi } from "../api/BackendApi";
 
 // Taken from:
@@ -98,10 +99,11 @@ export function PromptingPlayground(props: PromptingPlaygroundProps) {
   }
 
   return (
-    <Box>
+    <Box sx={{ paddingTop: 5 }}>
       <Typography
         level="h2"
         sx={{ marginBottom: 2 }}
+        startDecorator={<ChatIcon />}
         endDecorator={
           <Chip variant="soft" startDecorator={<TheatersIcon />}>
             Clip index {clipIndex} of {clipsCollection.clips.length}

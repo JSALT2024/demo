@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import { ClipsCollection } from "../api/model/ClipsCollection";
 import { PromptingPlayground } from "./PromptingPlayground";
 import { Navigation } from "./Navigation";
+import { EmbeddingsVisualization } from "./EmbeddingsVisualization";
 
 interface VideoPageLoaderData {
   readonly video: Video;
@@ -81,7 +82,13 @@ export function VideoPage() {
           </Typography>
         )}
 
-        <Box sx={{ paddingTop: 5 }}></Box>
+        {clipsCollection && (
+          <EmbeddingsVisualization
+            clipIndex={clipIndex}
+            clipsCollection={clipsCollection}
+          />
+        )}
+
         {clipsCollection && (
           <PromptingPlayground
             videoId={data.video.id}
@@ -89,9 +96,10 @@ export function VideoPage() {
             clipsCollection={clipsCollection}
           />
         )}
+
+        <pre>{JSON.stringify(data.video, null, 2)}</pre>
+        <Button onClick={() => reprocessVideo()}>Re-process video</Button>
       </Box>
-      <pre>{JSON.stringify(data.video, null, 2)}</pre>
-      <Button onClick={() => reprocessVideo()}>Re-process video</Button>
     </Box>
   );
 }
