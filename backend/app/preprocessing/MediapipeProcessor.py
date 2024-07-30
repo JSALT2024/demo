@@ -11,6 +11,7 @@ import json
 import numpy as np
 import cv2
 import queue
+import logging
 import threading
 
 
@@ -28,7 +29,8 @@ class ChunkJob:
         cropped_face_folder: Path,
         cropped_images_folder: Path,
         chunk_stream: InMemoryFrameStream,
-        chunk_start_frame: int
+        chunk_start_frame: int,
+        logger: logging.Logger
     ):
         self.source_framerate = source_framerate
         self.frame_geometries = frame_geometries
@@ -38,6 +40,7 @@ class ChunkJob:
         self.cropped_images_folder = cropped_images_folder
         self.chunk_stream = chunk_stream
         self.chunk_start_frame = chunk_start_frame
+        self.logger = logger
 
         self.chunk_length = len(self.chunk_stream)
         self.chunk_end_frame = chunk_start_frame + self.chunk_length
@@ -62,7 +65,7 @@ class ChunkJob:
         # process crops
         self.store_crops(prediction)
 
-        print(
+        self.logger.info(
             f"Frames {self.chunk_start_frame}-{self.chunk_end_frame} " +
             "were mediapiped."
         )
@@ -213,6 +216,7 @@ class MediapipeProcessor:
         cropped_right_hand_folder: Path,
         cropped_face_folder: Path,
         cropped_images_folder: Path,
+        logger: logging.Logger,
         chunking_period_seconds=1.0,
         parallel_worker_count=2
     ):
@@ -222,10 +226,13 @@ class MediapipeProcessor:
         self.cropped_right_hand_folder = cropped_right_hand_folder
         self.cropped_face_folder = cropped_face_folder
         self.cropped_images_folder = cropped_images_folder
+        self.logger = logger
         self.chunking_period_seconds = chunking_period_seconds
         self.parallel_worker_count = parallel_worker_count
 
     def run(self):
+        self.logger.info("Starting mediapipe...")
+
         # open the video file
         file_frame_stream = FileFrameStream(self.input_file)
 
@@ -256,7 +263,8 @@ class MediapipeProcessor:
                 cropped_face_folder=self.cropped_face_folder,
                 cropped_images_folder=self.cropped_images_folder,
                 chunk_stream=chunk_stream,
-                chunk_start_frame=chunk_start_frame
+                chunk_start_frame=chunk_start_frame,
+                logger=self.logger
             )
             frame_geometries += [None] * len(chunk_stream) # allocate more items
             job_queue.put(job, block=True) # blocks if all workers busy
@@ -277,3 +285,5 @@ class MediapipeProcessor:
         with open(self.geometry_file, "w") as f:
             data = [frame.to_json() for frame in frame_geometries]
             json.dump(data, f)
+        
+        self.logger.info("Mediapipe done!")

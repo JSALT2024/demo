@@ -6,6 +6,7 @@ from ..video.FrameStreamChunker import FrameStreamChunker
 from ..domain.VideoVisualFeatures \
     import VideoVisualFeatures, MAE_FEATURES_DIMENSION
 import numpy as np
+import logging
 
 
 sys.path.append("models/MAE/mae")
@@ -22,15 +23,17 @@ class MaeProcessor:
         device: torch.device,
         cropped_images_folder: Path,
         mae_features_file: Path,
+        logger: logging.Logger,
         batching_period_seconds=1.0,
     ):
         self.device = device
         self.cropped_images_folder = cropped_images_folder
         self.mae_features_file = mae_features_file
+        self.logger = logger
         self.batching_period_seconds = batching_period_seconds
 
     def run(self):
-        print("Loading the MAE model...")
+        self.logger.info("Loading the MAE model...")
         model = predict_mae.create_mae_model(MAE_ARCHITECTURE, MAE_CHECKPOINT)
         model = model.to(self.device)
 
@@ -49,7 +52,7 @@ class MaeProcessor:
         )
 
         # process the video file in fixed-size batches
-        print("Processing frames with MAE...")
+        self.logger.info("Processing frames with MAE...")
         chunker = FrameStreamChunker(
             in_stream=cropped_images_stream,
             target_clip_length_seconds=self.batching_period_seconds
@@ -68,11 +71,11 @@ class MaeProcessor:
             frame_from = chunk_start_frame
             frame_to = chunk_start_frame + chunk_size
             visual_features.mae_features[frame_from:frame_to] = chunk_features
-            print(f"Frames {frame_from}-{frame_to} were MAE'd.")
+            self.logger.info(f"Frames {frame_from}-{frame_to} were MAE'd.")
 
             # update the state
             chunk_start_frame += chunk_size
 
         # save the features data
         visual_features.save_mae(self.mae_features_file)
-        print("MAE features are saved. MAE done.")
+        self.logger.info("MAE features are saved. MAE done.")

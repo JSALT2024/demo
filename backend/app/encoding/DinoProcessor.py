@@ -6,6 +6,7 @@ from ..video.FrameStreamChunker import FrameStreamChunker
 from ..domain.VideoVisualFeatures \
     import VideoVisualFeatures, DINO_FEATURES_DIMENSION
 import numpy as np
+import logging
 
 
 sys.path.append("models/DINOv2/predict")
@@ -26,6 +27,7 @@ class DinoProcessor:
         cropped_left_hand_folder: Path,
         cropped_right_hand_folder: Path,
         dino_features_file: Path,
+        logger: logging.Logger,
         batching_period_seconds=1.0
     ):
         self.device = device
@@ -33,10 +35,11 @@ class DinoProcessor:
         self.cropped_left_hand_folder = cropped_left_hand_folder
         self.cropped_right_hand_folder = cropped_right_hand_folder
         self.dino_features_file = dino_features_file
+        self.logger = logger
         self.batching_period_seconds = batching_period_seconds
 
     def run(self):
-        print("Loading the DINO models...")
+        self.logger.info("Loading the DINO models...")
         face_model = predict_dino.create_dino_model(DINO_FACE_CHECKPOINT)
         hand_model = predict_dino.create_dino_model(DINO_HAND_CHECKPOINT)
         face_model.to(self.device)
@@ -67,7 +70,7 @@ class DinoProcessor:
         )
 
         # process the video file in fixed-size batches
-        print("Processing frames with DINO...")
+        self.logger.info("Processing frames with DINO...")
         face_chunker = FrameStreamChunker(
             in_stream=cropped_face_stream,
             target_clip_length_seconds=self.batching_period_seconds
@@ -111,11 +114,11 @@ class DinoProcessor:
             frame_from = chunk_start_frame
             frame_to = chunk_start_frame + chunk_size
             visual_features.dino_features[frame_from:frame_to] = chunk_features
-            print(f"Frames {frame_from}-{frame_to} were DINOed.")
+            self.logger.info(f"Frames {frame_from}-{frame_to} were DINOed.")
 
             # update the state
             chunk_start_frame += chunk_size
 
         # save the features data
         visual_features.save_dino(self.dino_features_file)
-        print("DINO features are saved. DINO done.")
+        self.logger.info("DINO features are saved. DINO done.")

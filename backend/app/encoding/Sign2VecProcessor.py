@@ -25,15 +25,17 @@ class Sign2VecProcessor:
         geometry_file: Path,
         s2v_features_file: Path,
         clips_collection_file: Path,
+        logger: logging.Logger,
         huggingface_token: Optional[str] = None
     ):
         self.geometry_file = geometry_file
         self.s2v_features_file = s2v_features_file
         self.clips_collection_file = clips_collection_file
+        self.logger = logger
         self.huggingface_token = huggingface_token
 
     def run(self):
-        print("Loading the Sign2Vec model...")
+        self.logger.info("Loading the Sign2Vec model...")
         model = Sign2VecModel.from_pretrained(
             S2V_MODEL_NAME,
             token=self.huggingface_token
@@ -44,6 +46,10 @@ class Sign2VecProcessor:
         frame_geometries = FrameGeometry.list_from_json(self.geometry_file)
         clips_collection = ClipsCollection.load(self.clips_collection_file)
         assert len(frame_geometries) == len(clips_collection.clip_index_lookup)
+
+        self.logger.info(
+            f"There are {len(clips_collection.clips)} clips to be processed."
+        )
 
         # prepare the output embeddings matrices
         visual_features = VideoVisualFeatures(s2v_features={})
@@ -104,9 +110,9 @@ class Sign2VecProcessor:
 
             visual_features.s2v_features[clip_index] = sign2vec_features
 
-            print(f"Clip {clip_index} was Sign2Vec'd...")
+            self.logger.info(f"Clip {clip_index} was Sign2Vec'd...")
         
         # save the features data
         visual_features.validate()
         visual_features.save_s2v(self.s2v_features_file)
-        print("S2V features are saved. S2V done.")
+        self.logger.info("S2V features are saved. S2V done.")

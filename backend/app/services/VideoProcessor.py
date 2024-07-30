@@ -13,6 +13,7 @@ from ..translation.SignLlavaTranslator import SignLlavaTranslator
 from ..translation.SignLlavaCache import SignLlavaCache
 import shutil
 import torch
+import logging
 from typing import Optional
 
 
@@ -28,13 +29,15 @@ class VideoProcessor:
         videos_repository: VideosRepository,
         video_folder: VideoFolderRepository,
         sign_llava_cache: SignLlavaCache,
-        huggingface_token: Optional[str]
+        huggingface_token: Optional[str],
+        logger: logging.Logger
     ):
         self.video = video
         self.videos_repository = videos_repository
         self.video_folder = video_folder
         self.sign_llava_cache = sign_llava_cache
         self.huggingface_token = huggingface_token
+        self.logger = logger
 
         # check upload finished
         if video.uploaded_file is None:
@@ -74,6 +77,7 @@ class VideoProcessor:
         self.run_llm_translation()
 
     def normalize_uploaded_file(self):
+        self.logger.info("Normalizing video...")
         uploaded_file = self.video_folder.path(
             self.video.uploaded_file.file_path
         )
@@ -87,8 +91,11 @@ class VideoProcessor:
         normalizer.close_output()
 
         self.extract_normalized_file_metadata()
+        
+        self.logger.info("Normalization done!")
 
     def enumerate_normalized_file(self):
+        self.logger.info("Enumerating normalized video...")
         temp_file = self.video_folder.NORMALIZED_FILE.with_stem(
             "temp_enumerated_file"
         )
@@ -107,6 +114,8 @@ class VideoProcessor:
 
         self.extract_normalized_file_metadata()
 
+        self.logger.info("Enumeration done!")
+
     def extract_normalized_file_metadata(self):
         self.video.normalized_file = VideoFile.from_existing_file(
             root_path=self.video_folder.root_path,
@@ -121,26 +130,33 @@ class VideoProcessor:
             cropped_left_hand_folder=self.video_folder.CROPPED_LEFT_HAND_FOLDER,
             cropped_right_hand_folder=self.video_folder.CROPPED_RIGHT_HAND_FOLDER,
             cropped_face_folder=self.video_folder.CROPPED_FACE_FOLDER,
-            cropped_images_folder=self.video_folder.CROPPED_IMAGES_FOLDER
+            cropped_images_folder=self.video_folder.CROPPED_IMAGES_FOLDER,
+            logger=self.logger
         )
         mediapipe.run()
     
     def slice_into_clips(self):
         # This can later be replaced by a slicer that separates utterances
         # properly. This is just a minimal implementation to get things going.
+        clip_length_seconds=2.0 # TODO: increase to more seconds later!
+        self.logger.info(
+            f"Slicing the video into {clip_length_seconds} second clips..."
+        )
         clipper = FixedLengthVideoClipper(
             normalized_video_file=self.video_folder.NORMALIZED_FILE,
-            clip_length_seconds=2.0 # TODO: increase to more seconds later!
+            clip_length_seconds=clip_length_seconds
         )
         clips_collection = clipper.run()
         clips_collection.store(self.video_folder.CLIPS_COLLECTION_FILE)
+        self.logger.info("Clips are now defined!")
 
     def run_mae(self):
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         mae = MaeProcessor(
             device=device,
             cropped_images_folder=self.video_folder.CROPPED_IMAGES_FOLDER,
-            mae_features_file=self.video_folder.MAE_FEATURES_FILE
+            mae_features_file=self.video_folder.MAE_FEATURES_FILE,
+            logger=self.logger
         )
         mae.run()
 
@@ -151,7 +167,8 @@ class VideoProcessor:
             cropped_face_folder=self.video_folder.CROPPED_FACE_FOLDER,
             cropped_left_hand_folder=self.video_folder.CROPPED_LEFT_HAND_FOLDER,
             cropped_right_hand_folder=self.video_folder.CROPPED_RIGHT_HAND_FOLDER,
-            dino_features_file=self.video_folder.DINO_FEATURES_FILE
+            dino_features_file=self.video_folder.DINO_FEATURES_FILE,
+            logger=self.logger
         )
         dino.run()
     
@@ -160,6 +177,7 @@ class VideoProcessor:
             geometry_file=self.video_folder.GEOMETRY_FILE,
             s2v_features_file=self.video_folder.S2V_FEATURES_FILE,
             clips_collection_file=self.video_folder.CLIPS_COLLECTION_FILE,
+            logger=self.logger,
             huggingface_token=self.huggingface_token
         )
         s2v.run()
@@ -170,6 +188,7 @@ class VideoProcessor:
             mae_features_file=self.video_folder.MAE_FEATURES_FILE,
             s2v_features_file=self.video_folder.S2V_FEATURES_FILE,
             dino_features_file=self.video_folder.DINO_FEATURES_FILE,
-            sign_llava_cache=self.sign_llava_cache
+            sign_llava_cache=self.sign_llava_cache,
+            logger=self.logger
         )
         translator.run()

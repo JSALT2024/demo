@@ -4,12 +4,13 @@ from ..domain.Video import Video
 from .VideoProcessor import VideoProcessor
 from ..translation.SignLlavaCache import SignLlavaCache
 import os
+import logging
 
 
 def process_video(
     video: Video,
     videos_repository: VideosRepository,
-    folder_repo: VideoFolderRepository,
+    video_folder: VideoFolderRepository,
     sign_llava_cache: SignLlavaCache,
     force_all=False
 ):
@@ -17,21 +18,43 @@ def process_video(
     Runs all of the processing after the video is uploaded, including
     preprocessing, encoders, and autoregressive llama translation.
     """
-    
-    print("STARTING VIDEO PROCESSING")
-    print("-------------------------")
-    
-    processor = VideoProcessor(
-        video=video,
-        videos_repository=videos_repository,
-        video_folder=folder_repo,
-        sign_llava_cache=sign_llava_cache,
-        huggingface_token=os.environ.get("HF_TOKEN")
+
+    # prepare the processing logger
+    logger: logging.Logger = logging.getLogger(__name__)
+    video_folder.LOG_FILE.unlink(missing_ok=True)
+    file_handler = logging.FileHandler(
+        video_folder.LOG_FILE,
+        mode="a",
+        encoding="utf-8"
     )
-    processor.run(force_all=force_all)
+    formatter = logging.Formatter(
+        "[{asctime}] {levelname} {message}",
+        style="{",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
     
-    print("=====================")
-    print("VIDEO PROCESSING DONE")
+    # start video processing
+    logger.info("STARTING VIDEO PROCESSING")
+    logger.info("-------------------------")
+    
+    try:
+        processor = VideoProcessor(
+            video=video,
+            videos_repository=videos_repository,
+            video_folder=video_folder,
+            sign_llava_cache=sign_llava_cache,
+            huggingface_token=os.environ.get("HF_TOKEN"),
+            logger=logger
+        )
+        processor.run(force_all=force_all)
+    except:
+        logger.exception("Uncaught exception during video processing:")
+        raise
+    
+    logger.info("=====================")
+    logger.info("VIDEO PROCESSING DONE")
 
 
 # DEBUGGING

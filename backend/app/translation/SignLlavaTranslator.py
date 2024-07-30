@@ -4,6 +4,7 @@ from ..domain.VideoVisualFeatures import VideoVisualFeatures
 from .EmbeddingNeighborLookup import EmbeddingNeighborLookup
 from .ContextTracker import ContextTracker
 from .SignLlavaCache import SignLlavaCache
+import logging
 
 
 from llava.sign_public_api import SignLlava, SignLlavaInput, \
@@ -20,16 +21,18 @@ class SignLlavaTranslator:
         mae_features_file: Path,
         dino_features_file: Path,
         s2v_features_file: Path,
-        sign_llava_cache: SignLlavaCache
+        sign_llava_cache: SignLlavaCache,
+        logger: logging.Logger
     ):
         self.clips_collection_file = clips_collection_file
         self.mae_features_file = mae_features_file
         self.dino_features_file = dino_features_file
         self.s2v_features_file = s2v_features_file
         self.sign_llava_cache = sign_llava_cache
+        self.logger = logger
 
     def run(self):
-        print("Loading SignLlava model...")
+        self.logger.info("Loading SignLlava model...")
         sign_llava: SignLlava = self.sign_llava_cache.resolve()
         lookup = EmbeddingNeighborLookup(
             token_embeddings=sign_llava.get_embedding_layer_weights(),
@@ -78,8 +81,8 @@ class SignLlavaTranslator:
                 llm_output.sign2vec_embeddings
             )
 
-            print(f"Clip {clip.clip_index} was translated.")
+            self.logger.info(f"Clip {clip.clip_index} was translated.")
         
         # store the modified clips collection file
         clips_collection.store(self.clips_collection_file)
-        print(f"The video was translated.")
+        self.logger.info(f"The video was translated.")
