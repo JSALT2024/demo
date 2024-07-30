@@ -91,6 +91,23 @@ def get_normalized_file(video_id: str, app: ApplicationDependency) -> VideoOut:
     )
 
 
+@router.get("/{video_id}/thumbnail")
+def get_video_thumbnail(video_id: str, app: ApplicationDependency) -> VideoOut:
+    video = get_video_or_fail(video_id, app)
+    video_folder = app.video_folder_repository_factory.get_repository(video.id)
+    for cropped_frame_file in video_folder.CROPPED_IMAGES_FOLDER.glob("*.jpg"):
+        return FileResponse(
+            cropped_frame_file,
+            filename=f"{video_id}_thumbnail.jpg",
+            media_type="image/jpeg",
+            content_disposition_type="inline"
+        )
+    raise HTTPException(
+        status_code=404,
+        detail="There is no thumbnail available for the video yet."
+    )
+
+
 @router.get("/{video_id}/geometry")
 def get_geometry(video_id: str, app: ApplicationDependency) -> VideoOut:
     video = get_video_or_fail(video_id, app)
