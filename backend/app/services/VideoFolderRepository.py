@@ -13,6 +13,7 @@ class VideoFolderRepository:
         self._video_folder = video_folder
 
         # define common file paths
+        self.LOG_FILE = self.path("log.txt")
         self.NORMALIZED_FILE = self.path("normalized_file.mp4") # always mp4
         self.GEOMETRY_FILE = self.path("geometry.json")
         self.CROPPED_LEFT_HAND_FOLDER = self.path("cropped_left_hand")

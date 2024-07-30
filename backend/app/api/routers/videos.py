@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, UploadFile, HTTPException, \
     File, Form
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from typing import List, Annotated
 import aiofiles
 import asyncio
@@ -20,6 +20,7 @@ from ...services.process_video import process_video
 from ...services.retranslate_clip import retranslate_clip
 import glob
 import base64
+from ...follow_file import follow_file
 
 
 router = APIRouter()
@@ -105,6 +106,23 @@ def get_video_thumbnail(video_id: str, app: ApplicationDependency) -> VideoOut:
     raise HTTPException(
         status_code=404,
         detail="There is no thumbnail available for the video yet."
+    )
+
+
+@router.get("/{video_id}/log")
+async def get_video_log(video_id: str, app: ApplicationDependency) -> str:
+    video = get_video_or_fail(video_id, app)
+    video_folder = app.video_folder_repository_factory.get_repository(video.id)
+    
+    # async def dummy_stream():
+    #     for i in range(10_000):
+    #         yield f"Debug {i}!\n"
+    #         await asyncio.sleep(0.1)
+
+    return StreamingResponse(
+        follow_file(video_folder.LOG_FILE),
+        # dummy_stream(),
+        media_type="text/plain"
     )
 
 
