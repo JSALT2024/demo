@@ -4,6 +4,11 @@ export interface RequestOptions {
    * (the encoding format is handled by the connection)
    */
   body?: Record<string, any> | FormData;
+  
+  /**
+   * Abort controller signal
+   */
+  signal?: AbortSignal | null;
 }
 
 /**
@@ -11,6 +16,7 @@ export interface RequestOptions {
  */
 export interface RequestOptionsInternal {
   body?: Record<string, any> | FormData;
+  signal?: AbortSignal | null;
 }
 
 /**

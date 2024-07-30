@@ -46,6 +46,7 @@ export class Connection {
       method,
       headers,
       body,
+      signal: _options.signal,
 
       // disable caching, since it causes trouble in devevelopment
       // and we are only building a prototype

@@ -11,6 +11,7 @@ import { PromptingPlayground } from "./PromptingPlayground";
 import { Navigation } from "./Navigation";
 import { EmbeddingsVisualization } from "./EmbeddingsVisualization";
 import { DebugData } from "./DebugData";
+import { VideoLogView } from "./VideoLogView";
 
 interface VideoPageLoaderData {
   readonly video: Video;
@@ -97,6 +98,8 @@ export function VideoPage() {
             clipsCollection={clipsCollection}
           />
         )}
+
+        <VideoLogView videoId={data.video.id} />
 
         <DebugData
           video={data.video}

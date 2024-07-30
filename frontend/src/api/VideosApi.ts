@@ -11,6 +11,11 @@ export interface RetranslateRequest {
   prompt: string;
 }
 
+export interface LogFollower {
+  readonly close: () => void;
+  readonly startFollowing: () => Promise<void>;
+}
+
 export class VideosApi {
   private connection: Connection;
 
@@ -44,6 +49,46 @@ export class VideosApi {
 
   getCropsUrl(id: string, cropName: string): URL {
     return this.connection.url(`videos/${id}/cropped/${cropName}`);
+  }
+
+  followLog(id: string, handleLine: (line: string) => void): LogFollower {
+    const connection = this.connection;
+    const abortController = new AbortController();
+    let response: Response | null = null;
+    let closed = false;
+
+    return {
+      async startFollowing() {
+        response = await connection.request(
+          "GET",
+          `videos/${id}/log`,
+          { signal: abortController.signal }
+        );
+        if (response === null) return;
+        if (response.status !== 200) throw response;
+        if (response.body === null) return;
+        
+        const textReader = response.body
+          .pipeThrough(new TextDecoderStream())
+          .getReader();
+
+        try {
+          while (true) {
+            const { done, value } = await textReader.read();
+            if (done) break;
+            handleLine(value);
+          }
+        } catch (e) {
+          // when the request is aborted an exception is thrown
+          // that's ok!
+          if (!closed) throw e;
+        }
+      },
+      close() {
+        closed = true;
+        abortController.abort();
+      }
+    };
   }
 
   async getNormalizedVideoBlob(id: string): Promise<Blob | null> {
