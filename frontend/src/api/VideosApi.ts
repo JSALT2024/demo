@@ -228,4 +228,11 @@ export class VideosApi {
     const data = await response.json();
     return data.llm_response as string;
   }
+
+  async delete(id: string): Promise<void> {
+    const response = await this.connection.request("DELETE", `videos/${id}`);
+    if (response.status !== 204) {
+      throw response;
+    }
+  }
 }

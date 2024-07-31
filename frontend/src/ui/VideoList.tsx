@@ -19,8 +19,8 @@ export function VideoList(props: VideoListProps) {
 
       <Grid container spacing={2}>
         {sortedVideos.map((video) => (
-          <Grid xs={4} sx={{ display: "flex" }}>
-            <VideoCard key={video.id} video={video} sx={{ flexGrow: 1 }} />
+          <Grid key={video.id} xs={4} sx={{ display: "flex" }}>
+            <VideoCard video={video} sx={{ flexGrow: 1 }} />
           </Grid>
         ))}
       </Grid>

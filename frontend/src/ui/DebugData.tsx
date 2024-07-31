@@ -3,7 +3,6 @@ import TheatersIcon from "@mui/icons-material/Theaters";
 import { ClipsCollection } from "../api/model/ClipsCollection";
 import BugReportIcon from "@mui/icons-material/BugReport";
 import { Video } from "../api/model/Video";
-import { BackendApi } from "../api/BackendApi";
 
 export interface DebugDataProps {
   readonly video: Video;
@@ -16,12 +15,6 @@ export function DebugData(props: DebugDataProps) {
   const clipsCollection = props.clipsCollection;
   const clip = clipsCollection?.clips?.[clipIndex];
   const video = props.video;
-
-  async function reprocessVideo() {
-    const api = BackendApi.current();
-    await api.videos.reprocess(video.id);
-    window.location.reload();
-  }
 
   return (
     <Box sx={{ paddingTop: 5 }}>
@@ -55,10 +48,6 @@ export function DebugData(props: DebugDataProps) {
       <Typography level="body-sm" sx={{ whiteSpace: "pre-wrap" }}>
         {JSON.stringify(video, null, 2)}
       </Typography>
-
-      <Button sx={{ marginTop: 1 }} onClick={() => reprocessVideo()}>
-        Re-process video
-      </Button>
     </Box>
   );
 }

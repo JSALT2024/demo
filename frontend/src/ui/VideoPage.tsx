@@ -12,6 +12,7 @@ import { Navigation } from "./Navigation";
 import { EmbeddingsVisualization } from "./EmbeddingsVisualization";
 import { DebugData } from "./DebugData";
 import { VideoLogView } from "./VideoLogView";
+import { VideoManagement } from "./VideoManagement";
 
 interface VideoPageLoaderData {
   readonly video: Video;
@@ -106,6 +107,8 @@ export function VideoPage() {
           clipIndex={clipIndex}
           clipsCollection={clipsCollection}
         />
+
+        <VideoManagement video={data.video} />
       </Box>
     </Box>
   );
