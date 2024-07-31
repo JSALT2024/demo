@@ -186,6 +186,10 @@ export function useVideoPlayerController(
       },
       requestPictureInPicture() {
         if (videoElementRef.current === null) return;
+        if (!videoElementRef.current.requestPictureInPicture) {
+          alert("Picture-in-picture is not supported by your browser.");
+          return;
+        }
         videoElementRef.current.requestPictureInPicture();
       },
 
