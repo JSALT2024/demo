@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, UploadFile, HTTPException, \
     File, Form
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse, Response
 from typing import List, Annotated
 import aiofiles
 import asyncio
@@ -50,6 +50,15 @@ def list_videos(app: ApplicationDependency) -> List[VideoOut]:
 def get_video(video_id: str, app: ApplicationDependency) -> VideoOut:
     video = get_video_or_fail(video_id, app)
     return VideoOut.from_model(video)
+
+
+@router.delete("/{video_id}")
+def delete_video(video_id: str, app: ApplicationDependency) -> VideoOut:
+    video = get_video_or_fail(video_id, app)
+    video_folder = app.video_folder_repository_factory.get_repository(video.id)
+    video_folder.remove()
+    app.videos_repository.remove(video.id)
+    return Response(status_code=204)
 
 
 @router.get("/{video_id}/uploaded-file")

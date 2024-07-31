@@ -32,6 +32,10 @@ class VideosRepository:
         self._videos[video.id] = video
         self._write_data()
     
+    def remove(self, video_id: str):
+        del self._videos[video_id]
+        self._write_data()
+    
     def load(self, id: str) -> Optional[Video]:
         if id not in self._videos:
             return None

@@ -1,4 +1,5 @@
 from pathlib import Path
+import shutil
 
 
 class VideoFolderRepository:
@@ -33,3 +34,7 @@ class VideoFolderRepository:
     def root_path(self) -> Path:
         """Path to the folder representing this video repository"""
         return self._video_folder
+
+    def remove(self):
+        if self.root_path.is_dir():
+            shutil.rmtree(self.root_path)
