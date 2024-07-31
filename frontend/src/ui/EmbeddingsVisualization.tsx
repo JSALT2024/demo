@@ -50,10 +50,7 @@ function renderBubbleChart(data: TokenCount[]): SVGSVGElement {
   const name = (d) => prettifyToken(d.token);
   const names = (d) => [prettifyToken(d.token), d.encoder];
 
-  const maxCount = data.map((d) => d.count).reduce(
-    (a, b) => Math.max(a, b),
-    1
-  );
+  const maxCount = data.map((d) => d.count).reduce((a, b) => Math.max(a, b), 1);
 
   // Specify the number format for values.
   const format = d3.format(",d");
@@ -184,7 +181,7 @@ export function EmbeddingsVisualization(props: EmbeddingsVisualizationProps) {
         label="Human friendly"
         size="sm"
         checked={humanFriendlyTokens}
-        onChange={e => setHumanFriendlyTokens(e.target.checked)}
+        onChange={(e) => setHumanFriendlyTokens(e.target.checked)}
       />
       <Typography level="body-xs" color="primary" gutterBottom>
         <strong>MAE:</strong>{" "}

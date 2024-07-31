@@ -39,6 +39,10 @@ export class VideosApi {
     return (await response.json()) as Video;
   }
 
+  getThumbnailUrl(id: string): URL {
+    return this.connection.url(`videos/${id}/thumbnail`);
+  }
+
   getUploadedVideoFileUrl(id: string): URL {
     return this.connection.url(`videos/${id}/uploaded-file`);
   }
@@ -59,15 +63,13 @@ export class VideosApi {
 
     return {
       async startFollowing() {
-        response = await connection.request(
-          "GET",
-          `videos/${id}/log`,
-          { signal: abortController.signal }
-        );
+        response = await connection.request("GET", `videos/${id}/log`, {
+          signal: abortController.signal,
+        });
         if (response === null) return;
         if (response.status !== 200) throw response;
         if (response.body === null) return;
-        
+
         const textReader = response.body
           .pipeThrough(new TextDecoderStream())
           .getReader();
@@ -87,7 +89,7 @@ export class VideosApi {
       close() {
         closed = true;
         abortController.abort();
-      }
+      },
     };
   }
 
