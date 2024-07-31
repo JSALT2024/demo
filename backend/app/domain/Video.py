@@ -33,3 +33,9 @@ class Video:
     Metadata about the normalized file stored in the video storage folder.
     Is None as long as the uploaded file is being normalized.
     """
+
+    is_processing: bool
+    """
+    This is set to true when video processing begins and back to false when
+    processing finishes. It controls the processing log following.
+    """

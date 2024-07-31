@@ -123,14 +123,14 @@ async def get_video_log(video_id: str, app: ApplicationDependency) -> str:
     video = get_video_or_fail(video_id, app)
     video_folder = app.video_folder_repository_factory.get_repository(video.id)
     
-    # async def dummy_stream():
-    #     for i in range(10_000):
-    #         yield f"Debug {i}!\n"
-    #         await asyncio.sleep(0.1)
+    def keep_following():
+        v = app.videos_repository.load(video_id)
+        if v is None:
+            return False
+        return v.is_processing
 
     return StreamingResponse(
-        follow_file(video_folder.LOG_FILE),
-        # dummy_stream(),
+        follow_file(video_folder.LOG_FILE, keep_following=keep_following),
         media_type="text/plain"
     )
 
@@ -210,7 +210,8 @@ async def upload_new_video(
         title=file.filename,
         created_at=datetime.now(timezone.utc),
         uploaded_file=None,
-        normalized_file=None
+        normalized_file=None,
+        is_processing=True
     )
     app.videos_repository.store(video)
 

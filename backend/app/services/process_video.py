@@ -5,6 +5,7 @@ from .VideoProcessor import VideoProcessor
 from ..translation.SignLlavaCache import SignLlavaCache
 import os
 import logging
+import time
 
 
 def process_video(
@@ -34,6 +35,10 @@ def process_video(
     )
     file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
+
+    # mark the video as being processed
+    video.is_processing = True
+    videos_repository.store(video)
     
     # start video processing
     logger.info("STARTING VIDEO PROCESSING")
@@ -55,6 +60,14 @@ def process_video(
     
     logger.info("=====================")
     logger.info("VIDEO PROCESSING DONE")
+
+    # wait 2 seconds so that the log gets sent to frontend and then
+    # terminate the log watching script
+    time.sleep(2.0)
+
+    # mark the video as done
+    video.is_processing = False
+    videos_repository.store(video)
 
 
 # DEBUGGING
