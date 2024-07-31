@@ -15,10 +15,10 @@ export function Navigation() {
         <Link component={RouterLink} to="/">
           Videos
         </Link>
-        <Link component={RouterLink} to="record">
+        <Link component={RouterLink} to="/record">
           Record
         </Link>
-        <Link component={RouterLink} to="upload">
+        <Link component={RouterLink} to="/upload">
           Upload
         </Link>
       </Stack>
