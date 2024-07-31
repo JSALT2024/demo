@@ -83,7 +83,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
 
   return (
     <Sheet variant="outlined" sx={{ borderRadius: "5px", overflow: "hidden" }}>
-      <Box sx={{ display: "flex", flexDirection: "row" }}>
+      <Box sx={{ display: "flex", flexDirection: "row", borderBottom: "1px solid var(--joy-palette-neutral-300)" }}>
         <VideoPreview
           sx={{ width: "50%" }}
           videoBlob={props.videoBlob}
@@ -181,7 +181,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
           </Sheet>
         </Box>
       </Box>
-      <VideoNavigation videoPlayerController={videoPlayerController} />
+      <VideoNavigation
+        videoPlayerController={videoPlayerController}
+        clipsCollection={props.clipsCollection}
+      />
     </Sheet>
   );
 }
