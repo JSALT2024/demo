@@ -180,7 +180,7 @@ export class VideosApi {
     videoBlob: Blob,
     videoTitle: string,
     mediaType: string,
-  ): Promise<void> {
+  ): Promise<string> {
     const body = new FormData();
     body.append(
       "media_type", // parameter name
@@ -197,6 +197,9 @@ export class VideosApi {
     if (response.status !== 201) {
       throw response;
     }
+
+    const data = await response.json();
+    return data["video_id"] as string;
   }
 
   async reprocess(id: string): Promise<void> {
