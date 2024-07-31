@@ -2,29 +2,30 @@
 // https://www.w3schools.com/howto/howto_js_rangeslider.asp
 
 .sliderInput {
+  // override default CSS styles
+  -webkit-appearance: none;
+  appearance: none;
+
+  margin: 0;
+  padding: 0;
+  height: 5px;
+  background: var(--joy-palette-neutral-300);
+  cursor: pointer;
+
+  &::-webkit-slider-thumb,
+  &::-moz-range-thumb {
     // override default CSS styles
     -webkit-appearance: none;
     appearance: none;
 
     margin: 0;
     padding: 0;
-    height: 5px;
-    background: var(--joy-palette-neutral-300);
+    width: 3px;
+    height: 15px;
+    border-radius: 0;
+
+    border: none;
+    background: var(--joy-palette-primary-500);
     cursor: pointer;
-
-    &::-webkit-slider-thumb, &::-moz-range-thumb {
-        // override default CSS styles
-        -webkit-appearance: none;
-        appearance: none;
-
-        margin: 0;
-        padding: 0;
-        width: 3px;
-        height: 15px;
-        border-radius: 0;
-
-        border: none;
-        background: var(--joy-palette-primary-500);
-        cursor: pointer;
-    }
+  }
 }

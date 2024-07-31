@@ -11,6 +11,7 @@ import { FrameGeometry } from "../../api/model/FrameGeometry";
 import { VideoCrops } from "../../api/model/VideoCrops";
 import { CropView } from "./CropView";
 import { ClipsCollection } from "../../api/model/ClipsCollection";
+import { FloatingVideoNavigation } from "./FloatingVideoNavigation";
 
 export interface VideoPlayerProps {
   readonly videoFile: VideoFile;
@@ -83,7 +84,13 @@ export function VideoPlayer(props: VideoPlayerProps) {
 
   return (
     <Sheet variant="outlined" sx={{ borderRadius: "5px", overflow: "hidden" }}>
-      <Box sx={{ display: "flex", flexDirection: "row", borderBottom: "1px solid var(--joy-palette-neutral-300)" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          borderBottom: "1px solid var(--joy-palette-neutral-300)",
+        }}
+      >
         <VideoPreview
           sx={{ width: "50%" }}
           videoBlob={props.videoBlob}
@@ -183,6 +190,10 @@ export function VideoPlayer(props: VideoPlayerProps) {
         </Box>
       </Box>
       <VideoNavigation
+        videoPlayerController={videoPlayerController}
+        clipsCollection={props.clipsCollection}
+      />
+      <FloatingVideoNavigation
         videoPlayerController={videoPlayerController}
         clipsCollection={props.clipsCollection}
       />

@@ -32,7 +32,7 @@ export interface VideoPlayerController {
   readonly isPlaying: boolean;
   readonly videoFile: VideoFile;
   readonly currentFrameIndexRef: MutableRefObject<number>;
-  
+
   readonly playbackSlowdown: number;
   readonly setPlaybackSlowdown: Dispatch<number>;
   readonly isLooping: boolean;
@@ -52,6 +52,7 @@ export interface VideoPlayerController {
   readonly seekToFrame: (frameIndex: number) => void;
   readonly play: () => void;
   readonly pause: () => void;
+  readonly requestPictureInPicture: () => void;
 
   readonly addFrameChangeEventListener: (
     handler: FrameChangeEventHandler,
@@ -77,7 +78,7 @@ export function useVideoPlayerController(
   const frameChangeEventHandlersRef = useRef<FrameChangeEventHandler[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const currentFrameIndexRef = useRef<number>(0);
-  
+
   const [playbackSlowdown, setPlaybackSlowdown] = useState<number>(1);
   const [isLooping, setIsLooping] = useState<boolean>(false);
 
@@ -135,7 +136,7 @@ export function useVideoPlayerController(
       isPlaying,
       videoFile: props.videoFile,
       currentFrameIndexRef,
-      
+
       playbackSlowdown,
       setPlaybackSlowdown(newValue) {
         if (videoElementRef.current === null) return;
@@ -182,6 +183,10 @@ export function useVideoPlayerController(
         if (videoElementRef.current === null) return;
         videoElementRef.current.pause();
         setIsPlaying(false);
+      },
+      requestPictureInPicture() {
+        if (videoElementRef.current === null) return;
+        videoElementRef.current.requestPictureInPicture();
       },
 
       // frame change event handling

@@ -6,9 +6,10 @@ import {
 } from "./VideoPlayerController";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
-import AllInclusiveIcon from '@mui/icons-material/AllInclusive';
+import AllInclusiveIcon from "@mui/icons-material/AllInclusive";
 import * as styles from "./VideoNavigation.module.scss";
 import { ClipsCollection } from "../../api/model/ClipsCollection";
+import LaunchIcon from "@mui/icons-material/Launch";
 
 export interface VideoNavigationProps {
   readonly videoPlayerController: VideoPlayerController;
@@ -25,9 +26,11 @@ export function VideoNavigation(props: VideoNavigationProps) {
   const setIsLooping = props.videoPlayerController.setIsLooping;
 
   function frameToCssPercentage(frame: number): string {
-    return String(
-      frame / (props.videoPlayerController.videoFile.frame_count - 1) * 100
-    ) + "%";
+    return (
+      String(
+        (frame / (props.videoPlayerController.videoFile.frame_count - 1)) * 100,
+      ) + "%"
+    );
   }
 
   function updateNavigationPosition(frameIndex: number) {
@@ -88,7 +91,7 @@ export function VideoNavigation(props: VideoNavigationProps) {
               transform: "translateY(-50%)",
             }}
           >
-            {props.clipsCollection.clips.slice(1).map(clip => (
+            {props.clipsCollection.clips.slice(1).map((clip) => (
               <line
                 key={clip.clip_index}
                 x1={frameToCssPercentage(clip.start_frame)}
@@ -150,10 +153,18 @@ export function VideoNavigation(props: VideoNavigationProps) {
         size="sm"
         variant="outlined"
         sx={{ marginLeft: 1 }}
-        aria-pressed={isLooping ? 'true' : 'false'}
+        aria-pressed={isLooping ? "true" : "false"}
         onClick={() => setIsLooping(!isLooping)}
       >
         <AllInclusiveIcon />
+      </IconButton>
+
+      {/* Picture in picture (breakout player) */}
+      <IconButton
+        sx={{ marginLeft: 1 }}
+        onClick={() => props.videoPlayerController.requestPictureInPicture()}
+      >
+        <LaunchIcon />
       </IconButton>
     </Box>
   );
