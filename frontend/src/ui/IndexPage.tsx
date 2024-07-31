@@ -4,6 +4,7 @@ import { BackendApi } from "../api/BackendApi";
 import { Video } from "../api/model/Video";
 import { Navigation } from "./Navigation";
 import logo from "../img/logo.png";
+import { VideoList } from "./VideoList";
 
 export async function indexPageLoader(): Promise<Video[]> {
   const api = BackendApi.current();
@@ -16,7 +17,14 @@ export function IndexPage() {
   return (
     <Box>
       <Navigation />
-      <Box sx={{ margin: "0 auto", maxWidth: "850px", paddingTop: 4 }}>
+      <Box
+        sx={{
+          margin: "0 auto",
+          maxWidth: "850px",
+          paddingTop: 4,
+          paddingBottom: "100px",
+        }}
+      >
         <Box
           sx={{ display: "flex", justifyContent: "center", paddingBottom: 4 }}
         >
@@ -29,17 +37,7 @@ export function IndexPage() {
           American Sign Language signer to english text using the LLaMa large
           language model.
         </Typography>
-        Hello world! This is the index page!
-        <h2>Videos</h2>
-        <ul>
-          {videos.map((video) => (
-            <li key={video.id}>
-              <RouterLink to={"/videos/" + video.id}>
-                {video.id} / {video.title}
-              </RouterLink>
-            </li>
-          ))}
-        </ul>
+        <VideoList videos={videos} />
       </Box>
     </Box>
   );

@@ -44,8 +44,8 @@ export function DebugData(props: DebugDataProps) {
       <Typography level="body-sm" sx={{ whiteSpace: "pre-wrap" }}>
         {JSON.stringify(
           clip,
-          (k, v) => k.startsWith("embedding_") ? "[see above]" : v,
-          2
+          (k, v) => (k.startsWith("embedding_") ? "[see above]" : v),
+          2,
         )}
       </Typography>
 
@@ -56,10 +56,7 @@ export function DebugData(props: DebugDataProps) {
         {JSON.stringify(video, null, 2)}
       </Typography>
 
-      <Button
-        sx={{ marginTop: 1 }}
-        onClick={() => reprocessVideo()}
-      >
+      <Button sx={{ marginTop: 1 }} onClick={() => reprocessVideo()}>
         Re-process video
       </Button>
     </Box>

@@ -4,7 +4,7 @@ export interface RequestOptions {
    * (the encoding format is handled by the connection)
    */
   body?: Record<string, any> | FormData;
-  
+
   /**
    * Abort controller signal
    */

@@ -12,22 +12,19 @@ export function VideoLogView(props: VideoLogViewProps) {
 
   useEffect(() => {
     const api = BackendApi.current();
-    const logFollower = api.videos.followLog(
-      props.videoId,
-      (nextLine) => {
-        if (preElementRef.current === null) return;
-        const pre = preElementRef.current;
-        const parent = pre.parentElement!;
-        pre.append(nextLine);
-        parent.scrollTo(0, parent.scrollHeight);
-      }
-    );
+    const logFollower = api.videos.followLog(props.videoId, (nextLine) => {
+      if (preElementRef.current === null) return;
+      const pre = preElementRef.current;
+      const parent = pre.parentElement!;
+      pre.append(nextLine);
+      parent.scrollTo(0, parent.scrollHeight);
+    });
     logFollower.startFollowing();
     return () => {
       logFollower.close();
     };
   }, [props.videoId]);
-  
+
   return (
     <Box sx={{ paddingTop: 5 }}>
       <Typography
@@ -46,7 +43,7 @@ export function VideoLogView(props: VideoLogViewProps) {
           ref={preElementRef}
           style={{
             margin: 0,
-            whiteSpace: "pre-wrap"
+            whiteSpace: "pre-wrap",
           }}
         ></pre>
       </Sheet>
