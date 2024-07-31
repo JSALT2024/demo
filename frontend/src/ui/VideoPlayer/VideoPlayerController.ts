@@ -32,6 +32,11 @@ export interface VideoPlayerController {
   readonly isPlaying: boolean;
   readonly videoFile: VideoFile;
   readonly currentFrameIndexRef: MutableRefObject<number>;
+  
+  readonly playbackSlowdown: number;
+  readonly setPlaybackSlowdown: Dispatch<number>;
+  readonly isLooping: boolean;
+  readonly setIsLooping: Dispatch<boolean>;
 
   readonly overlayPose: boolean;
   readonly overlayFace: boolean;
@@ -72,6 +77,9 @@ export function useVideoPlayerController(
   const frameChangeEventHandlersRef = useRef<FrameChangeEventHandler[]>([]);
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const currentFrameIndexRef = useRef<number>(0);
+  
+  const [playbackSlowdown, setPlaybackSlowdown] = useState<number>(1);
+  const [isLooping, setIsLooping] = useState<boolean>(false);
 
   const [overlayPose, setOverlayPose] = useState<boolean>(true);
   const [overlayFace, setOverlayFace] = useState<boolean>(true);
@@ -111,6 +119,8 @@ export function useVideoPlayerController(
   const memoDependencies = [
     isPlaying,
     props.videoFile,
+    playbackSlowdown,
+    isLooping,
     overlayPose,
     overlayFace,
     overlayLeftHand,
@@ -125,6 +135,19 @@ export function useVideoPlayerController(
       isPlaying,
       videoFile: props.videoFile,
       currentFrameIndexRef,
+      
+      playbackSlowdown,
+      setPlaybackSlowdown(newValue) {
+        if (videoElementRef.current === null) return;
+        videoElementRef.current.playbackRate = 1 / newValue;
+        setPlaybackSlowdown(newValue);
+      },
+      isLooping,
+      setIsLooping(newValue) {
+        if (videoElementRef.current === null) return;
+        videoElementRef.current.loop = newValue;
+        setIsLooping(newValue);
+      },
 
       overlayPose,
       overlayFace,
