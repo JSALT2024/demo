@@ -10,6 +10,7 @@
     padding: 0;
     height: 5px;
     background: var(--joy-palette-neutral-300);
+    cursor: pointer;
 
     &::-webkit-slider-thumb, &::-moz-range-thumb {
         // override default CSS styles
@@ -18,9 +19,9 @@
 
         margin: 0;
         padding: 0;
-        width: 15px;
+        width: 3px;
         height: 15px;
-        border-radius: 50%;
+        border-radius: 0;
 
         border: none;
         background: var(--joy-palette-primary-500);

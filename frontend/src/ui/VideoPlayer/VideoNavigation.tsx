@@ -26,7 +26,7 @@ export function VideoNavigation(props: VideoNavigationProps) {
 
   function frameToCssPercentage(frame: number): string {
     return String(
-      frame / props.videoPlayerController.videoFile.frame_count * 100
+      frame / (props.videoPlayerController.videoFile.frame_count - 1) * 100
     ) + "%";
   }
 

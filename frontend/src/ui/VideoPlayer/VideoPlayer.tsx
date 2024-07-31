@@ -171,6 +171,7 @@ export function VideoPlayer(props: VideoPlayerProps) {
                 alignItems: "center",
                 textAlign: "center",
                 padding: 2,
+                overflow: "hidden",
                 fontSize: fontSizeFromTranslationLength(
                   clipTranslation ? clipTranslation.length : 0,
                 ),
