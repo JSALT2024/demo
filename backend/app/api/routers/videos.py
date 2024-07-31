@@ -261,7 +261,10 @@ async def upload_new_video(
         )
     )
 
-    return {"message": f"Successfuly uploaded {file.filename}"}
+    return {
+        "message": f"Successfuly uploaded {file.filename}",
+        "video_id": video.id
+    }
 
 
 @router.post("/{video_id}/reprocess", status_code=202)
