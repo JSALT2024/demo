@@ -13,7 +13,7 @@ const APPEAR_AFTER_PX = 100;
 
 export function FloatingVideoNavigation(props: FloatingVideoNavigationProps) {
   const sheetRef = useRef<HTMLElement | null>(null);
-  
+
   const handleScroll = useCallback(() => {
     if (sheetRef.current === null) return;
     if (window.scrollY > APPEAR_AFTER_PX) {
@@ -27,7 +27,7 @@ export function FloatingVideoNavigation(props: FloatingVideoNavigationProps) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   });
-  
+
   return (
     <Sheet
       // ref={sheetRef} just such that typescript is fine:

@@ -12,6 +12,7 @@ import { VideoCrops } from "../../api/model/VideoCrops";
 import { CropView } from "./CropView";
 import { ClipsCollection } from "../../api/model/ClipsCollection";
 import { FloatingVideoNavigation } from "./FloatingVideoNavigation";
+import { useKeyboardShortcuts } from "./useKeyboardShortcuts";
 
 export interface VideoPlayerProps {
   readonly videoFile: VideoFile;
@@ -39,6 +40,8 @@ export function VideoPlayer(props: VideoPlayerProps) {
   const videoPlayerController = useVideoPlayerController({
     videoFile: props.videoFile,
   });
+
+  useKeyboardShortcuts({ videoPlayerController });
 
   const frameNumberRef = useRef<HTMLSpanElement | null>(null);
   const clipNumberRef = useRef<HTMLSpanElement | null>(null);
