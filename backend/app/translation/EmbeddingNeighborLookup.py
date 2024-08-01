@@ -1,5 +1,5 @@
 import numpy as np
-from typing import List
+from typing import List, Optional
 
 
 class EmbeddingNeighborLookup:
@@ -23,7 +23,10 @@ class EmbeddingNeighborLookup:
         assert len(self.token_embeddings.shape) == 2
         assert len(self.tokens) == self.token_embeddings.shape[0]
     
-    def find_neighbors_for(self, visual_embeddings: np.ndarray) -> List[str]:
+    def find_neighbors_for(self, visual_embeddings: Optional[np.ndarray]) -> List[str]:
+        if visual_embeddings is None:
+            return [] # fallback for missing embeddings
+        
         assert str(visual_embeddings.dtype) == "float32"
         assert len(visual_embeddings.shape) == 2
         assert visual_embeddings.shape[1] == self.token_embeddings.shape[1]
