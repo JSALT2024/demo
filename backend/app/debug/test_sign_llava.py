@@ -1,7 +1,7 @@
 from llava.sign_public_api import SignLlava, SignLlavaInput, \
     SignLlavaOutput, GenerationConfig, prepare_translation_prompt
 import numpy as np
-import os
+from ..translation.SignLlavaCache import SIGN_LLAVA_CHECKPOINT
 from dotenv import load_dotenv
 load_dotenv() # because of huggingface token
 
@@ -9,7 +9,7 @@ load_dotenv() # because of huggingface token
 def test_sign_llava():
     print("Loading the Sign LLaVA model...")
     sign_llava = SignLlava.load_from_checkpoint(
-        "checkpoints/Sign_LLaVA/test_ckpt_July_26_2024_11am"
+        SIGN_LLAVA_CHECKPOINT
     )
 
     input_data = SignLlavaInput(

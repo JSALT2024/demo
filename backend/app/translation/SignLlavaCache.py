@@ -4,7 +4,7 @@ from typing import Optional
 from llava.sign_public_api import SignLlava
 
 
-SIGN_LLAVA_CHECKPOINT = "checkpoints/Sign_LLaVA/test_ckpt_July_26_2024_11am"
+SIGN_LLAVA_CHECKPOINT = "checkpoints/Sign_LLaVA"
 
 
 class SignLlavaCache:

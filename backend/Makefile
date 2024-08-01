@@ -70,15 +70,15 @@ install-s2v:
 	cd models/sign2vec; git reset --hard 2395fe0759c4e8510ebc665c406e185d582baf7d
 
 install-sign-llava:
-	mkdir -p models
 	rm -rf models/Sign_LLaVA
-	cd models; git clone git@github.com:JSALT2024/Sign_LLaVA.git
-	cd models/Sign_LLaVA; git reset --hard 19cd35769b898517e2eacbbebaa4791cb84e000d
+	git clone git@github.com:JSALT2024/Sign_LLaVA.git models/Sign_LLaVA
+	(cd models/Sign_LLaVA && git reset --hard 19cd35769b898517e2eacbbebaa4791cb84e000d)
 	.venv/bin/python3 -m pip install --no-deps --editable ./models/Sign_LLaVA
 	rm -rf checkpoints/Sign_LLaVA
 	mkdir -p checkpoints/Sign_LLaVA
-	cd checkpoints/Sign_LLaVA; wget https://github.com/JSALT2024/Sign_LLaVA/releases/download/checkpoint/test_ckpt_July_26_2024_11am.zip
-	cd checkpoints/Sign_LLaVA; unzip test_ckpt_July_26_2024_11am.zip
+	(cd checkpoints/Sign_LLaVA && wget "https://github.com/JSALT2024/Sign_LLaVA/releases/download/checkpoint/test_ckpt_July_26_2024_11am.zip")
+	(cd checkpoints/Sign_LLaVA && unzip test_ckpt_July_26_2024_11am.zip)
+	mv checkpoints/Sign_LLaVA/test_ckpt_July_26_2024_11am/* checkpoints/Sign_LLaVA/
 
 test-all-models:
 	@echo "TESTING FFMPEG..."

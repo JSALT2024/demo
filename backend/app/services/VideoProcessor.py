@@ -138,7 +138,7 @@ class VideoProcessor:
     def slice_into_clips(self):
         # This can later be replaced by a slicer that separates utterances
         # properly. This is just a minimal implementation to get things going.
-        clip_length_seconds=2.0 # TODO: increase to more seconds later!
+        clip_length_seconds=5.0
         self.logger.info(
             f"Slicing the video into {clip_length_seconds} second clips..."
         )
