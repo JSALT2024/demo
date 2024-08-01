@@ -20,8 +20,10 @@ export function useKeyboardShortcuts(props: KeyboardShortcutsProps) {
       }
       if (e.target instanceof HTMLTextAreaElement) return;
 
+      const noModifiersPresent = !e.ctrlKey && !e.altKey && !e.shiftKey;
+
       // spacebar plays/pauses the video
-      if (e.key === " ") {
+      if (e.key === " " && noModifiersPresent) {
         if (controller.isPlaying) {
           controller.pause();
         } else {
@@ -31,43 +33,43 @@ export function useKeyboardShortcuts(props: KeyboardShortcutsProps) {
       }
 
       // seek one frame forward
-      if (e.key === "ArrowRight") {
+      if (e.key === "ArrowRight" && noModifiersPresent) {
         controller.seekToFrame(controller.currentFrameIndexRef.current + 1);
         e.preventDefault();
       }
 
       // seek one frame backward
-      if (e.key === "ArrowLeft") {
+      if (e.key === "ArrowLeft" && noModifiersPresent) {
         controller.seekToFrame(controller.currentFrameIndexRef.current - 1);
         e.preventDefault();
       }
 
       // toggle looping
-      if (e.key.toUpperCase() === "L") {
+      if (e.key.toUpperCase() === "L" && noModifiersPresent) {
         controller.setIsLooping(!controller.isLooping);
         e.preventDefault();
       }
 
       // set playback speed to 1x
-      if (e.key.toUpperCase() === "Q") {
+      if (e.key.toUpperCase() === "Q" && noModifiersPresent) {
         controller.setPlaybackSlowdown(1);
         e.preventDefault();
       }
 
       // set playback speed to 1/2x
-      if (e.key.toUpperCase() === "W") {
+      if (e.key.toUpperCase() === "W" && noModifiersPresent) {
         controller.setPlaybackSlowdown(2);
         e.preventDefault();
       }
 
       // set playback speed to 1/4x
-      if (e.key.toUpperCase() === "E") {
+      if (e.key.toUpperCase() === "E" && noModifiersPresent) {
         controller.setPlaybackSlowdown(4);
         e.preventDefault();
       }
 
       // picture in picture
-      if (e.key.toUpperCase() === "P") {
+      if (e.key.toUpperCase() === "P" && noModifiersPresent) {
         controller.requestPictureInPicture();
         e.preventDefault();
       }
