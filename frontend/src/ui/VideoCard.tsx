@@ -3,25 +3,11 @@ import { BackendApi } from "../api/BackendApi";
 import { Video } from "../api/model/Video";
 import { Link as RouterLink } from "react-router-dom";
 import { SxProps } from "@mui/material";
+import { formatDuration } from "./formatDuration";
 
 export interface VideoCardProps {
   readonly video: Video;
   readonly sx?: SxProps;
-}
-
-function zpad(value: number, digits: number): string {
-  let text = String(value);
-  while (text.length < digits) {
-    text = "0" + text;
-  }
-  return text;
-}
-
-function formatDuration(seconds?: number): string {
-  if (seconds === undefined) return "unknown";
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = Math.floor(seconds - minutes * 60);
-  return zpad(minutes, 2) + ":" + zpad(remainingSeconds, 2);
 }
 
 export function VideoCard(props: VideoCardProps) {

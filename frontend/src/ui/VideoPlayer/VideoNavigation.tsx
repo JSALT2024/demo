@@ -1,4 +1,10 @@
-import { Box, Button, IconButton, ToggleButtonGroup } from "@mui/joy";
+import {
+  Box,
+  Button,
+  IconButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/joy";
 import { useRef, ChangeEvent } from "react";
 import {
   VideoPlayerController,
@@ -10,6 +16,7 @@ import AllInclusiveIcon from "@mui/icons-material/AllInclusive";
 import * as styles from "./VideoNavigation.module.scss";
 import { ClipsCollection } from "../../api/model/ClipsCollection";
 import LaunchIcon from "@mui/icons-material/Launch";
+import { formatDuration } from "../formatDuration";
 
 export interface VideoNavigationProps {
   readonly videoPlayerController: VideoPlayerController;
@@ -19,6 +26,7 @@ export interface VideoNavigationProps {
 export function VideoNavigation(props: VideoNavigationProps) {
   const sliderElementRef = useRef<HTMLInputElement | null>(null);
   const progessElementRef = useRef<HTMLElement | null>(null);
+  const timeElementRef = useRef<HTMLElement | null>(null);
 
   const playbackSlowdown = props.videoPlayerController.playbackSlowdown;
   const setPlaybackSlowdown = props.videoPlayerController.setPlaybackSlowdown;
@@ -34,11 +42,21 @@ export function VideoNavigation(props: VideoNavigationProps) {
   }
 
   function updateNavigationPosition(frameIndex: number) {
-    if (sliderElementRef.current === null) return;
-    if (progessElementRef.current === null) return;
+    if (sliderElementRef.current !== null) {
+      sliderElementRef.current.value = String(frameIndex);
+    }
 
-    sliderElementRef.current.value = String(frameIndex);
-    progessElementRef.current.style.width = frameToCssPercentage(frameIndex);
+    if (progessElementRef.current !== null) {
+      progessElementRef.current.style.width = frameToCssPercentage(frameIndex);
+    }
+
+    if (timeElementRef.current !== null) {
+      const timeRatio =
+        frameIndex / (props.videoPlayerController.videoFile.frame_count - 1);
+      const second =
+        props.videoPlayerController.videoFile.duration_seconds * timeRatio;
+      timeElementRef.current.innerText = formatDuration(second);
+    }
   }
 
   useFrameChangeEvent(props.videoPlayerController, (e) =>
@@ -75,6 +93,11 @@ export function VideoNavigation(props: VideoNavigationProps) {
           <PlayArrowIcon />
         )}
       </IconButton>
+
+      {/* Current time label */}
+      <Typography ref={timeElementRef} level="body-xs" sx={{ marginRight: 1 }}>
+        00:00
+      </Typography>
 
       {/* Time navigation slider */}
       <Box sx={{ flexGrow: 1, display: "flex", position: "relative" }}>
