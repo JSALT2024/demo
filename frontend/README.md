@@ -2,12 +2,12 @@
 
 This folder contains the demo frontend (built on React) which provides the user interface for the whole system and communicates with the backend server through an HTTP API.
 
-> **Note:** If you've never seen the Node.js ecosystem, sroll down to the last section where I've put a quick explanation with references to analogous systems in the Python ecosystem.
+> **Note:** If you've never seen the Node.js ecosystem, scroll down to the last section where I've put a quick explanation with references to analogous systems in the Python ecosystem.
 
 
 ## After cloning
 
-You need to have [node.js](https://nodejs.org/) intalled. I recommend the [Node version manager](https://github.com/nvm-sh/nvm) tool. You can install the latest node version, but it works for me with `14.17.2`. If the project won't compile due to some strange internal exception, try upgrading node.
+You need to have [node.js](https://nodejs.org/) intalled. I recommend the [Node version manager](https://github.com/nvm-sh/nvm) tool. You can install the latest node version, but it works for me with `20.12.2`. If the project won't compile due to some strange internal exception, try upgrading node.
 
 After cloning the repository:
 
