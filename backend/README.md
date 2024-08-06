@@ -1,4 +1,4 @@
-# SignLLM Demo Backend
+# SignLLaVA Demo Backend
 
 This folder contains the python backend server (built on FastAPI) which launches all the machine learning models (e.g. MAE, DINO, LLaVA) used in the ASL translation pipeline.
 
