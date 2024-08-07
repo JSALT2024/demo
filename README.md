@@ -53,6 +53,11 @@ Second, install the frontend, for which the instructions are again present in [t
 The frontend communicates with the backend through your browser only. If you see a `Failed to fetch` error on the frontend page, there are some issues accessing the backend. Check that you can access the backend yourself directly and that the frontend is accessing the proper backend address and port (possibly fix that in the frontend config).
 
 
-## How to develop
+## Documentation pages
 
-For that, see the [How to develop](docs/how-to-develop.md) documentation page.
+- [Installing on Rockfish and your laptop](docs/installing-on-rockfish-and-your-laptop.md)
+- [How to develop](docs/how-to-develop.md)
+- [Architecture](docs/architecture.md)
+- [Dataflow](docs/dataflow.md)
+- [Hardware requirements](docs/hardware-requirements.md)
+- [Testing custom SignLLaVA checkpoint](docs/testing-custom-signllava-checkpoint.md)
