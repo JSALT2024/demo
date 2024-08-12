@@ -5,8 +5,8 @@
 .PHONY: install-requirements start start-production
 
 install-requirements:
-	.venv/bin/pip3 install --upgrade pip
-	.venv/bin/pip3 install -r requirements.txt
+	.venv/bin/python3 -m pip install --upgrade pip
+	.venv/bin/python3 -m pip install -r requirements.txt
 
 start:
 	.venv/bin/python3 -m uvicorn app.api.main:app --port 1817 --reload
